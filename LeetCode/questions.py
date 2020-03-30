@@ -1843,75 +1843,1628 @@ class Solution:
         # time O(m * n)
         # space O(m * n)
 
+
 # -----------------------------------------------------------------------
+"""
+11. Container With Most Water
+
+Given n non-negative integers a1, a2, ..., an , where each represents a point at
+coordinate (i, ai). n vertical lines are drawn such that the two endpoints of line i is at (i, ai) and (i, 0). 
+Find two lines, which together with x-axis forms a container, such that the container contains the most water.
+
+Note: You may not slant the container and n is at least 2.
+
+Example:
+
+Input: [1,8,6,2,5,4,8,3,7]
+Output: 49
+
+"""
+
+
+class Solution:
+    def maxArea(self, height):
+        maxArea = 0
+        left, right = 0, len(height) - 1
+
+        while left < right:
+            h = min(height[left], height[right])
+
+            currArea = h * (right - left)
+
+            if currArea > maxArea:
+                maxArea = currArea
+
+            if height[left] < height[right]:
+                left += 1
+            else:
+                right -= 1
+
+        return maxArea
+
+        # time O(n)
+        # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+36. Valid Sudoku
+
+Determine if a 9x9 Sudoku board is valid. Only the filled cells need to be validated according to the following rules:
+
+Each row must contain the digits 1-9 without repetition.
+Each column must contain the digits 1-9 without repetition.
+Each of the 9 3x3 sub-boxes of the grid must contain the digits 1-9 without repetition.
+
+The Sudoku board could be partially filled, where empty cells are filled with the character '.'.
+Example 1:
+
+Input:
+[
+  ["5","3",".",".","7",".",".",".","."],
+  ["6",".",".","1","9","5",".",".","."],
+  [".","9","8",".",".",".",".","6","."],
+  ["8",".",".",".","6",".",".",".","3"],
+  ["4",".",".","8",".","3",".",".","1"],
+  ["7",".",".",".","2",".",".",".","6"],
+  [".","6",".",".",".",".","2","8","."],
+  [".",".",".","4","1","9",".",".","5"],
+  [".",".",".",".","8",".",".","7","9"]
+]
+Output: true
+
+"""
+
+
+class Solution:
+    def isValidSudoku(self, board):
+        rows = {}
+        cols = {}
+
+        for row in range(len(board)):
+            for col in range(len(board[0])):
+                currNum = board[row][col]
+
+                if currNum == '.':
+                    continue
+
+                if currNum < '1' or currNum > '9':
+                    return False
+
+                if not self.checkIfExist(currNum, row, rows):
+                    return False
+
+                if not self.checkIfExist(currNum, col, cols):
+                    return False
+
+            if (row + 1) % 3 == 0:
+                if not self.checkSquares(row - 2, row, board):
+                    return False
+
+        return True
+
+        # time O(n^2)
+        # space O(n^2)
+
+    def checkSquares(self, f, t, board):
+
+        for squareNum in range(3):
+            currNums = []
+            for row in range(f, t + 1):
+                for col in range(squareNum * 3, (squareNum * 3) + 3):
+                    if board[row][col] == '.':
+                        continue
+                    if board[row][col] in currNums:
+                        return False
+                    currNums.append(board[row][col])
+        return True
+
+    def checkIfExist(self, num, idx, hashMap):
+        if not idx in hashMap:
+            hashMap[idx] = [num]
+        else:
+            if num in hashMap[idx]:
+                return False
+            else:
+                hashMap[idx].append(num)
+
+        return True
+
+
+# -----------------------------------------------------------------------
+"""
+105. Construct Binary Tree from Preorder and Inorder Traversal
+
+Given preorder and inorder traversal of a tree, construct the binary tree.
+
+Note:
+You may assume that duplicates do not exist in the tree.
+
+For example, given
+
+preorder = [3,9,20,15,7]
+inorder = [9,3,15,20,7]
+Return the following binary tree:
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def buildTree(self, preorder, inorder):
+
+        if not preorder or not inorder:
+            return None
+
+        rootData = preorder[0]
+        rootIdx = self.getRootIdx(inorder, rootData)
+        node = TreeNode(rootData)
+
+        node.left = self.buildTree(preorder[1: rootIdx + 1], inorder[: rootIdx])
+        node.right = self.buildTree(preorder[rootIdx + 1:], inorder[rootIdx + 1:])
+
+        return node
+
+        # time O(n)
+        # space O(n)
+
+    def getRootIdx(self, inOrder, rootData):
+        for i in range(len(inOrder)):
+            if inOrder[i] == rootData:
+                return i
+
+        return -1
+
+
+# -----------------------------------------------------------------------
+"""
+103. Binary Tree Zigzag Level Order Traversal
+
+Given a binary tree, return the zigzag level order traversal of its nodes' values. (ie, from left to right, then right to left for the next level and alternate between).
+
+For example:
+Given binary tree [3,9,20,null,null,15,7],
+    3
+   / \
+  9  20
+    /  \
+   15   7
+return its zigzag level order traversal as:
+[
+  [3],
+  [20,9],
+  [15,7]
+]
+
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def zigzagLevelOrder(self, root):
+
+        if not root:
+            return
+
+        q = [root]
+        zigZag = False
+        res = []
+        while len(q) > 0:
+            length = len(q)
+            res.append(self.getLevel(q, zigZag))
+            if zigZag:
+                zigZag = False
+            else:
+                zigZag = True
+
+            while length > 0:
+                curr = q.pop(0)
+                if curr.left:
+                    q.append(curr.left)
+                if curr.right:
+                    q.append(curr.right)
+
+                length -= 1
+
+        return res
+
+        # time O(n)
+        # space O(n)
+
+    def getLevel(self, q, flag):
+        currList = [q[i].val for i in range(len(q))]
+        if flag:
+            currList.reverse()
+        return currList
+
+
+# -----------------------------------------------------------------------
+"""
+380. Insert Delete GetRandom O(1)
+
+Design a data structure that supports all following operations in average O(1) time.
+
+insert(val): Inserts an item val to the set if not already present.
+remove(val): Removes an item val from the set if present.
+getRandom(): Returns a random element from current set of elements. Each element must have the same probability of being returned.
+Example:
+
+// Init an empty set.
+RandomizedSet randomSet = new RandomizedSet();
+
+// Inserts 1 to the set. Returns true as 1 was inserted successfully.
+randomSet.insert(1);
+
+// Returns false as 2 does not exist in the set.
+randomSet.remove(2);
+
+// Inserts 2 to the set, returns true. Set now contains [1,2].
+randomSet.insert(2);
+
+// getRandom should return either 1 or 2 randomly.
+randomSet.getRandom();
+
+// Removes 1 from the set, returns true. Set now contains [2].
+randomSet.remove(1);
+
+// 2 was already in the set, so return false.
+randomSet.insert(2);
+
+// Since 2 is the only number in the set, getRandom always return 2.
+randomSet.getRandom();
+"""
+
+
+class RandomizedSet:
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.map = {}
+        self.array = []
+
+    def insert(self, val: int) -> bool:
+        """
+        Inserts a value to the set. Returns true if the set did not already contain the specified element.
+        """
+        if val in self.map:
+            return False
+
+        self.array.append(val)
+        self.map[val] = len(self.array) - 1
+
+        return True
+
+    def remove(self, val: int) -> bool:
+        """
+        Removes a value from the set. Returns true if the set contained the specified element.
+        """
+        if val not in self.map:
+            return False
+
+        if len(self.array) == 1:
+            self.array = []
+            self.map = {}
+            return True
+
+        currIdx = self.map[val]
+        if currIdx == len(self.array) - 1:
+            self.array.pop()
+            del self.map[val]
+            return True
+
+        lastVal = self.array[len(self.array) - 1]
+        self.array[currIdx] = lastVal
+        self.array.pop()
+        del self.map[val]
+        self.map[lastVal] = currIdx
+        return True
+
+    def getRandom(self) -> int:
+        """
+        Get a random element from the set.
+        """
+
+        idx = random.randrange(0, len(self.array))
+
+        return self.array[idx]
+
+
+# Your RandomizedSet object will be instantiated and called as such:
+# obj = RandomizedSet()
+# param_1 = obj.insert(val)
+# param_2 = obj.remove(val)
+# param_3 = obj.getRandom()
+
+
+# -----------------------------------------------------------------------
+"""
+617. Merge Two Binary Trees
+
+Given two binary trees and imagine that when you put one of them to cover the other, some nodes of the two trees are overlapped while the others are not.
+
+You need to merge them into a new binary tree. The merge rule is that if two nodes overlap, then sum node values up as the new value of the merged node. Otherwise, the NOT null node will be used as the node of new tree.
+
+Example 1:
+
+Input: 
+	Tree 1                     Tree 2                  
+          1                         2                             
+         / \                       / \                            
+        3   2                     1   3                        
+       /                           \   \                      
+      5                             4   7                  
+Output: 
+Merged tree:
+	     3
+	    / \
+	   4   5
+	  / \   \ 
+	 5   4   7
+
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def mergeTrees(self, t1, t2):
+        if not t1 and not t2:
+            return None
+
+        if not t1:
+            return t2
+
+        if not t2:
+            return t1
+
+        currNode = TreeNode(t1.val + t2.val)
+
+        currNode.left = self.mergeTrees(t1.left, t2.left)
+        currNode.right = self.mergeTrees(t1.right, t2.right)
+
+        return currNode
+
+        # time O(n + m)
+        # space O(n + m)
+
+
+# -----------------------------------------------------------------------
+"""
+942. DI String Match
+
+Given a string S that only contains "I" (increase) or "D" (decrease), let N = S.length.
+
+Return any permutation A of [0, 1, ..., N] such that for all i = 0, ..., N-1:
+
+If S[i] == "I", then A[i] < A[i+1]
+If S[i] == "D", then A[i] > A[i+1]
+ 
+
+Example 1:
+
+Input: "IDID"
+Output: [0,4,1,3,2]
+Example 2:
+
+Input: "III"
+Output: [0,1,2,3]
+Example 3:
+
+Input: "DDI"
+Output: [3,2,0,1]
+
+"""
+
+
+class Solution:
+    def diStringMatch(self, S):
+        res = [0] * (len(S) + 1)
+        left, right = 0, len(S)
+
+        for i in range(len(S)):
+            if S[i] == 'I':
+                res[i] = left
+                left += 1
+            else:
+                res[i] = right
+                right -= 1
+
+        res[len(res) - 1] = left
+
+        return res
+
+        # time O(n)
+        # space O(n)
+
+
+# -----------------------------------------------------------------------
+"""
+461. Hamming Distance
+
+The Hamming distance between two integers is the number of positions at which the corresponding bits are different.
+
+Given two integers x and y, calculate the Hamming distance.
+
+Note:
+0 ≤ x, y < 231.
+
+Example:
+
+Input: x = 1, y = 4
+
+Output: 2
+
+Explanation:
+1   (0 0 0 1)
+4   (0 1 0 0)
+       ↑   ↑
+
+The above arrows point to positions where the corresponding bits are different.
+"""
+
+
+class Solution:
+    def hammingDistance(self, x, y):
+
+        res = x ^ y
+        count = 0
+        while res > 0:
+            if res & 1 != 0:
+                count += 1
+            res >>= 1
+
+        return count
+
+        # time O(log(n) + log(m))
+        # space O(log(n) + log(m))
+
+
+# -----------------------------------------------------------------------
+"""
+1207. Unique Number of Occurrences
+
+Given an array of integers arr, write a function that returns true if and only if the number of occurrences of each value in the array is unique.
+
+ 
+
+Example 1:
+
+Input: arr = [1,2,2,1,1,3]
+Output: true
+Explanation: The value 1 has 3 occurrences, 2 has 2 and 3 has 1. No two values have the same number of occurrences.
+Example 2:
+
+Input: arr = [1,2]
+Output: false
+Example 3:
+
+Input: arr = [-3,0,1,-3,1,1,1,-3,10,0]
+Output: true
+
+"""
+
+
+class Solution:
+    def uniqueOccurrences(self, arr):
+        counter = collections.Counter(arr)
+
+        seen = set()
+
+        for num in counter:
+            if counter[num] in seen:
+                return False
+            seen.add(counter[num])
+
+        return True
+
+        # time O(n)
+        # space O(n)
+
+
+# -----------------------------------------------------------------------
+"""
+1385. Find the Distance Value Between Two Arrays
+
+Given two integer arrays arr1 and arr2, and the integer d, return the distance value between the two arrays.
+
+The distance value is defined as the number of elements arr1[i] such that there is not any element arr2[j] where |arr1[i]-arr2[j]| <= d.
+
+ 
+
+Example 1:
+
+Input: arr1 = [4,5,8], arr2 = [10,9,1,8], d = 2
+Output: 2
+Explanation: 
+For arr1[0]=4 we have: 
+|4-10|=6 > d=2 
+|4-9|=5 > d=2 
+|4-1|=3 > d=2 
+|4-8|=4 > d=2 
+For arr1[1]=5 we have: 
+|5-10|=5 > d=2 
+|5-9|=4 > d=2 
+|5-1|=4 > d=2 
+|5-8|=3 > d=2
+For arr1[2]=8 we have:
+|8-10|=2 <= d=2
+|8-9|=1 <= d=2
+|8-1|=7 > d=2
+|8-8|=0 <= d=2
+
+"""
+
+
+class Solution:
+    def findTheDistanceValue(self, arr1, arr2, d):
+        counter = 0
+
+        for a in arr1:
+            flag = True
+            for b in arr2:
+                if abs(a - b) <= d:
+                    flag = False
+                    break
+
+            if flag:
+                counter += 1
+
+        return counter
+
+        # time O(n*m)
+        # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+852. Peak Index in a Mountain Array
+
+Let's call an array A a mountain if the following properties hold:
+
+A.length >= 3
+There exists some 0 < i < A.length - 1 such that A[0] < A[1] < ... A[i-1] < A[i] > A[i+1] > ... > A[A.length - 1]
+Given an array that is definitely a mountain, return any i such that A[0] < A[1] < ... A[i-1] < A[i] > A[i+1] > ... > A[A.length - 1].
+
+Example 1:
+
+Input: [0,1,0]
+Output: 1
+
+"""
+
+
+class Solution:
+    def peakIndexInMountainArray(self, A):
+        if len(A) < 3:
+            return -1
+
+        maxNum = max(A)
+
+        for i in range(1, len(A) - 1):
+            if A[i] == maxNum:
+                return i
+
+        return -1
+
+        # time O(n)
+        # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+590. N-ary Tree Postorder Traversal
+
+Given an n-ary tree, return the postorder traversal of its nodes' values.
+
+Nary-Tree input serialization is represented in their level order traversal, each group of children is separated by the null value (See examples).
+
+ 
+
+Follow up:
+
+Recursive solution is trivial, could you do it iteratively?
+
+ 
+
+Example 1:
+
+Input: root = [1,null,3,2,4,null,5,6]
+Output: [5,6,3,2,4,1]
 """
 
 """
-# -----------------------------------------------------------------------
+# Definition for a Node.
+class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children
+"""
+
+
+class Solution:
+    def postorder(self, root):
+
+        if not root:
+            return []
+        res = []
+        for c in root.children:
+            res += self.postorder(c)
+
+        res += [root.val]
+
+        return res
+
+        # time O(n)
+        # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+589. N-ary Tree Preorder Traversal
+
+Given an n-ary tree, return the preorder traversal of its nodes' values.
+
+Nary-Tree input serialization is represented in their level order traversal, each group of children is separated by the null value (See examples).
+
+ 
+
+Follow up:
+
+Recursive solution is trivial, could you do it iteratively?
+
+ 
+
+Example 1:
+
+Input: root = [1,null,3,2,4,null,5,6]
+Output: [1,3,5,6,2,4]
+
+"""
+
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children
+"""
+
+
+class Solution:
+    def preorder(self, root):
+        if not root:
+            return []
+
+        res = [root.val]
+
+        for c in root.children:
+            res += self.preorder(c)
+
+        return res
+
+        # time O(n)
+        # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+1342. Number of Steps to Reduce a Number to Zero
+
+Given a non-negative integer num, return the number of steps to reduce it to zero. If the current number is even, you have to divide it by 2, otherwise, you have to subtract 1 from it.
+
+ 
+
+Example 1:
+
+Input: num = 14
+Output: 6
+Explanation: 
+Step 1) 14 is even; divide by 2 and obtain 7. 
+Step 2) 7 is odd; subtract 1 and obtain 6.
+Step 3) 6 is even; divide by 2 and obtain 3. 
+Step 4) 3 is odd; subtract 1 and obtain 2. 
+Step 5) 2 is even; divide by 2 and obtain 1. 
+Step 6) 1 is odd; subtract 1 and obtain 0.
+
+"""
+
+
+class Solution:
+    def numberOfSteps(self, num):
+
+        counter = 0
+        while num > 0:
+            if num % 2 == 0:
+                num //= 2
+            else:
+                num -= 1
+
+            counter += 1
+
+        return counter
+
+        # time O(log(n))
+        # space O(1)
+
 
 # -----------------------------------------------------------------------
+"""
+1365. How Many Numbers Are Smaller Than the Current Number
+
+Given the array nums, for each nums[i] find out how many numbers in the array 
+are smaller than it. That is, for each nums[i] you have to count the number of valid j's such that 
+j != i and nums[j] < nums[i].
+
+Return the answer in an array.
+"""
+
+
+class Solution:
+    def smallerNumbersThanCurrent(self, nums):
+        res = []
+        for i in range(len(nums)):
+            counter = 0
+            for j in range(len(nums)):
+                if i != j:
+                    if nums[j] < nums[i]:
+                        counter += 1
+            res.append(counter)
+
+        return res
+
 
 # -----------------------------------------------------------------------
+"""
+1313. Decompress Run-Length Encoded List
+
+We are given a list nums of integers representing a list compressed with run-length encoding.
+
+Consider each adjacent pair of elements [freq, val] = [nums[2*i], nums[2*i+1]] (with i >= 0).  
+For each such pair, there are freq elements with value val concatenated in a sublist. Concatenate all the 
+sublists from left to right to generate the decompressed list.
+
+Return the decompressed list.
+"""
+
+
+class Solution:
+    def decompressRLElist(self, nums):
+        res = []
+
+        for i in range(0, len(nums) - 1, 2):
+            freq = nums[i]
+            val = nums[i + 1]
+            res.extend([val] * freq)
+
+        return res
+
 
 # -----------------------------------------------------------------------
+"""
+1295. Find Numbers with Even Number of Digits
+
+Given an array nums of integers, return how many of them contain an even number of digits.
+ 
+
+Example 1:
+
+Input: nums = [12,345,2,6,7896]
+Output: 2
+Explanation: 
+12 contains 2 digits (even number of digits). 
+345 contains 3 digits (odd number of digits). 
+2 contains 1 digit (odd number of digits). 
+6 contains 1 digit (odd number of digits). 
+7896 contains 4 digits (even number of digits). 
+Therefore only 12 and 7896 contain an even number of digits.
+
+"""
+
+
+class Solution:
+    def findNumbers(self, nums: List[int]) -> int:
+        counter = 0
+
+        for num in nums:
+            if self.countDigits(num) % 2 == 0:
+                counter += 1
+
+        return counter
+
+        # time O(n * log(m)) -> m num of digits of the largest number
+        # space O(1)
+
+    def countDigits(self, num):
+        counter = 0
+        while num > 0:
+            counter += 1
+            num //= 10
+
+        return counter
+
 
 # -----------------------------------------------------------------------
+"""
+1281. Subtract the Product and Sum of Digits of an Integer
+
+Given an integer number n, return the difference between the product of its digits and the sum of its digits.
+ 
+
+Example 1:
+
+Input: n = 234
+Output: 15 
+Explanation: 
+Product of digits = 2 * 3 * 4 = 24 
+Sum of digits = 2 + 3 + 4 = 9 
+Result = 24 - 9 = 15
+"""
+
+
+class Solution:
+    def subtractProductAndSum(self, n):
+
+        digits = self.getDigits(n)
+        Sum = sum(digits)
+        prod = 1
+        for d in digits:
+            prod *= d
+
+        return prod - Sum
+
+        # time O(log(n))
+        # space O(log(n))
+
+    def getDigits(self, n):
+        res = []
+
+        while n > 0:
+            res.append(n % 10)
+            n //= 10
+
+        return res
+
 
 # -----------------------------------------------------------------------
+"""
+1002. Find Common Characters
+
+Given an array A of strings made only from lowercase letters, return a list of all characters that show up in all strings within the list (including duplicates).  For example, if a character occurs 3 times in all strings but not 4 times, you need to include that character three times in the final answer.
+
+You may return the answer in any order.
+
+ 
+
+Example 1:
+
+Input: ["bella","label","roller"]
+Output: ["e","l","l"]
+
+"""
+
+
+class Solution:
+    def commonChars(self, A):
+        counter = []
+
+        for s in A:
+            counter.append(collections.Counter(s))
+
+        res = counter[0]
+
+        for currCount in counter:
+            deleted = []
+            for char in res:
+                if char not in currCount:
+                    deleted.append(char)
+                else:
+                    res[char] = min(res[char], currCount[char])
+
+            for char in deleted:
+                del res[char]
+
+        ans = []
+
+        for char in res:
+            ans.extend([char] * res[char])
+
+        return ans
+
+        # time O(n * l) -> l the length of largest string
+        # space O(n * l)
+
 
 # -----------------------------------------------------------------------
+"""
+1021. Remove Outermost Parentheses
+
+A valid parentheses string is either empty (""), "(" + A + ")", or A + B, where A and B are valid parentheses strings, and + represents string concatenation.  For example, "", "()", "(())()", and "(()(()))" are all valid parentheses strings.
+
+A valid parentheses string S is primitive if it is nonempty, and there does not exist a way to split it into S = A+B, with A and B nonempty valid parentheses strings.
+
+Given a valid parentheses string S, consider its primitive decomposition: S = P_1 + P_2 + ... + P_k, where P_i are primitive valid parentheses strings.
+
+Return S after removing the outermost parentheses of every primitive string in the primitive decomposition of S.
+
+ 
+
+Example 1:
+
+Input: "(()())(())"
+Output: "()()()"
+Explanation: 
+The input string is "(()())(())", with primitive decomposition "(()())" + "(())".
+After removing outer parentheses of each part, this is "()()" + "()" = "()()()".
+"""
+
+
+class Solution:
+    def removeOuterParentheses(self, S: str) -> str:
+        premitive = []
+
+        currCounter = 0
+        curr = ''
+        for c in S:
+            if c == '(':
+                currCounter += 1
+                curr += c
+            else:
+                currCounter -= 1
+                curr += c
+
+            if currCounter == 0:
+                premitive.append(curr)
+                curr = ''
+
+        res = ''
+        for val in premitive:
+            for i in range(1, len(val) - 1):
+                res += val[i]
+
+        return res
+
+        # time O(n)
+        # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+1108. Defanging an IP Address
+
+Given a valid (IPv4) IP address, return a defanged version of that IP address.
+
+A defanged IP address replaces every period "." with "[.]".
+
+Example 1:
+
+Input: address = "1.1.1.1"
+Output: "1[.]1[.]1[.]1"
+"""
+
+
+class Solution:
+    def defangIPaddr(self, address):
+        res = []
+        for i in range(len(address)):
+            if address[i] == '.':
+                res.append('[.]')
+            else:
+                res.append(address[i])
+        return ''.join(res)
+
+        # time O(n)
+        # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+1389. Create Target Array in the Given Order
+
+Given two arrays of integers nums and index. Your task is to create target array under the following rules:
+
+Initially target array is empty.
+From left to right read nums[i] and index[i], insert at index index[i] the value nums[i] in target array.
+Repeat the previous step until there are no elements to read in nums and index.
+Return the target array.
+
+It is guaranteed that the insertion operations will be valid.
+
+ 
+
+Example 1:
+
+Input: nums = [0,1,2,3,4], index = [0,1,2,2,1]
+Output: [0,4,1,3,2]
+Explanation:
+nums       index     target
+0            0        [0]
+1            1        [0,1]
+2            2        [0,1,2]
+3            2        [0,1,3,2]
+4            1        [0,4,1,3,2]
+
+"""
+
+
+class Solution:
+    def createTargetArray(self, nums, index):
+        target = []
+
+        i = 0
+
+        while i < len(nums) and i < len(index):
+            idx = index[i]
+            val = nums[i]
+            target.insert(idx, val)
+            i += 1
+
+        return target
+
+        # time O(n^2)
+        # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+1221. Split a String in Balanced Strings
+
+Balanced strings are those who have equal quantity of 'L' and 'R' characters.
+
+Given a balanced string s split it in the maximum amount of balanced strings.
+
+Return the maximum amount of splitted balanced strings.
+
+ 
+
+Example 1:
+
+Input: s = "RLRRLLRLRL"
+Output: 4
+Explanation: s can be split into "RL", "RRLL", "RL", "RL", each substring contains same number of 'L' and 'R'.
+
+"""
+
+
+class Solution:
+    def balancedStringSplit(self, s):
+
+        res, counter, curr = 0, 0, 0
+
+        while curr < len(s):
+            if s[curr] == 'L':
+                counter += 1
+            else:
+                counter -= 1
+
+            if counter == 0:
+                res += 1
+
+            curr += 1
+
+        return res
+
+        # time O(n)
+        # space O(1)
+
 
 # -----------------------------------------------------------------------
+"""
+1290. Convert Binary Number in a Linked List to Integer
+
+Given head which is a reference node to a singly-linked list. The value of each node in the linked list is either 0 or 1.
+The linked list holds the binary representation of a number.
+
+Return the decimal value of the number in the linked list.
+
+ 
+
+Example 1:
+
+
+Input: head = [1,0,1]
+Output: 5
+Explanation: (101) in base 2 = (5) in base 10
+"""
+
 
 # -----------------------------------------------------------------------
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def getDecimalValue(self, head):
+
+        power, res, curr = 0, 0, head
+
+        while curr:
+            curr = curr.next
+            power += 1
+
+        power -= 1
+        curr = head
+
+        while curr:
+            res += curr.val * pow(2, power)
+            power -= 1
+            curr = curr.next
+
+        return res
+
+        # time O(n)
+        # space O(1)
+
 
 # -----------------------------------------------------------------------
+"""
+1266. Minimum Time Visiting All Points
+
+On a plane there are n points with integer coordinates points[i] = [xi, yi]. Your task is to find the minimum time
+in seconds to visit all points.
+
+You can move according to the next rules:
+
+In one second always you can either move vertically, horizontally by one unit or diagonally 
+(it means to move one unit vertically and one unit horizontally in one second).
+You have to visit the points in the same order as they appear in the array.
+ 
+
+Example 1:
+
+
+Input: points = [[1,1],[3,4],[-1,0]]
+Output: 7
+Explanation: One optimal path is [1,1] -> [2,2] -> [3,3] -> [3,4] -> [2,3] -> [1,2] -> [0,1] -> [-1,0]   
+Time from [1,1] to [3,4] = 3 seconds 
+Time from [3,4] to [-1,0] = 4 seconds
+Total time = 7 seconds
+"""
+
+
+class Solution:
+    def minTimeToVisitAllPoints(self, points):
+        minTime = 0
+
+        for i in range(1, len(points)):
+            dx = abs(points[i][0] - points[i - 1][0])
+            dy = abs(points[i][1] - points[i - 1][1])
+            minTime += max(dx, dy)
+
+        return minTime
+
+        # time O(n)
+        # space O(1)
+
 
 # -----------------------------------------------------------------------
+"""
+1299. Replace Elements with Greatest Element on Right Side
+
+Given an array arr, replace every element in that array with the greatest element among the 
+elements to its right, and replace the last element with -1.
+
+After doing so, return the array.
+
+ 
+
+Example 1:
+
+Input: arr = [17,18,5,4,6,1]
+Output: [18,6,6,6,1,-1]
+"""
+
+
+class Solution:
+    def replaceElements(self, arr):
+
+        maxNum = arr[len(arr) - 1]
+        arr[len(arr) - 1] = -1
+        for i in range(len(arr) - 2, -1, -1):
+            currNum = arr[i]
+            arr[i] = maxNum
+            if currNum > maxNum:
+                maxNum = currNum
+
+        return arr
+
+        # time O(n)
+        # space O(1)
+
 
 # -----------------------------------------------------------------------
+"""
+1323. Maximum 69 Number
+
+Given a positive integer num consisting only of digits 6 and 9.
+
+Return the maximum number you can get by changing at most one digit (6 becomes 9, and 9 becomes 6).
+
+ 
+
+Example 1:
+
+Input: num = 9669
+Output: 9969
+Explanation: 
+Changing the first digit results in 6669.
+Changing the second digit results in 9969.
+Changing the third digit results in 9699.
+Changing the fourth digit results in 9666. 
+The maximum number is 9969.
+Example 2:
+
+Input: num = 9996
+Output: 9999
+Explanation: Changing the last digit 6 to 9 results in the maximum number.
+
+"""
+
+
+class Solution:
+    def maximum69Number(self, num):
+
+        digits = self.getDigits(num)
+
+        flag = False
+        res = 0
+
+        for i in range(len(digits) - 1, -1, -1):
+            if digits[i] == 6 and not flag:
+                digits[i] = 9
+                flag = True
+
+            res = res * 10 + digits[i]
+
+        return res
+
+        # time O(log(n))
+        # space O(log(n))
+
+    def getDigits(self, num):
+
+        digits = []
+
+        while num > 0:
+            digits.append(num % 10)
+            num //= 10
+
+        return digits
+
 
 # -----------------------------------------------------------------------
+"""
+1351. Count Negative Numbers in a Sorted Matrix
+
+Given a m * n matrix grid which is sorted in non-increasing order both row-wise and column-wise. 
+
+Return the number of negative numbers in grid.
+
+ 
+
+Example 1:
+
+Input: grid = [[4,3,2,-1],[3,2,1,-1],[1,1,-1,-2],[-1,-1,-2,-3]]
+Output: 8
+Explanation: There are 8 negatives number in the matrix.
+
+Example 2:
+
+Input: grid = [[3,2],[1,0]]
+Output: 0
+"""
+
+
+class Solution:
+    def countNegatives(self, grid):
+
+        res = 0
+        for row in grid:
+            res += self.countNegs(row)
+
+        return res
+
+        # time O(m * log(n))
+        # space O(1)
+
+    def countNegs(self, arr):
+        start, end = 0, len(arr) - 1
+
+        if arr[end] >= 0:
+            return 0
+
+        if arr[start] < 0:
+            return len(arr)
+
+        while start <= end:
+            mid = (start + end) // 2
+            if arr[mid] < 0:
+                if arr[mid - 1] >= 0:
+                    return len(arr) - mid
+                else:
+                    end = mid - 1
+            else:
+                start = mid + 1
+
+        return -1
+
 
 # -----------------------------------------------------------------------
+"""
+1252. Cells with Odd Values in a Matrix
+
+Given n and m which are the dimensions of a matrix initialized by zeros and given an array indices where
+indices[i] = [ri, ci]. For each pair of [ri, ci] you have to increment all cells in row ri and column ci by 1.
+
+Return the number of cells with odd values in the matrix after applying the increment to all indices.
+
+ 
+
+Example 1:
+
+
+Input: n = 2, m = 3, indices = [[0,1],[1,1]]
+Output: 6
+Explanation: Initial matrix = [[0,0,0],[0,0,0]].
+After applying first increment it becomes [[1,2,1],[0,1,0]].
+The final matrix will be [[1,3,1],[1,3,1]] which contains 6 odd numbers.
+
+"""
+
+
+class Solution:
+    def oddCells(self, n, m, indices):
+
+        mat = [[0 for j in range(m)] for i in range(n)]
+        res = 0
+        for pair in indices:
+            row = pair[0]
+            col = pair[1]
+
+            res = self.increment(mat, row, 'row', res)
+            res = self.increment(mat, col, 'col', res)
+
+        return res
+
+        # time O(k * (m+n))
+        # space O(m+n)
+
+    def increment(self, mat, idx, flag, counter):
+        if flag == 'row':
+            for col in range(len(mat[0])):
+                if mat[idx][col] % 2 == 0:
+                    counter += 1
+                else:
+                    counter -= 1
+                mat[idx][col] += 1
+        else:
+            for row in range(len(mat)):
+                if mat[row][idx] % 2 == 0:
+                    counter += 1
+                else:
+                    counter -= 1
+                mat[row][idx] += 1
+
+        return counter
+
 
 # -----------------------------------------------------------------------
+"""
+1370. Increasing Decreasing String
+
+Given a string s. You should re-order the string using the following algorithm:
+
+Pick the smallest character from s and append it to the result.
+Pick the smallest character from s which is greater than the last appended character to the result and append it.
+Repeat step 2 until you cannot pick more characters.
+Pick the largest character from s and append it to the result.
+Pick the largest character from s which is smaller than the last appended character to the result and append it.
+Repeat step 5 until you cannot pick more characters.
+Repeat the steps from 1 to 6 until you pick all characters from s.
+In each step, If the smallest or the largest character appears more than once you can choose any occurrence 
+and append it to the result.
+
+Return the result string after sorting s with this algorithm.
+
+ 
+
+Example 1:
+
+Input: s = "aaaabbbbcccc"
+Output: "abccbaabccba"
+Explanation: After steps 1, 2 and 3 of the first iteration, result = "abc"
+After steps 4, 5 and 6 of the first iteration, result = "abccba"
+First iteration is done. Now s = "aabbcc" and we go back to step 1
+After steps 1, 2 and 3 of the second iteration, result = "abccbaabc"
+After steps 4, 5 and 6 of the second iteration, result = "abccbaabccba"
+
+"""
+
+
+class Solution:
+    def sortString(self, s):
+
+        count = collections.Counter(s)
+        res = ''
+        while len(count) > 0:
+
+            for key in sorted(count):
+                res += key
+                count[key] -= 1
+                if count[key] == 0:
+                    del count[key]
+
+            for key in sorted(count, reverse=True):
+                res += key
+                count[key] -= 1
+                if count[key] == 0:
+                    del count[key]
+
+        return res
+
+        # time O(c * k * log(k)) -> k : the number of distinct chars, c the counter of the maximum char
+        # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+1309. Decrypt String from Alphabet to Integer Mapping
+
+Given a string s formed by digits ('0' - '9') and '#' . We want to map s to English lowercase characters as follows:
+
+Characters ('a' to 'i') are represented by ('1' to '9') respectively.
+Characters ('j' to 'z') are represented by ('10#' to '26#') respectively. 
+Return the string formed after mapping.
+
+It's guaranteed that a unique mapping will always exist.
+
+ 
+
+Example 1:
+
+Input: s = "10#11#12"
+Output: "jkab"
+Explanation: "j" -> "10#" , "k" -> "11#" , "a" -> "1" , "b" -> "2".
+"""
+
+
+class Solution:
+    def freqAlphabets(self, s):
+        res = []
+
+        for i in range(len(s)):
+            if '0' <= s[i] <= '9':
+                res.append(chr(int(s[i]) + 96))
+            else:
+                res.pop()
+                res.pop()
+                currNum = int(s[i - 2]) * 10 + int(s[i - 1])
+                res.append(chr(currNum + 96))
+
+        return ''.join(res)
+
+        # time O(n)
+        # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+1304. Find N Unique Integers Sum up to Zero
+
+Given an integer n, return any array containing n unique integers such that they add up to 0.
+
+Example 1:
+
+Input: n = 5
+Output: [-7,-1,1,3,4]
+Explanation: These arrays also are accepted [-5,-1,1,2,3] , [-3,-1,2,-2,4].
+
+Example 2:
+
+Input: n = 3
+Output: [-1,0,1]
+
+"""
+
+
+class Solution:
+    def sumZero(self, n):
+        if n == 1:
+            return [0]
+
+        start, end = 0, n - 1
+        res = [0] * n
+        currNum = n
+        while start <= end:
+            res[start] = currNum
+            res[end] = -currNum
+            currNum -= 1
+            start += 1
+            end -= 1
+
+        if n % 2 != 0:
+            res[n // 2] = 0
+
+        return res
+
+        # time O(n)
+        # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+153. Find Minimum in Rotated Sorted Array
 
-# -----------------------------------------------------------------------
+Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
 
-# -----------------------------------------------------------------------
+(i.e.,  [0,1,2,4,5,6,7] might become  [4,5,6,7,0,1,2]).
 
-# -----------------------------------------------------------------------
+Find the minimum element.
 
-# -----------------------------------------------------------------------
+You may assume no duplicate exists in the array.
 
-# -----------------------------------------------------------------------
+Example 1:
 
-# -----------------------------------------------------------------------
+Input: [3,4,5,1,2] 
+Output: 1
 
-# -----------------------------------------------------------------------
+"""
 
-# -----------------------------------------------------------------------
 
-# -----------------------------------------------------------------------
+class Solution:
+    def findMin(self, nums):
+        if len(nums) == 1:
+            return nums[0]
+        idx = self.getPivotIdx(nums)
 
-# -----------------------------------------------------------------------
+        if idx == -1:
+            return nums[0]
+
+        return nums[idx + 1]
+
+        # time O(log(n))
+        # space O(1)
+
+    def getPivotIdx(self, nums):
+        start, end = 0, len(nums) - 1
+
+        while start < end:
+            mid = (start + end) // 2
+
+            if nums[mid] > nums[mid + 1]:
+                return mid
+            elif nums[mid] >= nums[start]:
+                start = mid + 1
+            else:
+                end = mid
+
+        return -1
 
 # -----------------------------------------------------------------------
 
