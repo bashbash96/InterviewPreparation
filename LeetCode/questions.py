@@ -1312,7 +1312,7 @@ class Solution:
 
     def makeRotation(self, arr, row, col):
         topleft = arr[row][col]
-        arr[row][col] = arr[len(arr) - col - 1][row]  # bottom left to top right
+        arr[row][col] = arr[len(arr) - col - 1][row]  # bottom left to top left
         arr[len(arr) - col - 1][row] = arr[len(arr) - row - 1][len(arr) - col - 1]  # bottom right to bottom left
         arr[len(arr) - row - 1][len(arr) - col - 1] = arr[col][len(arr) - row - 1]  # top right to bottom left
         arr[col][len(arr) - row - 1] = topleft  # top left to top right
@@ -2687,7 +2687,7 @@ Therefore only 12 and 7896 contain an even number of digits.
 
 
 class Solution:
-    def findNumbers(self, nums: List[int]) -> int:
+    def findNumbers(self, nums):
         counter = 0
 
         for num in nums:
@@ -3466,12 +3466,1970 @@ class Solution:
 
         return -1
 
+
 # -----------------------------------------------------------------------
+"""
+41. First Missing Positive
+
+Given an unsorted integer array, find the smallest missing positive integer.
+
+Example 1:
+
+Input: [1,2,0]
+Output: 3
+Example 2:
+
+Input: [3,4,-1,1]
+Output: 2
+Example 3:
+
+Input: [7,8,9,11,12]
+Output: 1
+Note:
+
+Your algorithm should run in O(n) time and uses constant extra space.
+"""
+
+
+class Solution:
+    def firstMissingPositive(self, nums):
+        n, inf = len(nums), len(nums) + 1
+
+        if n == 0:
+            return 1
+
+        for i in range(n):
+            if nums[i] <= 0:  # remove all elements less than or equal to zero
+                nums[i] = inf
+
+        for i in range(n):
+            val = abs(nums[i])
+            if val <= n and nums[val - 1] > 0:  # mark all elements between 1 to n as visited
+                nums[val - 1] = -1 * nums[val - 1]
+
+        for i in range(n):
+            if nums[i] > 0:  # the first index not visited return its element
+                return i + 1
+
+        return n + 1  # if all elements between 1 to n are exist return  n + 1
+
+        # time O(n)
+        # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+1380. Lucky Numbers in a Matrix
+
+Given a m * n matrix of distinct numbers, return all lucky numbers in the matrix in any order.
+
+A lucky number is an element of the matrix such that it is the minimum element in its row and maximum in its column.
+
+ 
+
+Example 1:
+
+Input: matrix = [[3,7,8],[9,11,13],[15,16,17]]
+Output: [15]
+Explanation: 15 is the only lucky number since it is the minimum in its row and the maximum in its column
+
+"""
+
+
+class Solution:
+    def luckyNumbers(self, matrix):
+
+        res = []
+
+        minRows, maxCols = self.getMinMax(matrix)
+        minRows = set(minRows)
+
+        res = [val for val in maxCols if val in minRows]
+
+        return res
+
+        # time O(m * n)
+        # space O(m + n)
+
+    def getMinMax(self, mat):
+        rows = [10 ** 15 for row in range(len(mat))]
+        cols = [0 for col in range(len(mat[0]))]
+
+        for row in range(len(mat)):
+            for col in range(len(mat[0])):
+                currVal = mat[row][col]
+                rows[row] = min(rows[row], currVal)
+                cols[col] = max(cols[col], currVal)
+
+        return rows, cols
+
+
+# -----------------------------------------------------------------------
+"""
+1394. Find Lucky Integer in an Array
+
+Given an array of integers arr, a lucky integer is an integer which has a frequency in the array equal to its value.
+
+Return a lucky integer in the array. If there are multiple lucky integers return the largest of them. If there is no lucky integer return -1.
+
+ 
+
+Example 1:
+
+Input: arr = [2,2,3,4]
+Output: 2
+Explanation: The only lucky number in the array is 2 because frequency[2] == 2.
+"""
+
+
+class Solution:
+    def findLucky(self, arr):
+        counter = collections.Counter(arr)
+
+        lucky = -1
+
+        for val in counter:
+            if val == counter[val]:
+                if val > lucky:
+                    lucky = val
+
+        return lucky
+
+        # time O(n)
+        # space O(n)
+
+
+# -----------------------------------------------------------------------
+"""
+944. Delete Columns to Make Sorted
+
+We are given an array A of N lowercase letter strings, all of the same length.
+
+Now, we may choose any set of deletion indices, and for each string, we delete all the characters in those indices.
+
+For example, if we have an array A = ["abcdef","uvwxyz"] and deletion indices {0, 2, 3}, then the final array after 
+deletions is ["bef", "vyz"], and the remaining columns of A are ["b","v"], ["e","y"], and ["f","z"].  
+(Formally, the c-th column is [A[0][c], A[1][c], ..., A[A.length-1][c]].)
+
+Suppose we chose a set of deletion indices D such that after deletions, each remaining column in A is in 
+non-decreasing sorted order.
+
+Return the minimum possible value of D.length.
+
+ 
+
+Example 1:
+
+Input: ["cba","daf","ghi"]
+Output: 1
+Explanation: 
+After choosing D = {1}, each column ["c","d","g"] and ["a","f","i"] are in non-decreasing sorted order.
+If we chose D = {}, then a column ["b","a","h"] would not be in non-decreasing sorted order.
+"""
+
+
+class Solution:
+    def minDeletionSize(self, A):
+
+        res = 0
+
+        for col in range(len(A[0])):
+            for row in range(1, len(A)):
+                if A[row - 1][col] > A[row][col]:
+                    res += 1
+                    break
+
+        return res
+
+        # time O(n * m)
+        # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+1051. Height Checker
+
+Students are asked to stand in non-decreasing order of heights for an annual photo.
+
+Return the minimum number of students that must move in order for all students to be standing 
+in non-decreasing order of height.
+
+Notice that when a group of students is selected they can reorder in any possible way between 
+themselves and the non selected students remain on their seats.
+
+ 
+
+Example 1:
+
+Input: heights = [1,1,4,2,1,3]
+Output: 3
+Explanation: 
+Current array : [1,1,4,2,1,3]
+Target array  : [1,1,1,2,3,4]
+On index 2 (0-based) we have 4 vs 1 so we have to move this student.
+On index 4 (0-based) we have 1 vs 3 so we have to move this student.
+On index 5 (0-based) we have 3 vs 4 so we have to move this student.
+"""
+
+
+class Solution:
+    def heightChecker(self, heights):
+        target = sorted(heights)
+
+        counter = 0
+        for i in range(len(target)):
+            if target[i] != heights[i]:
+                counter += 1
+
+        return counter
+
+        # time O(n * log(n))
+        # space O(n)
+
+
+# -----------------------------------------------------------------------
+"""
+1356. Sort Integers by The Number of 1 Bits
+
+Given an integer array arr. You have to sort the integers in the array in ascending order by the number of 1's 
+in their binary representation and in case of two or more integers have the same number of 1's you have 
+to sort them in ascending order.
+
+Return the sorted array.
+
+ 
+
+Example 1:
+
+Input: arr = [0,1,2,3,4,5,6,7,8]
+Output: [0,1,2,4,8,3,5,6,7]
+Explantion: [0] is the only integer with 0 bits.
+[1,2,4,8] all have 1 bit.
+[3,5,6] have 2 bits.
+[7] has 3 bits.
+The sorted array by bits is [0,1,2,4,8,3,5,6,7]
+"""
+
+
+class Solution:
+    def sortByBits(self, arr):
+        arr.sort()
+        for i in range(len(arr)):
+            arr[i] = (arr[i], self.getNumOfOneBits(arr[i]))
+
+        arr = sorted(arr, key=lambda pair: pair[1])
+        arr = [pair[0] for pair in arr]
+
+        return arr
+
+        # time O(n * log(n))
+        # space O(n)
+
+    def getNumOfOneBits(self, num):
+        counter = 0
+
+        while num > 0:
+            if num & 1 != 0:
+                counter += 1
+            num >>= 1
+
+        return counter
+
+
+# -----------------------------------------------------------------------
+"""
+268. Missing Number
+
+Given an array containing n distinct numbers taken from 0, 1, 2, ..., n, find the one that is missing from the array.
+
+Example 1:
+
+Input: [3,0,1]
+Output: 2
+
+"""
+
+
+class Solution:
+    def missingNumber(self, nums):
+        missing = 0
+
+        for i in range(len(nums) + 1):
+            missing ^= i
+
+        for val in nums:
+            missing ^= val
+
+        return missing
+
+        # time O(n)
+        # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+131. Palindrome Partitioning
+
+Given a string s, partition s such that every substring of the partition is a palindrome.
+
+Return all possible palindrome partitioning of s.
+
+Example:
+
+Input: "aab"
+Output:
+[
+  ["aa","b"],
+  ["a","a","b"]
+]
+"""
+
+
+class Solution:
+    def partition(self, s):
+
+        if len(s) == 0:
+            return [[]]
+
+        res = []
+        currRes = []
+        self.recurPartition(s, 0, res, currRes)
+
+        return res
+
+        # time O(2^n)
+        # space O(n * 2^n)
+
+    def recurPartition(self, s, idx, res, currRes):
+
+        if idx >= len(s):
+            res.append([val for val in currRes])
+            return
+
+        for i in range(idx + 1, len(s) + 1):
+            currSub = s[idx:i]
+            if self.isPal(currSub):
+                currRes.append(currSub)
+                self.recurPartition(s, i, res, currRes)
+                currRes.pop()
+
+    def isPal(self, s):
+        rev = s[::-1]
+        return rev == s
+
+
+# -----------------------------------------------------------------------
+"""
+17. Letter Combinations of a Phone Number
+
+Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent.
+
+A mapping of digit to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
+
+{2:['a','b','c'], 3:['d','e','f'], 4:['g','h','i'], 5:['j','k','l'], 6:['m','n','o'], 7:['p','q','r','s'], 8:['t','u','v'], 9:['w','x','y','z']}
+
+Example:
+
+Input: "23"
+Output: ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"].
+"""
+digitsMap = {2: ['a', 'b', 'c'], 3: ['d', 'e', 'f'], 4: ['g', 'h', 'i'], 5: ['j', 'k', 'l'], 6: ['m', 'n', 'o'],
+             7: ['p', 'q', 'r', 's'], 8: ['t', 'u', 'v'], 9: ['w', 'x', 'y', 'z']}
+
+
+class Solution:
+    def letterCombinations(self, digits):
+        if len(digits) == 0:
+            return []
+        res = []
+        self.recurComb(digits, 0, [], res)
+        return res
+
+        # time O(3^n * 4^m) -> n num of digits has 3 chars, m num of digits has 4 chars
+        # space O(3^n * 4^m)
+
+    def recurComb(self, digits, idx, currRes, res):
+        if idx >= len(digits):
+            res.append(''.join(currRes))
+            return
+
+        currDig = digits[idx]
+        for i in range(len(digitsMap[int(currDig)])):
+            currChar = digitsMap[int(currDig)][i]
+            currRes.append(currChar)
+            self.recurComb(digits, idx + 1, currRes, res)
+            currRes.pop()
+
+
+# -----------------------------------------------------------------------
+"""
+42. Trapping Rain Water
+Given n non-negative integers representing an elevation map where the width of each bar is 1, 
+compute how much water it is able to trap after raining.
+
+Example:
+
+Input: [0,1,0,2,1,0,1,3,2,1,2,1]
+Output: 6
+"""
+
+
+class Solution:
+
+    #     def trap(self, height):
+    #         if len(height) == 0:
+    #             return 0
+    #         n = len(height)
+    #         leftMax, rightMax = [0] * n , [0] * n
+    #         i, j = 0, len(height) - 1
+    #         currLeftMax = height[0]
+    #         currRightMax = height[len(height) - 1]
+    #         while i < len(height):
+    #             if height[i] > currLeftMax:
+    #                 currLeftMax = height[i]
+
+    #             if height[j] > currRightMax:
+    #                 currRightMax = height[j]
+
+    #             leftMax[i] = currLeftMax
+    #             rightMax[j] = currRightMax
+    #             i += 1
+    #             j -= 1
+    #         ans = 0
+    #         for i in range(n):
+    #             ans += (min(leftMax[i], rightMax[i]) - height[i])
+
+    #         return ans
+
+    #         # time O(n)
+    #         # space O(n)
+
+    def trap(self, height):
+
+        left, right, lMax, rMax = 0, len(height) - 1, 0, 0
+        ans = 0
+        while left < right:
+            if height[left] > lMax:
+                lMax = height[left]
+            if height[right] > rMax:
+                rMax = height[right]
+
+            if lMax < rMax:
+                ans += lMax - height[left]
+                left += 1
+            else:
+                ans += rMax - height[right]
+                right -= 1
+
+        return ans
+
+        # time O(n)
+        # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+1337. The K Weakest Rows in a Matrix
+Given a m * n matrix mat of ones (representing soldiers) and zeros (representing civilians), 
+return the indexes of the k weakest rows in the matrix ordered from the weakest to the strongest.
+
+A row i is weaker than row j, if the number of soldiers in row i is less than the number of soldiers in row j, 
+or they have the same number of soldiers but i is less than j. Soldiers are always stand in the frontier of a row, 
+that is, always ones may appear first and then zeros.
+
+ 
+
+Example 1:
+
+Input: mat = 
+[[1,1,0,0,0],
+ [1,1,1,1,0],
+ [1,0,0,0,0],
+ [1,1,0,0,0],
+ [1,1,1,1,1]], 
+k = 3
+Output: [2,0,3]
+"""
+
+
+class Solution:
+    def kWeakestRows(self, mat, k):
+
+        maxH = []
+
+        for row in range(len(mat)):
+            soldsCount = self.numOfSold(mat, row) * -1
+            if len(maxH) < k:
+                heapq.heappush(maxH, (soldsCount, row * -1))
+            else:
+                curr = heapq.heappop(maxH)
+                if soldsCount > curr[0]:
+                    curr = (soldsCount, row * - 1)
+                heapq.heappush(maxH, curr)
+        maxH = [(val[0] * -1, val[1] * -1) for val in maxH]
+        maxH = sorted(maxH, key=lambda x: (x[0], x[1]))
+        return [val[1] for val in maxH]
+
+        # time O(n)
+        # space O(k)
+
+    def numOfSold(self, mat, row):
+        col = 0
+        while col < len(mat[0]) and mat[row][col] == 1:
+            col += 1
+
+        return col
+
+
+# -----------------------------------------------------------------------
+"""
+811. Subdomain Visit Count
+
+A website domain like "discuss.leetcode.com" consists of various subdomains. At the top level, we have "com", 
+at the next level, we have "leetcode.com", and at the lowest level, "discuss.leetcode.com". 
+When we visit a domain like "discuss.leetcode.com", we will also visit the parent domains "leetcode.com" and "com" implicitly.
+
+Now, call a "count-paired domain" to be a count (representing the number of visits this domain received), 
+followed by a space, followed by the address. An example of a count-paired domain might be "9001 discuss.leetcode.com".
+
+We are given a list cpdomains of count-paired domains. We would like a list of count-paired domains, 
+(in the same format as the input, and in any order), that explicitly counts the number of visits to each subdomain.
+
+Example 1:
+Input: 
+["9001 discuss.leetcode.com"]
+Output: 
+["9001 discuss.leetcode.com", "9001 leetcode.com", "9001 com"]
+Explanation: 
+We only have one website domain: "discuss.leetcode.com". As discussed above, the subdomain "leetcode.com" and 
+"com" will also be visited. So they will all be visited 9001 times.
+"""
+
+
+class Solution:
+    def subdomainVisits(self, cpdomains):
+        count = {}
+
+        for pair in cpdomains:
+            visitCount, domain = pair.split()
+            visitCount = int(visitCount)
+            while domain != '':
+                if domain in count:
+                    count[domain] += visitCount
+                else:
+                    count[domain] = visitCount
+
+                i = 0
+                while i < len(domain) and domain[i] != '.':
+                    i += 1
+                domain = domain[i + 1:]
+
+        res = []
+        for domain in count:
+            res.append('{} {}'.format(count[domain], domain))
+
+        return res
+
+        # time O(n * m)
+        # space O(d) -> d num of domains
+
+
+# -----------------------------------------------------------------------
+"""
+922. Sort Array By Parity II
+
+Given an array A of non-negative integers, half of the integers in A are odd, and half of the integers are even.
+
+Sort the array so that whenever A[i] is odd, i is odd; and whenever A[i] is even, i is even.
+
+You may return any answer array that satisfies this condition.
+
+ 
+
+Example 1:
+
+Input: [4,2,5,7]
+Output: [4,5,2,7]
+Explanation: [4,7,2,5], [2,5,4,7], [2,7,4,5] would also have been accepted.
+
+"""
+
+
+class Solution:
+    def sortArrayByParityII(self, A):
+
+        firstOdd, firstEven = 1, 0
+
+        while firstOdd < len(A) and firstEven < len(A):
+
+            while firstOdd < len(A) and A[firstOdd] % 2 == 1:
+                firstOdd += 2
+
+            while firstEven < len(A) and A[firstEven] % 2 == 0:
+                firstEven += 2
+
+            if firstEven < len(A) and firstOdd < len(A):
+                A[firstEven], A[firstOdd] = A[firstOdd], A[firstEven]
+                firstOdd += 2
+                firstEven += 2
+
+        return A
+
+        # time O(n)
+        # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+1237. Find Positive Integer Solution for a Given Equation
+
+Given a function  f(x, y) and a value z, return all positive integer pairs x and y where f(x,y) == z.
+
+The function is constantly increasing, i.e.:
+
+f(x, y) < f(x + 1, y)
+f(x, y) < f(x, y + 1)
+The function interface is defined like this: 
+
+interface CustomFunction {
+public:
+  // Returns positive integer f(x, y) for any given positive integer x and y.
+  int f(int x, int y);
+};
+For custom testing purposes you're given an integer function_id and a target z as input, where function_id 
+represent one function from an secret internal list, on the examples you'll know only two functions from the list.  
+
+You may return the solutions in any order.
+
+
+Example 1:
+
+Input: function_id = 1, z = 5
+Output: [[1,4],[2,3],[3,2],[4,1]]
+Explanation: function_id = 1 means that f(x, y) = x + y
+
+"""
+
+"""
+   This is the custom function interface.
+   You should not implement it, or speculate about its implementation
+   class CustomFunction:
+       # Returns f(x, y) for any given positive integers x and y.
+       # Note that f(x, y) is increasing with respect to both x and y.
+       # i.e. f(x, y) < f(x + 1, y), f(x, y) < f(x, y + 1)
+       def f(self, x, y):
+
+"""
+
+
+class Solution:
+    def findSolution(self, customfunction, z):
+        cf = customfunction
+        res = []
+        if cf.f(1000, 1000) < z or cf.f(1, 1) > z:
+            return res
+        x, y = 1, z
+
+        while y >= 1 and x <= z:
+            if cf.f(x, y) < z:
+                x += 1
+            elif cf.f(x, y) > z:
+                y -= 1
+            else:
+                res.append([x, y])
+                x += 1
+                y -= 1
+
+        return res
+
+        # time O(z)
+        # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+557. Reverse Words in a String III
+
+Given a string, you need to reverse the order of characters in each word within a sentence while still preserving 
+whitespace and initial word order.
+
+Example 1:
+Input: "Let's take LeetCode contest"
+Output: "s'teL ekat edoCteeL tsetnoc"
+Note: In the string, each word is separated by single space and there will not be any extra space in the string.
+"""
+
+
+class Solution:
+    def reverseWords(self, s):
+        words = s.split()
+
+        for i in range(len(words)):
+            words[i] = words[i][::-1]
+
+        return ' '.join(words)
+
+        # time O(n * m) -> m the length of the longest word
+        # space O(n)
+
+
+# -----------------------------------------------------------------------
+"""
+897. Increasing Order Search Tree
+
+Given a binary search tree, rearrange the tree in in-order so that the leftmost node in the tree is now the root of 
+the tree, and every node has no left child and only 1 right child.
+
+Example 1:
+Input: [5,3,6,2,4,null,8,1,null,null,null,7,9]
+
+       5
+      / \
+    3    6
+   / \    \
+  2   4    8
+ /        / \ 
+1        7   9
+
+Output: [1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9]
+
+ 1
+  \
+   2
+    \
+     3
+      \
+       4
+        \
+         5
+          \
+           6
+            \
+             7
+              \
+               8
+                \
+                 9 
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def __init__(self):
+        self.dp = TreeNode('DUMMY')
+
+    def increasingBST(self, root):
+        ans = self.dp
+        inorder = self.inOrder(root)
+        return ans.right
+
+        # time O(n)
+        # space O(h) -> the height of the tree
+
+    def inOrder(self, node):
+        if not node:
+            return
+
+        left = self.inOrder(node.left)
+        node.left = None
+        self.dp.right = node
+        self.dp = node
+        right = self.inOrder(node.right)
+
+
+# -----------------------------------------------------------------------
+"""
+200. Number of Islands
+
+Given a 2d grid map of '1's (land) and '0's (water), count the number of islands. 
+An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. 
+You may assume all four edges of the grid are all surrounded by water.
+
+Example 1:
+
+Input:
+11110
+11010
+11000
+00000
+
+Output: 1
+"""
+
+
+class Solution:
+    def numIslands(self, grid):
+        counter = 0
+
+        for row in range(len(grid)):
+            for col in range(len(grid[0])):
+                if grid[row][col] == '1':
+                    self.islandVisit(grid, row, col)
+                    counter += 1
+        return counter
+
+        # time O(n * m)
+        # space O(1)
+
+    def islandVisit(self, grid, row, col):
+
+        if row < 0 or row >= len(grid) or col < 0 or col >= len(grid[0]) or grid[row][col] != '1':
+            return
+
+        grid[row][col] = '-1'
+
+        self.islandVisit(grid, row, col + 1)
+        self.islandVisit(grid, row, col - 1)
+        self.islandVisit(grid, row + 1, col)
+        self.islandVisit(grid, row - 1, col)
+
+
+# -----------------------------------------------------------------------
+"""
+75. Sort Colors
+
+Given an array with n objects colored red, white or blue, sort them in-place so that objects of 
+the same color are adjacent, with the colors in the order red, white and blue.
+
+Here, we will use the integers 0, 1, and 2 to represent the color red, white, and blue respectively.
+
+Note: You are not suppose to use the library's sort function for this problem.
+
+Example:
+
+Input: [2,0,2,1,1,0]
+Output: [0,0,1,1,2,2]
+Follow up:
+
+A rather straight forward solution is a two-pass algorithm using counting sort.
+First, iterate the array counting number of 0's, 1's, and 2's, then overwrite array with total number of 0's, then 1's and followed by 2's.
+Could you come up with a one-pass algorithm using only constant space?
+"""
+
+
+class Solution:
+    def sortColors(self, nums):
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        #         counter = [0] * 3
+
+        #         for num in nums:
+        #             counter[num] += 1
+
+        #         k = 0
+        #         for num in range(len(counter)):
+        #             while counter[num] > 0:
+        #                 nums[k] = num
+        #                 k += 1
+        #                 counter[num] -= 1
+        # time O(n)
+        # space O(3)
+
+        start, end, currIdx = 0, len(nums) - 1, 0
+
+        while start < end and currIdx <= end:
+            if nums[currIdx] == 0:
+                nums[currIdx], nums[start] = nums[start], nums[currIdx]
+                start += 1
+                currIdx += 1
+            elif nums[currIdx] == 2:
+                nums[currIdx], nums[end] = nums[end], nums[currIdx]
+                end -= 1
+            else:
+                currIdx += 1
+
+        # time O(n)
+        # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+1403. Minimum Subsequence in Non-Increasing Order
+
+Given the array nums, obtain a subsequence of the array whose sum of elements is strictly greater than the sum of 
+the non included elements in such subsequence. 
+
+If there are multiple solutions, return the subsequence with minimum size and if there still exist multiple solutions, 
+return the subsequence with the maximum total sum of all its elements. 
+A subsequence of an array can be obtained by erasing some (possibly zero) elements from the array. 
+
+Note that the solution with the given constraints is guaranteed to be unique. 
+Also return the answer sorted in non-increasing order.
+
+ 
+
+Example 1:
+
+Input: nums = [4,3,10,9,8]
+Output: [10,9] 
+Explanation: The subsequences [10,9] and [10,8] are minimal such that the sum of their elements is strictly greater than the sum of elements not included, however, the subsequence [10,9] has the maximum total sum of its elements. 
+"""
+
+
+class Solution:
+    def minSubsequence(self, nums):
+        if len(nums) == 1:
+            return nums
+
+        total = sum(nums)
+
+        nums.sort()
+        res = []
+        currSum = 0
+        for i in range(len(nums) - 1, -1, -1):
+            total -= nums[i]
+            currSum += nums[i]
+            res.append(nums[i])
+            if currSum > total:
+                break
+
+        return res
+
+        # time O(n * log(n))
+        # space O(n)
+
+
+# -----------------------------------------------------------------------
+"""
+559. Maximum Depth of N-ary Tree
+
+Given a n-ary tree, find its maximum depth.
+
+The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.
+
+Nary-Tree input serialization is represented in their level order traversal, each group of children is 
+separated by the null value (See examples).
+
+ 
+
+Example 1:
+Input: root = [1,null,3,2,4,null,5,6]
+Output: 3
+"""
+
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children
+"""
+
+
+class Solution:
+    def maxDepth(self, root):
+
+        # BFS
+        if not root:
+            return 0
+
+        q = [root]
+        maxD = 0
+
+        while len(q) > 0:
+            l = len(q)
+            maxD += 1
+            while l > 0:
+                curr = q.pop(0)
+                for c in curr.children:
+                    if c:
+                        q.append(c)
+                l -= 1
+
+        return maxD
+
+        # time O(n)
+        # space O(w) -> max layer width
+
+        # DFS
+        # if not root:
+        #     return 0
+        #
+        # maxD = 0
+        # for c in root.children:
+        #     maxD = max(maxD, self.maxDepth(c))
+        #
+        # return maxD + 1
+
+        # time O(n)
+        # space O(h) -> max height of the tree
+
+
+# -----------------------------------------------------------------------
+"""
+929. Unique Email Addresses
+
+Every email consists of a local name and a domain name, separated by the @ sign.
+
+For example, in alice@leetcode.com, alice is the local name, and leetcode.com is the domain name.
+
+Besides lowercase letters, these emails may contain '.'s or '+'s.
+
+If you add periods ('.') between some characters in the local name part of an email address, mail sent there 
+will be forwarded to the same address without dots in the local name.  For example, 
+"alice.z@leetcode.com" and "alicez@leetcode.com" forward to the same email address.  
+(Note that this rule does not apply for domain names.)
+
+If you add a plus ('+') in the local name, everything after the first plus sign will be ignored. 
+This allows certain emails to be filtered, for example m.y+name@email.com will be forwarded to my@email.com.  
+(Again, this rule does not apply for domain names.)
+
+It is possible to use both of these rules at the same time.
+
+Given a list of emails, we send one email to each address in the list.  
+How many different addresses actually receive mails? 
+
+ 
+
+Example 1:
+
+Input: ["test.email+alex@leetcode.com","test.e.mail+bob.cathy@leetcode.com","testemail+david@lee.tcode.com"]
+Output: 2
+Explanation: "testemail@leetcode.com" and "testemail@lee.tcode.com" actually receive mails
+"""
+
+
+class Solution:
+    def numUniqueEmails(self, emails):
+
+        uniqueMails = set()
+
+        for mail in emails:
+            name, domain = mail.split('@')
+            name = name.replace('.', '')
+            if '+' in name:
+                name = name[:name.index('+')]
+            newMail = name + '@' + domain
+            uniqueMails.add(newMail)
+
+        return len(uniqueMails)
+
+        # time O(n * l) -> l : longest mail
+        # space O(n)
+
+
+# -----------------------------------------------------------------------
+"""
+965. Univalued Binary Tree
+
+A binary tree is univalued if every node in the tree has the same value.
+
+Return true if and only if the given tree is univalued.
+
+Example 1:
+
+Input: [1,1,1,1,1,null,1]
+Output: true
+
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def isUnivalTree(self, root):
+
+        seen = set()
+
+        return self.recurIsUniv(root, seen)
+
+    def recurIsUniv(self, node, seen):
+
+        if not node:
+            return True
+
+        seen.add(node.val)
+
+        if len(seen) > 1:
+            return False
+
+        left = self.recurIsUniv(node.left, seen)
+
+        if not left:
+            return False
+
+        right = self.recurIsUniv(node.right, seen)
+
+        return right
+
+        # time O(n)
+        # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+1122. Relative Sort Array
+
+Given two arrays arr1 and arr2, the elements of arr2 are distinct, and all elements in arr2 are also in arr1.
+
+Sort the elements of arr1 such that the relative ordering of items in arr1 are the same as in arr2.  
+Elements that don't appear in arr2 should be placed at the end of arr1 in ascending order.
+
+ 
+
+Example 1:
+
+Input: arr1 = [2,3,1,3,2,4,6,7,9,2,19], arr2 = [2,1,4,3,9,6]
+Output: [2,2,2,1,4,3,3,9,6,7,19]
+"""
+
+
+class Solution:
+    def relativeSortArray(self, arr1, arr2):
+
+        count1 = collections.Counter(arr1)
+        arr1 = []
+        for num in arr2:
+            count = count1[num]
+            self.addToArr(arr1, num, count)
+            del count1[num]
+
+        for num in sorted(count1):
+            count = count1[num]
+            self.addToArr(arr1, num, count)
+
+        return arr1
+
+        # time O(n + m)
+        # space O(n)
+
+    def addToArr(self, arr, num, count):
+        arr.extend([num] * count)
+
+
+# -----------------------------------------------------------------------
+"""
+1160. Find Words That Can Be Formed by Characters
+
+You are given an array of strings words and a string chars.
+
+A string is good if it can be formed by characters from chars (each character can only be used once).
+
+Return the sum of lengths of all good strings in words.
+
+ 
+
+Example 1:
+
+Input: words = ["cat","bt","hat","tree"], chars = "atach"
+Output: 6
+Explanation: 
+The strings that can be formed are "cat" and "hat" so the answer is 3 + 3 = 6.
+"""
+
+
+class Solution:
+    def countCharacters(self, words, chars):
+
+        charsCount = collections.Counter(chars)
+        length = 0
+        for word in words:
+            if self.isValid(word, charsCount):
+                length += len(word)
+
+        return length
+
+        # time O(n * l) -> l : the longest word
+
+    def isValid(self, word, charsCount):
+        wordCount = collections.Counter(word)
+        for char in wordCount:
+            if char not in charsCount or wordCount[char] > charsCount[char]:
+                return False
+
+        return True
+
+
+# -----------------------------------------------------------------------
+"""
+1047. Remove All Adjacent Duplicates In String
+
+Given a string S of lowercase letters, a duplicate removal consists of choosing two adjacent and equal letters, and removing them.
+
+We repeatedly make duplicate removals on S until we no longer can.
+
+Return the final string after all such duplicate removals have been made.  It is guaranteed the answer is unique.
+
+ 
+
+Example 1:
+
+Input: "abbaca"
+Output: "ca"
+Explanation: 
+For example, in "abbaca" we could remove "bb" since the letters are adjacent and equal, 
+and this is the only possible move.  The result of this move is that the string is 
+"aaca", of which only "aa" is possible, so the final string is "ca".
+"""
+
+
+class Solution:
+    def removeDuplicates(self, S: str) -> str:
+
+        res = []
+        for i in range(len(S)):
+            if len(res) > 0 and S[i] == res[-1]:
+                res.pop()
+            else:
+                res.append(S[i])
+
+        return ''.join(res)
+
+        # time O(n)
+        # space O(n)
+
+
+# -----------------------------------------------------------------------
+"""
+876. Middle of the Linked List
+
+Given a non-empty, singly linked list with head node head, return a middle node of linked list.
+
+If there are two middle nodes, return the second middle node.
+
+ 
+
+Example 1:
+
+Input: [1,2,3,4,5]
+Output: Node 3 from this list (Serialization: [3,4,5])
+The returned node has value 3.  (The judge's serialization of this node is [3,4,5]).
+Note that we returned a ListNode object ans, such that:
+ans.val = 3, ans.next.val = 4, ans.next.next.val = 5, and ans.next.next.next = NULL.
+"""
+
+
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def middleNode(self, head):
+        if not head:
+            return head
+
+        slow, fast = head, head.next
+
+        while fast:
+            fast = fast.next
+            if fast:
+                fast = fast.next
+            slow = slow.next
+
+        return slow
+
+        # time O(n)
+        # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+1200. Minimum Absolute Difference
+
+Given an array of distinct integers arr, find all pairs of elements with the minimum absolute difference of any two elements. 
+
+Return a list of pairs in ascending order(with respect to pairs), each pair [a, b] follows
+
+a, b are from arr
+a < b
+b - a equals to the minimum absolute difference of any two elements in arr
+ 
+
+Example 1:
+
+Input: arr = [4,2,1,3]
+Output: [[1,2],[2,3],[3,4]]
+Explanation: The minimum absolute difference is 1. List all pairs with difference equal to 1 in ascending order.
+"""
+
+import sys
+
+
+class Solution:
+    def minimumAbsDifference(self, arr):
+
+        arr.sort()
+        res = []
+        minDiff = sys.maxsize
+
+        for i in range(1, len(arr)):
+            if arr[i] - arr[i - 1] < minDiff:
+                minDiff = arr[i] - arr[i - 1]
+
+        for i in range(1, len(arr)):
+            if arr[i] - arr[i - 1] == minDiff:
+                res.append([arr[i - 1], arr[i]])
+
+        return res
+
+        # time O(n * log(n))
+        # space O(n)
+
+
+# -----------------------------------------------------------------------
+"""
+Given an Array A, find the minimum amplitude you can get after changing up to 3 elements. 
+Amplitude is the range of the array (basically difference between largest and smallest element).
+
+Example 1:
+
+Input: [-1, 3, -1, 8, 5 4]
+Output: 2
+Explanation: we can change -1, -1, 8 to 3, 4 or 5
+
+Example 2:
+
+Input: [10, 10, 3, 4, 10]
+Output: 0
+Explanation: change 3 and 4 to 10
+"""
+import heapq
+
+
+def minAplitude(arr):
+    minHeap, maxHeap = [], []
+
+    for num in arr:
+        addToMaxHeap(maxHeap, num)
+        addToMinHeap(minHeap, num)
+
+    minHeap.sort()
+    maxHeap.sort()
+    res = maxHeap[len(maxHeap) - 1] - minHeap[0]
+    res = min(res, maxHeap[0] - minHeap[0])  # replace all 3 max
+    res = min(res, maxHeap[1] - minHeap[1])  # replace 2 from max and 1 from min
+    res = min(res, maxHeap[2] - minHeap[2])  # replace 1 from max and 2 from min
+    res = min(res, maxHeap[2] - minHeap[2])  # replace all 3 min
+
+    return res
+
+    # time O(n)
+    # space O(1)
+
+
+def addToMinHeap(minHeap, num):
+    if len(minHeap) < 4:
+        heapq.heappush(minHeap, num)
+    else:
+        last = heapq.heappop(minHeap)
+        if num < last:
+            last = num
+        heapq.heappush(minHeap, last)
+
+
+def addToMaxHeap(maxHeap, num):
+    if len(maxHeap) < 4:
+        heapq.heappush(maxHeap, num)
+    else:
+        last = heapq.heappop(maxHeap)
+        if num > last:
+            last = num
+        heapq.heappush(maxHeap, last)
+
+
+# -----------------------------------------------------------------------
+"""
+Given a string S, we can split S into 2 strings: S1 and S2. Return the number of ways S can be split 
+such that the number of unique characters between S1 and S2 are the same.
+
+Example 1:
+
+Input: "aaaa"
+Output: 3
+Explanation: we can get a - aaa, aa - aa, aaa- a
+
+Example 2:
+
+Input: "bac"
+Output: 0
+
+"""
+
+
+def numOfSplit(S):
+    rightCount, leftCount = collections.Counter(S), collections.defaultdict(int)
+
+    res = 0
+    for i in range(len(S) - 1):
+        leftCount[S[i]] += 1
+        rightCount[S[i]] -= 1
+        if rightCount[S[i]] == 0:
+            del rightCount[S[i]]
+        if isEqual(leftCount, rightCount):
+            res += 1
+    return res
+
+    # time O(n)
+    # space O(n)
+
+
+def isEqual(left, right):
+    if len(left) != len(right):
+        return False
+
+    for key in left:
+        if key not in right:
+            return False
+
+    return True
+
+
+# -----------------------------------------------------------------------
+"""
+one string is strictly smaller than another when the frequency of occurrence of the smallest
+character in the string is less than the frequency of the occurrence of the 
+smallest character in the comparison string
+
+for example string 'abcd' is smaller than string 'aaa' because the smallest character in 'abcd' is 'a'
+with frequency of 1, and the smallest character in 'aaa' is also 'a' but with frequency of 3.
+
+write a function that given a string A (which contains M strings delimited by ',') and string B 
+(which contains N string delimted by ',') returns an array of c of N integers. for 0 <= j < N, values 
+of C[j] specify the number of strings in A which are strictly smaller than the comparison j-th string in B
+
+Example:
+
+A = 'abcd,aabc,bd'
+B = 'aaa,aa'
+
+return [3,2]
+
+Assume that:
+- 1 <= N,m <= 10000
+- 1 <= length of strings in A or B <= 10
+- all character are lowercases alphabet
+"""
+
+
+def compareStrings(A, B):
+    wordsA = A.split(',')
+    wordsB = B.split(',')
+    freqs = [0] * 11
+
+    for w in wordsA:
+        minChar = min(w)
+        freqs[w.count(minChar)] += 1
+    for i in range(1, len(freqs)):
+        freqs[i] += freqs[i - 1]
+
+    for i in range(len(wordsB)):
+        currWord = wordsB[i]
+        minChar = min(currWord)
+        # wordsB[i] = getSmallerCount(freqs, currWord.count(minChar))
+        wordsB[i] = freqs[currWord.count(minChar) - 1]
+
+    return wordsB
+
+    # time O(n + m)
+    # space O(n + m)
+
+
+def getSmallerCount(freqs, freq):
+    return sum(freqs[:freq])
+
 
 # -----------------------------------------------------------------------
 
+def largestKSub(arr, k):
+    if k > len(arr) or k <= 0:
+        return []
+
+    res = arr[:k]
+    for i in range(1, len(arr) - k + 1):
+        curr = arr[i:i + k]
+        if isLarger(curr, res):
+            res = [val for val in curr]
+
+    return res
+
+    # time O(n*k)
+    # space O(k)
+
+
+def isLarger(first, second):
+    p = 0
+    while p < len(first) and first[p] == second[p]:
+        p += 1
+
+    return p < len(first) and first[p] > second[p]
+
+
 # -----------------------------------------------------------------------
+"""
+You are given a string that represents time in the format hh:mm. Some of the digits are blank
+(represented by ?). Fill in ? such that the time represented by this string is the maximum possible. 
+Maximum time: 23:59, minimum time: 00:00. You can assume that input string is always valid.
+
+Example 1:
+
+Input: "?4:5?"
+Output: "14:59"
+
+Example 2:
+
+Input: "23:5?"
+Output: "23:59"
+
+Example 3:
+
+Input: "2?:22"
+Output: "23:22"
+
+Example 4:
+
+Input: "0?:??"
+Output: "09:59"
+
+Example 5:
+
+Input: "??:??"
+Output: "23:59"
+
+"""
+
+
+def maxTime(time):
+    time = [c for c in time]
+    time[4] = time[4] if time[4] != '?' else '9'
+    time[3] = time[3] if time[3] != '?' else '5'
+
+    if time[1] == '?':
+        if time[0] == '?' or time[0] == '2':
+            time[1] = '3'
+        else:
+            time[1] = '9'
+
+    if time[0] == '?':
+        if time[1] <= '3':
+            time[0] = '2'
+        else:
+            time[0] = '1'
+
+    return ''.join(time)
+
+    # time O(5)
+    # space O(5)
+
+
+# -----------------------------------------------------------------------
+"""
+There are some processes that need to be executed. Amount of a load that process causes on a server that runs it, 
+is being represented by a single integer. Total load caused on a server is the sum of the loads of all the 
+processes that run on that server. You have at your disposal two servers, on which mentioned processes can be run. 
+Your goal is to distribute given processes between those two servers in the way that, 
+absolute difference of their loads will be minimized.
+
+Given an array of n integers, of which represents loads caused by successive processes, return the minimum absolute 
+difference of server loads.
+
+Example 1:
+
+Input: [1, 2, 3, 4, 5]
+Output: 1
+Explanation:
+We can distribute the processes with loads [1, 2, 4] to the first server and [3, 5] to the second one,
+so that their total loads will be 7 and 8, respectively, and the difference of their loads will be equal to 1.
+"""
+
+
+def minAbs(nums):
+    s = sum(nums) // 2
+    n = len(nums)
+    memo = [[0 for j in range(s + 1)] for i in range(n + 1)]
+    for i in range(1, n + 1):
+        for j in range(1, s + 1):
+            if nums[i - 1] <= j:
+                memo[i][j] = max(memo[i - 1][j], nums[i - 1] + memo[i - 1][j - nums[i - 1]])
+            else:
+                memo[i][j] = memo[i - 1][j]
+    '''return second server loads - first server loads'''
+    return sum(nums) - (2 * memo[n][s])
+
+
+# -----------------------------------------------------------------------
+"""
+215. Kth Largest Element in an Array
+
+Find the kth largest element in an unsorted array. Note that it is the kth largest element in the sorted order, 
+not the kth distinct element.
+
+Example 1:
+
+Input: [3,2,1,5,6,4] and k = 2
+Output: 5
+Example 2:
+
+Input: [3,2,3,1,2,4,5,5,6] and k = 4
+Output: 4
+"""
+
+
+class Solution:
+    def findKthLargest(self, nums, k):
+        minHeap = []
+
+        for num in nums:
+            if len(minHeap) < k:
+                heapq.heappush(minHeap, num)
+            else:
+                last = heapq.heappop(minHeap)
+                if num > last:
+                    last = num
+                heapq.heappush(minHeap, last)
+
+        return heapq.heappop(minHeap)
+
+
+# -----------------------------------------------------------------------
+"""
+Given a hotel which has 10 floors [0-9] and each floor has 26 rooms [A-Z]. You are given a sequence of rooms, 
+where + suggests room is booked, - room is freed. You have to find which room is booked maximum number of times.
+
+You may assume that the list describe a correct sequence of bookings in chronological order; that is, 
+only free rooms can be booked and only booked rooms can be freeed. All rooms are initially free. 
+Note that this does not mean that all rooms have to be free at the end. In case, 
+2 rooms have been booked the same number of times, return the lexographically smaller room.
+
+You may assume:
+
+N (length of input) is an integer within the range [1, 600]
+each element of array A is a string consisting of three characters: "+" or "-"; a digit "0"-"9"; 
+and uppercase English letter "A" - "Z"
+the sequence is correct. That is every booked room was previously free and every freed room was previously booked.
+
+Example:
+Input: ["+1A", "+3E", "-1A", "+4F", "+1A", "-3E"]
+Output: "1A"
+Explanation: 1A as it has been booked 2 times.
+"""
+
+
+def maxBookedRoom(rooms):
+    if len(rooms) == 0:
+        return None
+
+    count = collections.defaultdict(int)
+    currMax = ()
+    for room in rooms:
+        if room[0] == '+':
+            room = room[1:]
+            count[room] += 1
+            if currMax == () or count[room] > currMax[1]:
+                currMax = (room, count[room])
+            elif count[room] == currMax[1]:
+                if room < currMax[0]:
+                    currMax = (room, count[room])
+
+    return currMax[0]
+
 
 # -----------------------------------------------------------------------
 
+def numOfRefills(plants, capacity1, capacity2):
+    if len(plants) <= 1:
+        return len(plants)
+    left, right, leftCan, rightCan, counter = 0, len(plants) - 1, capacity1, capacity2, 2
+    while left <= right:
+        if left == right:
+            if leftCan + rightCan < plants[left]:
+                counter += 1
+            break
+        counter, leftCan = waterOrRefill(plants, left, leftCan, capacity1, counter)
+        counter, rightCan = waterOrRefill(plants, right, rightCan, capacity2, counter)
+        left += 1
+        right -= 1
+    return counter
+
+    # time O(n)
+    # space O(1)
+
+
+def waterOrRefill(plants, idx, can, capacity, counter):
+    if can < plants[idx]:
+        counter += 1
+        can = capacity
+    can -= plants[idx]
+    return counter, can
+
+
 # -----------------------------------------------------------------------
+"""
+1007. Minimum Domino Rotations For Equal Row
+
+In a row of dominoes, A[i] and B[i] represent the top and bottom halves of the i-th domino.  
+(A domino is a tile with two numbers from 1 to 6 - one on each half of the tile.)
+
+We may rotate the i-th domino, so that A[i] and B[i] swap values.
+
+Return the minimum number of rotations so that all the values in A are the same, or all the values in B are the same.
+
+If it cannot be done, return -1.
+
+Example 1:
+
+Input: A = [2,1,2,4,2,2], B = [5,2,6,2,3,2]
+Output: 2
+Explanation: 
+The first figure represents the dominoes as given by A and B: before we do any rotations.
+If we rotate the second and fourth dominoes, we can make every value in the top row equal to 2, 
+as indicated by the second figure.
+"""
+
+
+class Solution:
+    def minDominoRotations(self, A, B):
+        maxA = self.getMax(A)
+        maxB = self.getMax(B)
+        rotationsA = self.getNumOfRot(A, B, maxA)
+        rotationsB = self.getNumOfRot(B, A, maxB)
+
+        if rotationsA == -1 and rotationsB == -1:
+            return -1
+
+        if rotationsA == -1:
+            return rotationsB
+
+        if rotationsB == -1:
+            return rotationsA
+
+        return min(rotationsA, rotationsB)
+
+        # time O(n)
+        # space O(1)
+
+    def getNumOfRot(self, first, second, maxVal):
+        counter = 0
+        for i in range(len(first)):
+            if first[i] != maxVal:
+                if second[i] != maxVal:
+                    return -1
+                counter += 1
+
+        return counter
+
+    def getMax(self, arr):
+        count = collections.Counter(arr)
+        maxVal = max(count.values())
+        for key in count:
+            if count[key] == maxVal:
+                maxVal = key
+                break
+        return maxVal
+
+
+# -----------------------------------------------------------------------
+"""
+Imagine you have a special keyboard with all keys in a single row. The layout of characters on a keyboard is denoted by a string keyboard of length 26. 
+Initially your finger is at index 0. To type a character, you have to move your finger to the index of the desired character. 
+The time taken to move your finger from index i to index j is abs(j - i).
+
+Given a string keyboard that describe the keyboard layout and a string text, return an integer denoting the time taken to type string text.
+
+Example 1:
+
+Input: keyboard = "abcdefghijklmnopqrstuvwxy", text = "cba" 
+Output: 4
+Explanation:
+Initially your finger is at index 0. First you have to type 'c'. The time taken to type 'c' will be abs(2 - 0) = 2 because character 'c' is at index 2.
+The second character is 'b' and your finger is now at index 2. The time taken to type 'b' will be abs(1 - 2) = 1 because character 'b' is at index 1.
+The third character is 'a' and your finger is now at index 1. The time taken to type 'a' will be abs(0 - 1) = 1 because character 'a' is at index 0.
+The total time will therefore be 2 + 1 + 1 = 4.
+Constraints:
+
+length of keyboard will be equal to 26 and all the lowercase letters will occur exactly once;
+the length of text is within the range [1..100,000];
+string text contains only lowercase letters [a-z].
+
+"""
+
+
+def timeTaken(keyboard, text):
+    # map = {}
+    # for i in range(len(keyboard)):
+    #     map[keyboard[i]] = i
+
+    time = 0
+    prevChar = 'a'
+    for currChar in text:
+        time += abs(ord(currChar) - ord(prevChar))
+        # time += abs(map[currChar] - map[prevChar])
+        prevChar = currChar
+
+    return time
+
+    # time O(n)
+    # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+1161. Maximum Level Sum of a Binary Tree
+
+Given the root of a binary tree, the level of its root is 1, the level of its children is 2, and so on.
+
+Return the smallest level X such that the sum of all the values of nodes at level X is maximal.
+
+Example 1:
+
+Input: [1,7,0,7,-8,null,null]
+Output: 2
+Explanation: 
+Level 1 sum = 1.
+Level 2 sum = 7 + 0 = 7.
+Level 3 sum = 7 + -8 = -1.
+So we return the level with the maximum sum which is level 2.
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def maxLevelSum(self, root):
+        if not root:
+            return 0
+
+        maxLevel = (1, root.val)
+        q = [root]
+        level = 1
+        while len(q) > 0:
+            levelLength = len(q)
+            currSum = 0
+            while levelLength > 0:
+                currNode = q.pop(0)
+                currSum += currNode.val
+                if currNode.left:
+                    q.append(currNode.left)
+                if currNode.right:
+                    q.append(currNode.right)
+                levelLength -= 1
+
+            if currSum > maxLevel[1]:
+                maxLevel = (level, currSum)
+
+            level += 1
+
+        return maxLevel[0]
+
+        # time O(n)
+        # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+There are n guests who are invited to a party. The k-th guest will attend the party at time S[k] and leave the party at time E[k].
+
+Given an integer array S and an integer array E, both of length n, return an integer denoting 
+the minimum number of chairs you need such that everyone attending the party can sit down.
+
+Example:
+
+Input: S = [1, 2, 6, 5, 3], E = [5, 5, 7, 6, 8]
+Output: 3
+Explanation:
+There are five guests attending the party. 
+The 1st guest will arrive at time 1. We need one chair at time 1.
+The 2nd guest will arrive at time 2. There are now two guests at the party, so we need two chairs at time 2.
+The 5th guest will arrive at time 3. There are now three guests at the party, so we need three chairs at time 3.
+The 4th guest will arrive at time 5 and, at the same moment, the 1st and 2nd guests will leave the party.
+There are now two (the 4th and 5th) guests at the party, so we need two chairs at time 5.
+The 3rd guest will arrive at time 6, and the 4th guest will leave the party at the same time.
+There are now two (the 3rd and 5th) guests at the party, so we need two chairs at time 6. 
+So we need at least 3 chairs
+
+"""
+
+
+def minChairs(S, E):
+    times = mergeArrs(S, E)
+    counter, maxChairs = 0, 0
+    for time in times:
+        if time[1] == 1:
+            counter += 1
+        else:
+            counter -= 1
+        maxChairs = max(maxChairs, counter)
+    return maxChairs
+
+    # time O((n+m) * log(n+m))
+    # space O(n+m)
+
+
+def mergeArrs(S, E):
+    res = []
+    for num in S:
+        res.append((num, 1))  # 1 for arrival
+    for num in E:
+        res.append((num, 0))  # 0 for leaving
+    res = sorted(res, key=lambda pair: (pair[0], pair[1]))
+    return res
+
+
+# -----------------------------------------------------------------------
+"""
+973. K Closest Points to Origin
+
+We have a list of points on the plane.  Find the K closest points to the origin (0, 0).
+
+(Here, the distance between two points on a plane is the Euclidean distance.)
+
+You may return the answer in any order.  The answer is guaranteed to be unique (except for the order that it is in.)
+
+ 
+
+Example 1:
+
+Input: points = [[1,3],[-2,2]], K = 1
+Output: [[-2,2]]
+Explanation: 
+The distance between (1, 3) and the origin is sqrt(10).
+The distance between (-2, 2) and the origin is sqrt(8).
+Since sqrt(8) < sqrt(10), (-2, 2) is closer to the origin.
+We only want the closest K = 1 points from the origin, so the answer is just [[-2,2]].
+"""
+
+
+class Solution:
+    def kClosest(self, points, K):
+        if K == len(points):
+            return points
+
+        maxHeap = []
+
+        for point in points:
+            if len(maxHeap) < K:
+                heapq.heappush(maxHeap, (self.getDistance(point) * -1, point))
+            else:
+                curr = heapq.heappop(maxHeap)
+                distance = self.getDistance(point)
+                if distance < curr[0] * -1:
+                    curr = (distance * -1, point)
+                heapq.heappush(maxHeap, curr)
+
+        return [pair[1] for pair in maxHeap]
+
+        # time O(n * log(k))
+        # space O(k)
+
+    def getDistance(self, point):
+        x = pow(point[0], 2)
+        y = pow(point[1], 2)
+        return pow(x + y, 0.5)
