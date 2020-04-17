@@ -1,3 +1,6 @@
+import collections
+import heapq
+
 # -----------------------------------------------------------------------
 """
 198. House Robber
@@ -38,7 +41,59 @@ class Solution:
         # time O(n)
         # space O(1)
 
+
 # -----------------------------------------------------------------------
+"""
+697. Degree of an Array
+
+Given a non-empty array of non-negative integers nums, the degree of this array is defined as the maximum frequency 
+of any one of its elements.
+
+Your task is to find the smallest possible length of a (contiguous) subarray of nums, that has the same degree as nums.
+
+Example 1:
+Input: [1, 2, 2, 3, 1]
+Output: 2
+Explanation: 
+The input array has a degree of 2 because both elements 1 and 2 appear twice.
+Of the subarrays that have the same degree:
+[1, 2, 2, 3, 1], [1, 2, 2, 3], [2, 2, 3, 1], [1, 2, 2], [2, 2, 3], [2, 2]
+The shortest length is 2. So return 2.
+Example 2:
+Input: [1,2,2,3,1,4,2]
+Output: 6
+
+"""
+
+
+class Solution:
+    def findShortestSubArray(self, nums):
+        count = {}
+        boundaries = collections.defaultdict(list)
+        degree = 0
+        res = float('inf')
+        for i in range(len(nums)):
+            num = nums[i]
+            if num not in boundaries:
+                boundaries[num] = [i, i]
+            else:
+                boundaries[num][1] = i
+            if num not in count:
+                count[num] = 1
+            else:
+                count[num] += 1
+
+            if count[num] > degree:
+                degree = count[num]
+                res = boundaries[num][1] - boundaries[num][0] + 1
+            elif count[num] == degree:
+                currLength = boundaries[num][1] - boundaries[num][0] + 1
+                res = min(res, currLength)
+
+        return res
+
+        # time O(n)
+        # space O(n)
 
 # -----------------------------------------------------------------------
 
@@ -75,4 +130,3 @@ class Solution:
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
-
