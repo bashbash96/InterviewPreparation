@@ -1886,3 +1886,169 @@ def canServe(currArea, areas, guests):
     for area in areas:
         counter += area // currArea
     return counter >= guests
+
+
+# -----------------------------------------------------------------------
+"""
+subtrees
+"""
+
+
+def main():
+    n = int(input())
+    if n == -1:
+        print(-1)
+        return
+    tree = []
+    for i in range(n + 1):
+        currLevel = list(map(int, input().split()))
+        tree.extend(currLevel)
+
+    res = printSubtrees(tree, 0)
+    print(res[0])
+
+
+def printSubtrees(tree, idx):
+    if idx >= len(tree) or tree[idx] == -1:
+        return 0, []  # num of subtrees, list of nodes till now
+
+    left = 2 * idx + 1
+    right = 2 * idx + 2
+
+    leftSub = printSubtrees(tree, left)
+    rightSub = printSubtrees(tree, right)
+
+    currSub = leftSub[1] + [tree[idx]] + rightSub[1]
+    currCount = 0
+    if len(set(currSub)) == 1:
+        currCount = 1
+
+    currCount = currCount + leftSub[0] + rightSub[0]
+
+    return currCount, currSub
+
+
+# -----------------------------------------------------------------------
+"""
+two robots
+treasure hunt
+"""
+
+
+def main():
+    rows, cols = map(int, input().split())
+    nums = list(map(int, input().split()))
+    if cols < 2 or rows < 1:
+        print(-1)
+        return
+    mat = getMat(nums, cols)
+    print(getMaxCoins(mat, rows, cols))
+
+
+def getMat(nums, cols):
+    res = []
+    curr = []
+    for i in range(len(nums)):
+        curr.append(nums[i])
+        if (i + 1) % cols == 0:
+            res.append(curr)
+            curr = []
+
+    if curr != []:
+        res.append(curr)
+
+    return res
+
+
+def getMaxCoins(mat, rows, cols):
+    r1x, r1y, r2x, r2y = 0, 0, 0, cols - 1
+    memo = [[[[None for j in range(cols)] for i in range(rows)] for j in range(cols)] for i in range(rows)]
+
+    return max(0, recurMaxCoins(mat, rows, cols, r1x, r1y, r2x, r2y, memo))
+
+
+def recurMaxCoins(mat, rows, cols, r1x, r1y, r2x, r2y, memo):
+    if r1y < 0 or r2y < 0 or r1y >= cols or r2y >= cols or r1x >= rows or r2x >= rows:
+        return float('-inf')
+
+    if memo[r1x][r1y][r2x][r2y]:
+        return memo[r1x][r1y][r2x][r2y]
+
+    if r1x == rows - 1 and r1y == 0 and r2x == rows - 1 and r2y == cols - 1:
+        return mat[r1x][r1y] + mat[r2x][r2y]
+
+    res = 0
+    if r1x == r2x and r1y == r2y:
+        res = mat[r1x][r1y]
+    else:
+        res = mat[r1x][r1y] + mat[r2x][r2y]
+
+    left1 = recurMaxCoins(mat, rows, cols, r1x + 1, r1y - 1, r2x + 1, r2y - 1, memo)
+    left2 = recurMaxCoins(mat, rows, cols, r1x + 1, r1y - 1, r2x + 1, r2y, memo)
+    left3 = recurMaxCoins(mat, rows, cols, r1x + 1, r1y - 1, r2x + 1, r2y + 1, memo)
+
+    center1 = recurMaxCoins(mat, rows, cols, r1x + 1, r1y, r2x + 1, r2y - 1, memo)
+    center2 = recurMaxCoins(mat, rows, cols, r1x + 1, r1y, r2x + 1, r2y, memo)
+    center3 = recurMaxCoins(mat, rows, cols, r1x + 1, r1y, r2x + 1, r2y + 1, memo)
+
+    right1 = recurMaxCoins(mat, rows, cols, r1x + 1, r1y + 1, r2x + 1, r2y - 1, memo)
+    right2 = recurMaxCoins(mat, rows, cols, r1x + 1, r1y + 1, r2x + 1, r2y, memo)
+    right3 = recurMaxCoins(mat, rows, cols, r1x + 1, r1y + 1, r2x + 1, r2y + 1, memo)
+
+    res = res + max(left1, left2, left3, center1, center2, center3, right1, right2, right3)
+
+    memo[r1x][r1y][r2x][r2y] = res
+
+    return res
+
+
+# -----------------------------------------------------------------------
+
+"""
+num of pair leaf with distance k
+"""
+
+
+def main():
+    k = int(input())
+    n = int(input())
+    if n == -1:
+        print(-1)
+        return
+    tree = []
+    for i in range(n + 1):
+        currLevel = list(map(int, input().split()))
+        tree.extend(currLevel)
+
+    print(numOfPairs(tree, k, 0)[1])
+
+
+def numOfPairs(tree, k, idx):
+    if idx >= len(tree) or tree[idx] == -1:
+        return 0, 0  # height of curr tree, curr result
+
+    left = 2 * idx + 1
+    right = 2 * idx + 2
+
+    leftSub = numOfPairs(tree, k, left)
+    rightSub = numOfPairs(tree, k, right)
+
+    currHeight = max(leftSub[0], rightSub[0]) + 1
+    currRes = 0
+    if leftSub[0] == 0 or rightSub[0] == 0:
+        currRes = leftSub[1] + rightSub[1]
+    else:
+        if leftSub[0] + rightSub[0] <= k:
+            if leftSub[1] == 0 and rightSub[1] == 0:
+                currRes = 1
+            else:
+                if leftSub[1] == 0 or rightSub[1] == 0:
+                    currRes = leftSub[1] + rightSub[1]
+                    currRes += max(leftSub[1], rightSub[1])
+                else:
+                    currRes = leftSub[1] + rightSub[1]
+                    currRes += (min(leftSub[1], rightSub[1]) * 2)
+        else:
+            currRes = leftSub[1] + rightSub[1]
+
+    return currHeight, currRes
