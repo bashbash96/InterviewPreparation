@@ -78,6 +78,7 @@ class Solution:
                 boundaries[num] = [i, i]
             else:
                 boundaries[num][1] = i
+
             if num not in count:
                 count[num] = 1
             else:
