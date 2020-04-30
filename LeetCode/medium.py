@@ -405,9 +405,120 @@ class LRUCache:
             if currNode.next:
                 currNode.next.prev = currNode.prev
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+208. Implement Trie (Prefix Tree)
+
+Implement a trie with insert, search, and startsWith methods.
+
+Example:
+
+Trie trie = new Trie();
+
+trie.insert("apple");
+trie.search("apple");   // returns true
+trie.search("app");     // returns false
+trie.startsWith("app"); // returns true
+trie.insert("app");   
+trie.search("app");     // returns true
+Note:
+
+You may assume that all inputs are consist of lowercase letters a-z.
+All inputs are guaranteed to be non-empty strings.
+
+"""
+
+
+class Trie:
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.root = {}
+
+    def insert(self, word: str) -> None:
+        """
+        Inserts a word into the trie.
+        """
+        curr = self.root
+        for c in word:
+            if c not in curr:
+                curr[c] = {}
+            curr = curr[c]
+        curr['*'] = True
+
+        # time O(n)
+        # space O(n)
+
+    def search(self, word: str) -> bool:
+        """
+        Returns if the word is in the trie.
+        """
+        curr = self.root
+        for c in word:
+            if c not in curr:
+                return False
+            curr = curr[c]
+
+        return '*' in curr
+
+        # time O(n)
+        # space O(1)
+
+    def startsWith(self, prefix: str) -> bool:
+        """
+        Returns if there is any word in the trie that starts with the given prefix.
+        """
+        curr = self.root
+        for c in prefix:
+            if c not in curr:
+                return False
+            curr = curr[c]
+
+        return True
+
+        # time O(n)
+        # space O(1)
+
+
+# Your Trie object will be instantiated and called as such:
+# obj = Trie()
+# obj.insert(word)
+# param_2 = obj.search(word)
+# param_3 = obj.startsWith(prefix)
+
+# -----------------------------------------------------------------------
+"""
+560. Subarray Sum Equals K
+
+Given an array of integers and an integer k, you need to find the total number of continuous subarrays 
+whose sum equals to k.
+
+Example 1:
+Input:nums = [1,1,1], k = 2
+Output: 2
+Note:
+The length of the array is in range [1, 20,000].
+The range of numbers in the array is [-1000, 1000] and the range of the integer k is [-1e7, 1e7].
+"""
+
+
+class Solution:
+    def subarraySum(self, nums, k):
+        n = len(nums)
+        currSum, counter, map = 0, 0, collections.defaultdict(int)
+        map[0] = 1
+        for num in nums:
+            currSum += num
+            if currSum - k in map:
+                counter += map[currSum - k]
+            map[currSum] += 1
+        return counter
+
+        # time O(n)
+        # space O(n)
 
 # -----------------------------------------------------------------------
 
