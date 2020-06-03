@@ -143,6 +143,24 @@ def partition(arr, start, end):
     return left
 
 
+def countingSort(arr):
+    k = max(arr)
+    counts = [0 for i in range(k + 1)]
+    for val in arr:
+        counts[val] += 1
+
+    i = 0
+    for num in range(k + 1):
+        for c in range(counts[num]):
+            arr[i] = num
+            i += 1
+
+    return arr
+
+    # time O(n+k)
+    # space O(k)
+
+
 # -----------------------------------------------------------------------
 """
 10.1 Sorted Merge: You are given two sorted arrays, A and B, where A has a large enough buffer at the
