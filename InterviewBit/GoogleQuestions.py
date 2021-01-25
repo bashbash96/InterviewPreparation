@@ -36,7 +36,7 @@ class Solution:
 
         return prev
 
-        # time O(k)
+        # time O(k^2)
         # space O(n) -> n is the number of elements in kth row
 
 
