@@ -520,10 +520,82 @@ class Solution:
         # time O(n)
         # space O(n)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+338. Counting Bits
 
+Given a non negative integer number num. For every numbers i in the range 0 ≤ i ≤ num calculate 
+the number of 1's in their binary representation and return them as an array.
+
+Example 1:
+
+Input: 2
+Output: [0,1,1]
+Example 2:
+
+Input: 5
+Output: [0,1,1,2,1,2]
+"""
+
+
+class Solution:
+    def countBits(self, num):
+        counts = [0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4]
+        if num == 0:
+            return [0]
+        res = []
+        for n in range(num + 1):
+            curr_count = 0
+            while n > 0:
+                curr_count += counts[n & 0x0f]
+                n >>= 4
+            res.append(curr_count)
+
+        return res
+
+    # time O(n * sizeof(integer) / 4)
+    # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+763. Partition Labels
+
+A string S of lowercase English letters is given. We want to partition this string into as many parts as possible 
+so that each letter appears in at most one part, and return a list of integers representing the size of these parts.
+
+ 
+
+Example 1:
+
+Input: S = "ababcbacadefegdehijhklij"
+Output: [9,7,8]
+Explanation:
+The partition is "ababcbaca", "defegde", "hijhklij".
+This is a partition so that each letter appears in at most one part.
+A partition like "ababcbacadefegde", "hijhklij" is incorrect, because it splits S into less parts.
+"""
+
+
+class Solution:
+    def partitionLabels(self, S):
+        letters_count = collections.Counter(S)
+
+        curr = []
+        res = []
+        curr_count = collections.defaultdict(int)
+        for c in S:
+            curr_count[c] += 1
+            curr.append(c)
+            if curr_count[c] == letters_count[c]:
+                del curr_count[c]
+
+            if len(curr_count) == 0:
+                res.append(len(curr))
+                curr = []
+
+        return res
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
