@@ -96,12 +96,73 @@ class Solution:
         # time O(n)
         # space O(n)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+136. Single Number
+
+Given a non-empty array of integers nums, every element appears twice except for one. Find that single one.
+
+Follow up: Could you implement a solution with a linear runtime complexity and without using extra memory?
+"""
+
+
+class Solution:
+    def singleNumber(self, nums: List[int]) -> int:
+        res = 0
+        for num in nums:
+            res ^= num
+
+        return res
+
+    # time O(n)
+    # space O(1)
+
 
 # -----------------------------------------------------------------------
+"""
+206. Reverse Linked List
 
+Reverse a singly linked list.
+
+Example:
+
+Input: 1->2->3->4->5->NULL
+Output: 5->4->3->2->1->NULL
+Follow up:
+
+A linked list can be reversed either iteratively or recursively. Could you implement both?
+"""
+
+
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def reverseList(self, head: ListNode) -> ListNode:
+
+        if not head:
+            return head
+
+        prev, curr = None, head
+
+        while curr:
+            next_ = curr.next
+            curr.next = prev
+            prev = curr
+            curr = next_
+
+        return prev
+
+    # time O(n)
+    # space O(1)
+
+# -----------------------------------------------------------------------
+"""
+
+"""
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
