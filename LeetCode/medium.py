@@ -597,7 +597,43 @@ class Solution:
 
         return res
 
+
 # -----------------------------------------------------------------------
+"""
+406. Queue Reconstruction by Height
+
+You are given an array of people, people, which are the attributes of some people in a queue 
+(not necessarily in order). Each people[i] = [hi, ki] represents the ith person of height hi with exactly ki other 
+people in front who have a height greater than or equal to hi.
+
+Reconstruct and return the queue that is represented by the input array people. 
+The returned queue should be formatted as an array queue, where queue[j] = [hj, kj] is the attributes of the jth person 
+in the queue (queue[0] is the person at the front of the queue).
+"""
+
+
+class Solution:
+    def reconstructQueue(self, people):
+        people.sort(key=lambda x: (x[0], x[1]))
+        curr_count = 0
+        res = [None for _ in people]
+        for val in people:
+            curr_count = val[1]
+            place_element(res, val, curr_count)
+
+        return res
+
+    # time O(n^2)
+    # space O(n)
+
+
+def place_element(res, val, curr_count):
+    for i in range(len(res)):
+        if curr_count == 0 and res[i] == None:
+            res[i] = val
+            return
+        elif res[i] == None or res[i][0] >= val[0]:
+            curr_count -= 1
 
 # -----------------------------------------------------------------------
 
