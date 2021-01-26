@@ -543,9 +543,54 @@ def getBits(num):
 
 # -----------------------------------------------------------------------
 """
+Rotate Matrix
+You are given an n x n 2D matrix representing an image.
 
+Rotate the image by 90 degrees (clockwise).
+
+You need to do this in place.
+
+Note that if you end up using an additional array, you will only receive partial score.
+
+Example:
+
+If the array is
+
+[
+    [1, 2],
+    [3, 4]
+]
+Then the rotated array becomes:
+
+[
+    [3, 1],
+    [4, 2]
+]
 """
 
+
+class Solution:
+    # @param A : list of list of integers
+    # @return the same list modified
+    def rotate(self, A):
+
+        for row in range(len(A) // 2):
+            for col in range(row, len(A) - row - 1):
+                rotate(A, row, col)
+
+        return A
+
+    # time O(n^2)
+    # space O(1)
+
+
+def rotate(mat, row, col):
+    rows = len(mat)
+    topLeft = mat[row][col]
+    mat[row][col] = mat[rows - col - 1][row]
+    mat[rows - col - 1][row] = mat[rows - row - 1][rows - col - 1]
+    mat[rows - row - 1][rows - col - 1] = mat[col][rows - row - 1]
+    mat[col][rows - row - 1] = topLeft
 
 # -----------------------------------------------------------------------
 
