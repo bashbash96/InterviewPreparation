@@ -635,9 +635,84 @@ def place_element(res, val, curr_count):
         elif res[i] == None or res[i][0] >= val[0]:
             curr_count -= 1
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+94. Binary Tree Inorder Traversal
+
+Given the root of a binary tree, return the inorder traversal of its nodes' values.
+
+Example 1:
+
+Input: root = [1,null,2,3]
+Output: [1,3,2]
+
+
+Example 2:
+
+Input: root = []
+Output: []
+
+Example 3:
+
+Input: root = [1]
+Output: [1]
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def inorderTraversal(self, root: TreeNode) -> List[int]:
+        if not root:
+            return []
+
+        return self.inorderTraversal(root.left) + [root.val] + self.inorderTraversal(root.right)
+
+    # time O(n)
+    # space O(h)
+
+
+# -----------------------------------------------------------------------
+"""
+22. Generate Parentheses
+
+Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.
+
+ 
+
+Example 1:
+
+Input: n = 3
+Output: ["((()))","(()())","(())()","()(())","()()()"]
+Example 2:
+
+Input: n = 1
+Output: ["()"]
+"""
+
+
+class Solution:
+    def generateParenthesis(self, n):
+        res = []
+        recur_generate_parenthesis(n, [], 0, 0, res)
+
+        return res
+
+
+def recur_generate_parenthesis(n, curr, left, right, res):
+    if len(curr) == 2 * n:
+        res.append(''.join(curr))
+        return
+
+    if left < n:
+        recur_generate_parenthesis(n, curr + ['('], left + 1, right, res)
+    if right < left:
+        recur_generate_parenthesis(n, curr + [')'], left, right + 1, res)
 
 # -----------------------------------------------------------------------
 
