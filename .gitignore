@@ -5,6 +5,7 @@ __pycache__/
 
 .idea/
 venv/
+playground.py
 
 # C extensions
 *.so
