@@ -305,6 +305,151 @@ class Solution:
     # time O(n)
     # space O(1)
 
+
+# -----------------------------------------------------------------------
+"""
+121. Best Time to Buy and Sell Stock
+
+You are given an array prices where prices[i] is the price of a given stock on the ith day.
+
+You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in 
+the future to sell that stock.
+
+Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.
+
+ 
+
+Example 1:
+
+Input: prices = [7,1,5,3,6,4]
+Output: 5
+Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.
+Note that buying on day 2 and selling on day 1 is not allowed because you must buy before you sell.
+Example 2:
+
+Input: prices = [7,6,4,3,1]
+Output: 0
+Explanation: In this case, no transactions are done and the max profit = 0.
+
+"""
+
+
+class Solution:
+    def maxProfit(self, prices):
+        if len(prices) == 0:
+            return 0
+
+        min_val, max_profit = prices[0], 0
+        for price in prices:
+            max_profit = max(max_profit, price - min_val)
+            min_val = min(min_val, price)
+
+        return max_profit
+
+    # time O(n)
+    # space O(1)
+
+
+# -----------------------------------------------------------------------
+
+"""
+543. Diameter of Binary Tree
+
+Given a binary tree, you need to compute the length of the diameter of the tree. The diameter of a binary tree 
+is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
+
+Example:
+Given a binary tree
+          1
+         / \
+        2   3
+       / \     
+      4   5    
+Return 3, which is the length of the path [4,2,1,3] or [5,2,1,3].
+
+Note: The length of path between two nodes is represented by the number of edges between them.
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+class Solution:
+    def diameterOfBinaryTree(self, root):
+        return diameter(root)[1]
+
+    # time O(n)
+    # space O(h)
+
+
+def diameter(root):
+    if not root:
+        return 0, 0
+
+    left = diameter(root.left)
+    right = diameter(root.right)
+
+    return max(left[0], right[0]) + 1, max(left[1], right[1], left[0] + right[0])
+
+
+# -----------------------------------------------------------------------
+
+"""
+70. Climbing Stairs
+
+You are climbing a staircase. It takes n steps to reach the top.
+
+Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?
+
+ 
+
+Example 1:
+
+Input: n = 2
+Output: 2
+Explanation: There are two ways to climb to the top.
+1. 1 step + 1 step
+2. 2 steps
+Example 2:
+
+Input: n = 3
+Output: 3
+Explanation: There are three ways to climb to the top.
+1. 1 step + 1 step + 1 step
+2. 1 step + 2 steps
+3. 2 steps + 1 step
+"""
+
+
+class Solution:
+    def climbStairs(self, n: int) -> int:
+        if n <= 2:
+            return n
+
+        prev1, prev2 = 2, 1
+
+        for _ in range(3, n + 1):
+            curr = prev1 + prev2
+            prev2 = prev1
+            prev1 = curr
+
+        return curr
+
+    # time O(n)
+    # space O(1)
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
@@ -316,6 +461,55 @@ class Solution:
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
 
 # -----------------------------------------------------------------------
 
