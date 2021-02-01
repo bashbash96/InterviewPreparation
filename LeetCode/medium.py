@@ -793,9 +793,100 @@ class Solution:
     # space O(1)
 
 # -----------------------------------------------------------------------
+"""
+347. Top K Frequent Elements
 
+Given a non-empty array of integers, return the k most frequent elements.
+
+Example 1:
+
+Input: nums = [1,1,1,2,2,3], k = 2
+Output: [1,2]
+Example 2:
+
+Input: nums = [1], k = 1
+Output: [1]
+Note:
+
+You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
+Your algorithm's time complexity must be better than O(n log n), where n is the array's size.
+It's guaranteed that the answer is unique, in other words the set of the top k frequent elements is unique.
+You can return the answer in any order.
+"""
+
+from collections import Counter
+import heapq
+
+
+class Solution:
+    def topKFrequent(self, nums, k):
+        min_heap = []
+        count = Counter(nums)
+
+        for num in count:
+            if len(min_heap) == k:
+                curr = heapq.heappop(min_heap)
+                if curr[0] < count[num]:
+                    curr = (count[num], num)
+                heapq.heappush(min_heap, curr)
+            else:
+                heapq.heappush(min_heap, (count[num], num))
+
+        return [val[1] for val in min_heap]
+
+    # time O(n)
+    # space O(n)
 
 # -----------------------------------------------------------------------
+"""
+230. Kth Smallest Element in a BST
+
+Given the root of a binary search tree, and an integer k, return the kth (1-indexed) smallest element in the tree.
+
+ 
+
+Example 1:
+
+Input: root = [3,1,4,null,2], k = 1
+Output: 1
+
+Example 2:
+
+Input: root = [5,3,6,2,4,null,null,1], k = 3
+Output: 3
+ 
+
+Constraints:
+
+The number of nodes in the tree is n.
+1 <= k <= n <= 104
+0 <= Node.val <= 104
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def kthSmallest(self, root, k):
+        stack = []
+
+        while True:
+            while root:
+                stack.append(root)
+                root = root.left
+
+            root = stack.pop()
+            k -= 1
+            if not k:
+                return root.val
+            root = root.right
+
+        # time O(h)
+        # space O(h)
 
 # -----------------------------------------------------------------------
 
