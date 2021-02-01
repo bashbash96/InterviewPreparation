@@ -187,7 +187,77 @@ class Solution:
     # time O(n * m)
     # space O(n * m) "can be reduced to O(min(m, n))"
 
+
 # -----------------------------------------------------------------------
+"""
+128. Longest Consecutive Sequence
+
+Given an unsorted array of integers nums, return the length of the longest consecutive elements sequence.
+
+ 
+Example 1:
+
+Input: nums = [100,4,200,1,3,2]
+Output: 4
+
+Explanation: The longest consecutive elements sequence is [1, 2, 3, 4]. Therefore its length is 4.
+
+Example 2:
+
+Input: nums = [0,3,7,2,5,8,4,6,0,1]
+Output: 9
+ 
+
+Constraints:
+
+0 <= nums.length <= 104
+-109 <= nums[i] <= 109
+"""
+
+
+class Solution:
+    def longestConsecutive(self, nums):
+        # approach 1:
+        # 1. sort the arr
+        # 2. take the longest sequence
+        # time O(n*log(n))
+        # space O(1)
+
+        # approach 2: using DFS
+        nums = set(nums)
+
+        longest_seq = 0
+        visited = set()
+        for num in nums:
+            length = visit_sequence(nums, num, visited)
+            longest_seq = max(longest_seq, length)
+
+        return longest_seq
+
+    # time O(n)
+    # space O(n)
+
+
+def visit_sequence(nums, num, visited):
+    if num in visited:
+        return 1
+
+    visited.add(num)
+
+    counter = 1
+    right_num = num + 1
+    while right_num in nums:
+        visited.add(right_num)
+        counter += 1
+        right_num += 1
+
+    left_num = num - 1
+    while left_num in nums:
+        visited.add(left_num)
+        counter += 1
+        left_num -= 1
+
+    return counter
 
 # -----------------------------------------------------------------------
 
