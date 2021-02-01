@@ -442,11 +442,193 @@ class Solution:
     # time O(n)
     # space O(1)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+101. Symmetric Tree
+
+Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
+
+For example, this binary tree [1,2,2,3,4,4,3] is symmetric:
+
+    1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+ 
+
+But the following [1,2,2,null,3,null,3] is not:
+
+    1
+   / \
+  2   2
+   \   \
+   3    3
+ 
+
+Follow up: Solve it both recursively and iteratively.
+"""
+
+
+# Definition for a binary tree node.
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+
+# iterative:
+# class Solution:
+#     def isSymmetric(self, root: TreeNode) -> bool:
+#         if not root:
+#             return True
+#
+#         q = [root, root]
+#         while len(q) > 0:
+#             node1, node2 = q.pop(0), q.pop(0)
+#
+#             if not node1 and not node2:
+#                 continue
+#             if not node1 or not node2:
+#                 return False
+#             if node1.val != node2.val:
+#                 return False
+#
+#             q.append(node1.left)
+#             q.append(node2.right)
+#             q.append(node1.right)
+#             q.append(node2.left)
+#
+#         return True
+#
+#     # time O(n)
+#     # space O(n)
+
+
+# recursive:
+class Solution:
+    def isSymmetric(self, root):
+        if not root:
+            return True
+
+        return is_sym(root, root)
+
+    # time O(n)
+    # space O(n)
+
+
+def is_sym(node1, node2):
+    if not node1 and not node2:
+        return True
+    if not node1 or not node2:
+        return False
+    if node1.val != node2.val:
+        return False
+
+    return is_sym(node1.left, node2.right) and is_sym(node1.right, node2.left)
+
 
 # -----------------------------------------------------------------------
+"""
+53. Maximum Subarray
+
+Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.
+
+ 
+
+Example 1:
+
+Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
+Output: 6
+Explanation: [4,-1,2,1] has the largest sum = 6.
+Example 2:
+
+Input: nums = [1]
+Output: 1
+Example 3:
+
+Input: nums = [0]
+Output: 0
+Example 4:
+
+Input: nums = [-1]
+Output: -1
+Example 5:
+
+Input: nums = [-100000]
+Output: -100000
+ 
+
+Constraints:
+
+1 <= nums.length <= 3 * 104
+-105 <= nums[i] <= 105
+"""
+
+
+class Solution:
+    def maxSubArray(self, nums):
+
+        if len(nums) <= 1:
+            return sum(nums)
+
+        final_max, curr_sum = float('-inf'), 0
+
+        for num in nums:
+            curr_sum = max(curr_sum + num, num)
+            final_max = max(final_max, curr_sum)
+
+        return final_max
+
+    # time O(n)
+    # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+1. Two Sum
+
+Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
+
+You may assume that each input would have exactly one solution, and you may not use the same element twice.
+
+You can return the answer in any order.
+
+ 
+
+Example 1:
+
+Input: nums = [2,7,11,15], target = 9
+Output: [0,1]
+Output: Because nums[0] + nums[1] == 9, we return [0, 1].
+Example 2:
+
+Input: nums = [3,2,4], target = 6
+Output: [1,2]
+Example 3:
+
+Input: nums = [3,3], target = 6
+Output: [0,1]
+"""
+
+
+class Solution:
+    def twoSum(self, nums, target):
+        hash_map = {}
+        for i in range(len(nums)):
+            num = nums[i]
+            diff = target - num
+            if diff in hash_map and hash_map[diff] != i:
+                return [hash_map[diff], i]
+
+            hash_map[num] = i
+
+        return []
+
+    # time O(n)
+    # space O(n)
 
 # -----------------------------------------------------------------------
 
