@@ -630,11 +630,192 @@ class Solution:
     # time O(n)
     # space O(n)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+346. Moving Average from Data Stream
+
+Given a stream of integers and a window size, calculate the moving average of all integers in the sliding window.
+
+Implement the MovingAverage class:
+
+MovingAverage(int size) Initializes the object with the size of the window size.
+double next(int val) Returns the moving average of the last size values of the stream.
+ 
+
+Example 1:
+
+Input
+["MovingAverage", "next", "next", "next", "next"]
+[[3], [1], [10], [3], [5]]
+Output
+[null, 1.0, 5.5, 4.66667, 6.0]
+
+Explanation
+MovingAverage movingAverage = new MovingAverage(3);
+movingAverage.next(1); // return 1.0 = 1 / 1
+movingAverage.next(10); // return 5.5 = (1 + 10) / 2
+movingAverage.next(3); // return 4.66667 = (1 + 10 + 3) / 3
+movingAverage.next(5); // return 6.0 = (10 + 3 + 5) / 3
+"""
+
+from collections import deque
+
+
+class MovingAverage:
+
+    def __init__(self, size: int):
+        """
+        Initialize your data structure here.
+        """
+        self.size = size
+        self.stream = deque([])
+        self.curr_sum = 0
+        self.curr_size = 0
+
+    def next(self, val: int) -> float:
+        if self.curr_size < self.size:
+            self.curr_size += 1
+        else:
+            self.curr_sum -= self.stream.popleft()
+
+        self.stream.append(val)
+        self.curr_sum += val
+
+        return self.curr_sum / self.curr_size
+
+    # time O(1)
+    # space O(size)
+
+
+# Your MovingAverage object will be instantiated and called as such:
+# obj = MovingAverage(size)
+# param_1 = obj.next(val)
 
 # -----------------------------------------------------------------------
+"""
+359. Logger Rate Limiter
+
+Design a logger system that receives a stream of messages along with their timestamps. Each unique message should 
+only be printed at most every 10 seconds (i.e. a message printed at timestamp t will prevent other identical messages 
+from being printed until timestamp t + 10).
+
+All messages will come in chronological order. Several messages may arrive at the same timestamp.
+
+Implement the Logger class:
+
+Logger() Initializes the logger object.
+bool shouldPrintMessage(int timestamp, string message) Returns true if the message should be printed in the given timestamp, otherwise returns false.
+ 
+
+Example 1:
+
+Input
+["Logger", "shouldPrintMessage", "shouldPrintMessage", "shouldPrintMessage", "shouldPrintMessage", "shouldPrintMessage", "shouldPrintMessage"]
+[[], [1, "foo"], [2, "bar"], [3, "foo"], [8, "bar"], [10, "foo"], [11, "foo"]]
+Output
+[null, true, true, false, false, false, true]
+
+"""
+
+
+class Logger:
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+
+        self.messages_last_print = {}
+
+    def shouldPrintMessage(self, timestamp: int, message: str) -> bool:
+        """
+        Returns true if the message should be printed in the given timestamp, otherwise returns false.
+        If this method returns false, the message will not be printed.
+        The timestamp is in seconds granularity.
+        """
+
+        if message not in self.messages_last_print:
+            self.messages_last_print[message] = timestamp
+            return True
+
+        if timestamp - self.messages_last_print[message] >= 10:
+            self.messages_last_print[message] = timestamp
+            return True
+
+        return False
+
+    # time O(1)
+    # space O(n)
+
+
+# Your Logger object will be instantiated and called as such:
+# obj = Logger()
+# param_1 = obj.shouldPrintMessage(timestamp,message)
+
+# -----------------------------------------------------------------------
+"""
+690. Employee Importance
+Easy
+
+874
+
+809
+
+Add to List
+
+Share
+You are given a data structure of employee information, which includes the employee's unique id, 
+their importance value and their direct subordinates' id.
+
+For example, employee 1 is the leader of employee 2, and employee 2 is the leader of employee 3. 
+They have importance value 15, 10 and 5, respectively. Then employee 1 has a data structure like [1, 15, [2]], 
+and employee 2 has [2, 10, [3]], and employee 3 has [3, 5, []]. Note that although employee 3 is also a subordinate of 
+employee 1, the relationship is not direct.
+
+Now given the employee information of a company, and an employee id, you need to return the total importance value 
+of this employee and all their subordinates.
+
+Example 1:
+
+Input: [[1, 5, [2, 3]], [2, 3, []], [3, 3, []]], 1
+Output: 11
+Explanation:
+Employee 1 has importance value 5, and he has two direct subordinates: employee 2 and employee 3. 
+They both have importance value 3. So the total importance value of employee 1 is 5 + 3 + 3 = 11.
+"""
+
+"""
+# Definition for Employee.
+class Employee:
+    def __init__(self, id: int, importance: int, subordinates: List[int]):
+        self.id = id
+        self.importance = importance
+        self.subordinates = subordinates
+"""
+
+from collections import deque
+
+
+class Solution:
+    def getImportance(self, employees, id):
+
+        employees_ids = {}
+        for employee in employees:
+            employees_ids[employee.id] = employee
+
+        q = deque([id])
+        total_importance = 0
+        while len(q) > 0:
+            curr_id = q.popleft()
+            curr_emmployee = employees_ids[curr_id]
+            total_importance += curr_emmployee.importance
+            q.extend(curr_emmployee.subordinates)
+
+        return total_importance
+
+    # time O(n)
+    # space O(n)
 
 # -----------------------------------------------------------------------
 
