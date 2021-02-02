@@ -681,7 +681,7 @@ class Solution:
 
 # -----------------------------------------------------------------------
 """
-975. Odd Even Jump
+975. Odd Even Jump  REVISE
 
 You are given an integer array A.  From some starting index, you can make a series of jumps.  The (1st, 3rd, 5th, ...) jumps in the series are called odd numbered jumps, and the (2nd, 4th, 6th, ...) jumps in the series are called even numbered jumps.
 
@@ -768,36 +768,36 @@ Note that the two extra dashes are not needed and can be removed.
 
 
 class Solution:
-    def licenseKeyFormatting(self, S, K):
-        res = []
-        alphanum = self.getAlphaNumeric(S)
-        curr = []
-        for i in range(len(alphanum) - 1, -1, -1):
-            curr.append(alphanum[i])
-            if len(curr) == K:
-                res.append(reversed(curr))
-                curr = []
-        if curr:
-            res.append(reversed(curr))
+    def licenseKeyFormatting(self, S: str, K: int) -> str:
+        S = remove_dashes(S)  # 2-5g-3-j => 25g3j
+        if not S:
+            return ''
+        S = S[::-1]  # 25g3j => j3g52
+        S = group_k(S, K)  # j3g52 => J3-G5-2
+        S = S[::-1]  # J3-G5-2 => 2-5G-3J
 
-        res.reverse()
-        temp = ''
-        for key in res:
-            for val in key:
-                temp += val
-            temp += '-'
+        return S
 
-        return temp[:-1]
 
-    def getAlphaNumeric(self, strs):
-        alphanum = []
-        for c in strs:
-            if c.isalnum():
-                if c.isalpha():
-                    alphanum.append(c.upper())
-                else:
-                    alphanum.append(c)
-        return alphanum
+def remove_dashes(S):
+    return ''.join(S.split('-'))
+
+
+def group_k(S, k):
+    res = []
+    for i in range(len(S) - 1):
+        res.append(get_upper(S[i]))
+        if (i + 1) % k == 0:
+            res.append('-')
+
+    res.append(get_upper(S[-1]))
+    return ''.join(res)
+
+
+def get_upper(char):
+    if char.isalpha():
+        return char.upper()
+    return char
 
 
 # -----------------------------------------------------------------------
