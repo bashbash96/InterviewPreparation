@@ -741,8 +741,73 @@ class Solution:
         # time O(n)
         # space O(n)
 
+
 # -----------------------------------------------------------------------
 
+"""
+Most frequent element in a BST
+
+Given a BST with duplicates, how do you find out the most frequent value?
+
+            50
+         /          \
+      40             58
+   /	  \         /    \
+  40      40       58     62
+Most frequent element is 40.
+
+Approaches:
+
+Do an inorder traversal and put all the nodes in an array. Then find the most frequent element in the array using 
+a hashmap.
+Do the inorder traversal using a bst iterator and maintain a running count and update 
+overall max count as and when we get a new element. Since the iterator returns elements in sorted order, 
+it is same as going over iterating over an array and maintain local count and overall max count. 
+Time Complexity - O(n), Space is O(h), h being the height of the tree.
+"""
+
+
+class TreeNode:
+    def __init__(self, val, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+
+curr_val, curr_count, max_freq_val, max_freq_count = None, 0, None, 0
+
+
+def most_freq(head):
+    if not head:
+        return head
+    in_order(head)
+
+    global curr_count, max_freq_count, max_freq_val
+    return max_freq_val if max_freq_count > curr_count else curr_val
+
+    # time O(n)
+    # space O(h)
+
+
+def in_order(node):
+    if not node:
+        return
+    in_order(node.left)
+
+    global curr_val, curr_count, max_freq_count, max_freq_val
+    if curr_val is None:
+        curr_val = node.val
+        curr_count = 1
+    else:
+        if curr_val == node.val:
+            curr_count += 1
+        else:
+            if curr_count > max_freq_count:
+                max_freq_count = curr_count
+                max_freq_val = curr_val
+            curr_count = 1
+            curr_val = node.val
+    in_order(node.right)
 
 # -----------------------------------------------------------------------
 
