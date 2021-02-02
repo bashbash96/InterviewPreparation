@@ -792,6 +792,7 @@ class Solution:
     # time O(n)
     # space O(1)
 
+
 # -----------------------------------------------------------------------
 """
 347. Top K Frequent Elements
@@ -836,6 +837,7 @@ class Solution:
 
     # time O(n)
     # space O(n)
+
 
 # -----------------------------------------------------------------------
 """
@@ -888,7 +890,47 @@ class Solution:
         # time O(h)
         # space O(h)
 
+
 # -----------------------------------------------------------------------
+"""
+3. Longest Substring Without Repeating Characters
+
+Given a string s, find the length of the longest substring without repeating characters.
+
+ 
+
+Example 1:
+
+Input: s = "abcabcbb"
+Output: 3
+Explanation: The answer is "abc", with the length of 3.
+
+Example 2:
+
+Input: s = "bbbbb"
+Output: 1
+Explanation: The answer is "b", with the length of 1.
+"""
+
+
+class Solution:
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        left, res, chars_map = 0, 0, {}
+        n = len(s)
+
+        for i in range(n):
+            if s[i] in chars_map:
+                prev_idx = chars_map[s[i]]
+                if prev_idx >= left:
+                    left = prev_idx + 1
+
+            res = max(res, i - left + 1)
+            chars_map[s[i]] = i
+
+        return res
+
+    # time O(n)
+    # space O(n)
 
 # -----------------------------------------------------------------------
 
