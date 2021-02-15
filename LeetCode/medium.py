@@ -667,7 +667,7 @@ Output: [1]
 #         self.left = left
 #         self.right = right
 class Solution:
-    def inorderTraversal(self, root: TreeNode) -> List[int]:
+    def inorderTraversal(self, root):
         if not root:
             return []
 
@@ -932,11 +932,163 @@ class Solution:
     # time O(n)
     # space O(n)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+11. Container With Most Water
+
+Given n non-negative integers a1, a2, ..., an , where each represents a point at
+coordinate (i, ai). n vertical lines are drawn such that the two endpoints of line i is at (i, ai) and (i, 0). 
+Find two lines, which together with x-axis forms a container, such that the container contains the most water.
+
+Note: You may not slant the container and n is at least 2.
+
+Example:
+
+Input: [1,8,6,2,5,4,8,3,7]
+Output: 49
+
+"""
+
+
+class Solution:
+    def maxArea(self, height):
+        left, right = 0, len(height) - 1
+        max_area = 0
+        while left < right:
+            curr_area = (right - left) * (min(height[left], height[right]))
+            max_area = max(max_area, curr_area)
+            if height[left] < height[right]:
+                left += 1
+            else:
+                right -= 1
+
+        return max_area
+
+        # time O(n)
+        # space O(1)
+
 
 # -----------------------------------------------------------------------
+"""
+15. 3Sum
+
+Given an array nums of n integers, are there elements a, b, c in nums such that a + b + c = 0? Find all unique triplets in the array which gives the sum of zero.
+
+Notice that the solution set must not contain duplicate triplets.
+
+ 
+
+Example 1:
+
+Input: nums = [-1,0,1,2,-1,-4]
+Output: [[-1,-1,2],[-1,0,1]]
+Example 2:
+
+Input: nums = []
+Output: []
+Example 3:
+
+Input: nums = [0]
+Output: []
+"""
+
+
+class Solution:
+    def threeSum(self, nums):
+        nums.sort()
+        n = len(nums)
+        res = []
+        for i in range(n):
+            if i > 0 and nums[i] == nums[i - 1]:
+                continue
+            if nums[i] > 0:
+                break
+            res += get_all_triples(nums, nums[i], i + 1, n - 1)
+
+        return res
+
+    # time O(n^2)
+    # space O(n)
+
+
+def get_all_triples(nums, curr_num, start, end):
+    res = []
+    while start < end:
+        curr_sum = curr_num + nums[start] + nums[end]
+        if curr_sum > 0:
+            end -= 1
+        elif curr_sum < 0:
+            start += 1
+        else:
+            res.append([curr_num, nums[start], nums[end]])
+            start += 1
+            end -= 1
+            while start < end and nums[start] == nums[start - 1]:
+                start += 1
+    return res
+
+
+# -----------------------------------------------------------------------
+"""
+31. Next Permutation
+
+Implement next permutation, which rearranges numbers into the lexicographically next greater permutation of numbers.
+
+If such an arrangement is not possible, it must rearrange it as the lowest possible order (i.e., sorted in ascending order).
+
+The replacement must be in place and use only constant extra memory.
+
+ 
+
+Example 1:
+
+Input: nums = [1,2,3]
+Output: [1,3,2]
+Example 2:
+
+Input: nums = [3,2,1]
+Output: [1,2,3]
+Example 3:
+
+Input: nums = [1,1,5]
+Output: [1,5,1]
+Example 4:
+
+Input: nums = [1]
+Output: [1]
+"""
+
+
+class Solution:
+    def nextPermutation(self, nums):
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+
+        i = len(nums) - 2
+
+        while i >= 0 and nums[i + 1] <= nums[i]:
+            i -= 1
+
+        if i >= 0:
+            j = len(nums) - 1
+            while j >= 0 and nums[i] >= nums[j]:
+                j -= 1
+
+            nums[i], nums[j] = nums[j], nums[i]
+
+        if i == -1:
+            nums.reverse()
+        else:
+            start, end = i + 1, len(nums) - 1
+            while start < end:
+                nums[start], nums[end] = nums[end], nums[start]
+                end -= 1
+                start += 1
+
+    # time O(n)
+    # space O(1)
 
 # -----------------------------------------------------------------------
 
