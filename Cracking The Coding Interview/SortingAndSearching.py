@@ -90,11 +90,10 @@ def merge(arr, start, end):
         if right[r] < left[l]:
             arr[k] = right[r]
             r += 1
-            k += 1
         else:
             arr[k] = left[l]
             l += 1
-            k += 1
+        k += 1
 
     while l < len(left):
         arr[k] = left[l]
@@ -144,16 +143,21 @@ def partition(arr, start, end):
 
 
 def countingSort(arr):
-    k = max(arr)
-    counts = [0 for i in range(k + 1)]
+    k = max(arr) + 2
+    counts = [0 for _ in range(k)]
     for val in arr:
+        counts[val + 1] += 1
+
+    for i in range(1, k):
+        counts[i] += counts[i - 1]
+
+    temp = [0] * len(arr)
+
+    for val in arr:
+        temp[counts[val]] = val
         counts[val] += 1
 
-    i = 0
-    for num in range(k + 1):
-        for c in range(counts[num]):
-            arr[i] = num
-            i += 1
+    arr = temp
 
     return arr
 
