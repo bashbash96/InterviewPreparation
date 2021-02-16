@@ -1090,16 +1090,321 @@ class Solution:
     # time O(n)
     # space O(1)
 
+
 # -----------------------------------------------------------------------
+"""
+1277. Count Square Submatrices with All Ones
+
+Given a m * n matrix of ones and zeros, return how many square submatrices have all ones.
+
+ 
+
+Example 1:
+
+Input: matrix =
+[
+  [0,1,1,1],
+  [1,1,1,1],
+  [0,1,1,1]
+]
+Output: 15
+Explanation: 
+There are 10 squares of side 1.
+There are 4 squares of side 2.
+There is  1 square of side 3.
+Total number of squares = 10 + 4 + 1 = 15.
+Example 2:
+
+Input: matrix = 
+[
+  [1,0,1],
+  [1,1,0],
+  [1,1,0]
+]
+Output: 7
+Explanation: 
+There are 6 squares of side 1.  
+There is 1 square of side 2. 
+Total number of squares = 6 + 1 = 7.
+"""
+
+
+class Solution:
+    def countSquares(self, matrix):
+        res = 0
+        for row in range(len(matrix)):
+            for col in range(len(matrix[0])):
+                if matrix[row][col] == 1:
+                    res += 1
+                if row == 0 or col == 0 or matrix[row][col] == 0:
+                    continue
+                min_val = get_min_val(matrix, row, col)
+                matrix[row][col] += min_val
+                res += min_val
+
+        return res
+
+    # time O(n * m)
+    # space O(1)
+
+
+def get_min_val(mat, row, col):
+    up = mat[row - 1][col]
+    left = mat[row][col - 1]
+    diagonal = mat[row - 1][col - 1]
+    return min(up, left, diagonal)
+
+
+# -----------------------------------------------------------------------
+"""
+1110. Delete Nodes And Return Forest
+
+Given the root of a binary tree, each node in the tree has a distinct value.
+
+After deleting all nodes with a value in to_delete, we are left with a forest (a disjoint union of trees).
+
+Return the roots of the trees in the remaining forest.  You may return the result in any order.
+ 
+
+Example 1:
+
+Input: root = [1,2,3,4,5,6,7], to_delete = [3,5]
+Output: [[1,2,null,4],[6],[7]]
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+class Solution:
+    def delNodes(self, root, to_delete):
+        to_delete = set(to_delete)
+
+        forests = []
+        delete_vals(root, to_delete, forests)
+        if root.val not in to_delete:
+            forests.append(root)
+
+        return forests
+
+    # time O(n)
+    # space O(n)
+
+
+def delete_vals(head, vals_to_delete, forests):
+    if not head:
+        return None
+
+    head.left = delete_vals(head.left, vals_to_delete, forests)
+    head.right = delete_vals(head.right, vals_to_delete, forests)
+
+    if head.val in vals_to_delete:
+        if head.left:
+            forests.append(head.left)
+        if head.right:
+            forests.append(head.right)
+
+        return None
+
+    return head
+
+
+# -----------------------------------------------------------------------
+"""
+43. Multiply Strings
+
+Given two non-negative integers num1 and num2 represented as strings, return the product of num1 and num2, also represented as a string.
+
+Note: You must not use any built-in BigInteger library or convert the inputs to integer directly.
+
+ 
+
+Example 1:
+
+Input: num1 = "2", num2 = "3"
+Output: "6"
+Example 2:
+
+Input: num1 = "123", num2 = "456"
+Output: "56088"
+ 
+
+Constraints:
+
+1 <= num1.length, num2.length <= 200
+num1 and num2 consist of digits only.
+Both num1 and num2 do not contain any leading zero, except the number 0 itself.
+"""
+
+
+class Solution:
+    def multiply(self, num1: str, num2: str) -> str:
+
+        if num1 == '0' or num2 == '0':
+            return '0'
+
+        if len(num2) < len(num1):
+            return self.multiply(num2, num1)
+
+        num1 = [int(dig) for dig in reversed(num1)]
+        num2 = [int(dig) for dig in reversed(num2)]
+        res = []
+        for i in range(len(num1)):
+            curr_mult = [0] * i
+
+            curr_mult += mult_digit(num1[i], num2)
+            res = sum_nums(res, curr_mult)
+
+        return ''.join([str(dig) for dig in reversed(res)])
+
+    # time O(n * m)
+    # space O(n + m)
+
+
+def sum_nums(num1, num2):
+    res = []
+    carry = 0
+
+    p1, p2 = 0, 0
+
+    while p1 < len(num1) and p2 < len(num2):
+        sum_ = num1[p1] + num2[p2] + carry
+        res.append(sum_ % 10)
+        carry = sum_ // 10
+        p1 += 1
+        p2 += 1
+
+    while p1 < len(num1):
+        sum_ = num1[p1] + carry
+        res.append(sum_ % 10)
+        carry = sum_ // 10
+        p1 += 1
+
+    while p2 < len(num2):
+        sum_ = num2[p2] + carry
+        res.append(sum_ % 10)
+        carry = sum_ // 10
+        p2 += 1
+
+    if carry:
+        res.append(1)
+
+    return res
+
+
+def mult_digit(digit, num):
+    res = []
+    carry = 0
+    for dig in num:
+        mult = (digit * dig) + carry
+        res.append(mult % 10)
+        carry = mult // 10
+
+    if carry:
+        res.append(carry)
+
+    return res
+
+
+# -----------------------------------------------------------------------
+"""
+48. Rotate Image
+
+You are given an n x n 2D matrix representing an image, rotate the image by 90 degrees (clockwise).
+
+You have to rotate the image in-place, which means you have to modify the input 2D matrix directly. DO NOT allocate another 2D matrix and do the rotation.
+
+ 
+
+Example 1:
+
+
+Input: matrix = [[1,2,3],[4,5,6],[7,8,9]]
+Output: [[7,4,1],[8,5,2],[9,6,3]]
+
+Example 2:
+
+Input: matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]
+Output: [[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]
+
+Example 3:
+
+Input: matrix = [[1]]
+Output: [[1]]
+
+Example 4:
+
+Input: matrix = [[1,2],[3,4]]
+Output: [[3,1],[4,2]]
+"""
+
+
+class Solution:
+    def rotate(self, matrix):
+        """
+        Do not return anything, modify matrix in-place instead.
+        """
+        N = len(matrix)
+        for row in range(N // 2):
+            for col in range(row, N - row - 1):
+                rotate(matrix, row, col)
+
+        # time O(n^2)
+        # space O(1)
+
+
+def rotate(matrix, curr_row, curr_col):
+    N = len(matrix)
+    top_left = matrix[curr_row][curr_col]
+    matrix[curr_row][curr_col] = matrix[N - curr_col - 1][curr_row]
+    matrix[N - curr_col - 1][curr_row] = matrix[N - curr_row - 1][N - curr_col - 1]
+    matrix[N - curr_row - 1][N - curr_col - 1] = matrix[curr_col][N - curr_row - 1]
+    matrix[curr_col][N - curr_row - 1] = top_left
+
 
 # -----------------------------------------------------------------------
 
+"""
+55. Jump Game
 
-# -----------------------------------------------------------------------
+Given an array of non-negative integers nums, you are initially positioned at the first index of the array.
 
-# -----------------------------------------------------------------------
+Each element in the array represents your maximum jump length at that position.
 
-# -----------------------------------------------------------------------
+Determine if you are able to reach the last index.
+
+ 
+
+Example 1:
+
+Input: nums = [2,3,1,1,4]
+Output: true
+Explanation: Jump 1 step from index 0 to 1, then 3 steps to the last index.
+Example 2:
+
+Input: nums = [3,2,1,0,4]
+Output: false
+Explanation: You will always arrive at index 3 no matter what. Its maximum jump length is 0, which makes it impossible to reach the last index.
+"""
+
+
+class Solution:
+    def canJump(self, nums):
+        n = len(nums)
+        lastIdx = n - 1
+
+        for i in range(n - 2, -1, -1):
+            if i + nums[i] >= lastIdx:
+                lastIdx = i
+
+        return lastIdx == 0
+
+    # time O(n)
+    # space O(1)
 
 # -----------------------------------------------------------------------
 
