@@ -78,11 +78,12 @@ Clarification: The input/output format is the same as how LeetCode serializes a 
 
 
 # Definition for a binary tree node.
-# class TreeNode(object):
-#     def __init__(self, x):
-#         self.val = x
-#         self.left = None
-#         self.right = None
+class TreeNode(object):
+    def __init__(self, x):
+        self.val = x
+        self.left = None
+        self.right = None
+
 
 class Codec:
 
@@ -259,9 +260,183 @@ def visit_sequence(nums, num, visited):
 
     return counter
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+489. Robot Room Cleaner
+
+Given a robot cleaner in a room modeled as a grid.
+
+Each cell in the grid can be empty or blocked.
+
+The robot cleaner with 4 given APIs can move forward, turn left or turn right. Each turn it made is 90 degrees.
+
+When it tries to move into a blocked cell, its bumper sensor detects the obstacle and it stays on the current cell.
+
+Design an algorithm to clean the entire room using only the 4 given APIs shown below.
+
+interface Robot {
+  // returns true if next cell is open and robot moves into the cell.
+  // returns false if next cell is obstacle and robot stays on the current cell.
+  boolean move();
+
+  // Robot will stay on the same cell after calling turnLeft/turnRight.
+  // Each turn will be 90 degrees.
+  void turnLeft();
+  void turnRight();
+
+  // Clean the current cell.
+  void clean();
+}
+Example:
+
+Input:
+room = [
+  [1,1,1,1,1,0,1,1],
+  [1,1,1,1,1,0,1,1],
+  [1,0,1,1,1,1,1,1],
+  [0,0,0,1,0,0,0,0],
+  [1,1,1,1,1,1,1,1]
+],
+row = 1,
+col = 3
+
+Explanation:
+All grids in the room are marked by either 0 or 1.
+0 means the cell is blocked, while 1 means the cell is accessible.
+The robot initially starts at the position of row=1, col=3.
+From the top left corner, its position is one row below and three columns right.
+"""
+
+
+# """
+# This is the robot's control interface.
+# You should not implement it, or speculate about its implementation
+# """
+# class Robot:
+#    def move(self):
+#        """
+#        Returns true if the cell in front is open and robot moves into the cell.
+#        Returns false if the cell in front is blocked and robot stays in the current cell.
+#        :rtype bool
+#        """
+#
+#    def turnLeft(self):
+#        """
+#        Robot will stay in the same cell after calling turnLeft/turnRight.
+#        Each turn will be 90 degrees.
+#        :rtype void
+#        """
+#
+#    def turnRight(self):
+#        """
+#        Robot will stay in the same cell after calling turnLeft/turnRight.
+#        Each turn will be 90 degrees.
+#        :rtype void
+#        """
+#
+#    def clean(self):
+#        """
+#        Clean the current cell.
+#        :rtype void
+#        """
+
+class Solution:
+    def cleanRoom(self, robot):
+        """
+        :type robot: Robot
+        :rtype: None
+        """
+
+        visited = set()
+
+        directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+
+        def go_back():
+            robot.turnRight()
+            robot.turnRight()
+            robot.move()
+            robot.turnRight()
+            robot.turnRight()
+
+        def dfs_visit(location, direction):
+
+            visited.add(location)
+            robot.clean()
+
+            for i in range(4):
+                new_direction = (direction + i) % 4
+
+                new_location = (location[0] + directions[new_direction][0], \
+                                location[1] + directions[new_direction][1])
+
+                if new_location not in visited and robot.move():
+                    dfs_visit(new_location, new_direction)
+                    go_back()
+                robot.turnRight()
+
+        dfs_visit((0, 0), 0)
+
+
+# -----------------------------------------------------------------------
+"""
+76. Minimum Window Substring
+
+Given two strings s and t, return the minimum window in s which will contain all the characters in t. If there is no such window in s that covers all characters in t, return the empty string "".
+
+Note that If there is such a window, it is guaranteed that there will always be only one unique minimum window in s.
+
+ 
+
+Example 1:
+
+Input: s = "ADOBECODEBANC", t = "ABC"
+Output: "BANC"
+Example 2:
+
+Input: s = "a", t = "a"
+Output: "a"
+ 
+"""
+
+from collections import Counter
+
+
+class Solution:
+    def minWindow(self, s: str, t: str) -> str:
+        start_idx, length = 0, float('inf')
+        char_counts = Counter(t)
+        left = 0
+        remained_chars = len(char_counts)
+        for i, char in enumerate(s):
+            # we need to process only chars that are in the t string
+            if char not in char_counts:
+                continue
+
+            char_counts[char] -= 1
+            # if the counter reached to 0, it means we have encountered all the needed counter for thi char
+            if char_counts[char] == 0:
+                remained_chars -= 1
+
+            # encountered all the chars with all the needed counter
+            if remained_chars == 0:
+                # try to minimize the window
+                while left <= i and remained_chars == 0:
+                    if s[left] in char_counts:
+                        char_counts[s[left]] += 1
+                        if char_counts[s[left]] > 0:
+                            remained_chars += 1
+                    left += 1
+                # check if its less than the current min window
+                curr_length = i - (left - 1) + 1
+                if curr_length < length:
+                    length = curr_length
+                    start_idx = left - 1
+
+        return '' if length == float('inf') else s[start_idx: start_idx + length]
+
+    # time O(n + m)
+    # space O(m)
 
 # -----------------------------------------------------------------------
 
