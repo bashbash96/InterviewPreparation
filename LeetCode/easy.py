@@ -756,15 +756,7 @@ class Logger:
 # -----------------------------------------------------------------------
 """
 690. Employee Importance
-Easy
 
-874
-
-809
-
-Add to List
-
-Share
 You are given a data structure of employee information, which includes the employee's unique id, 
 their importance value and their direct subordinates' id.
 
@@ -808,16 +800,67 @@ class Solution:
         total_importance = 0
         while len(q) > 0:
             curr_id = q.popleft()
-            curr_emmployee = employees_ids[curr_id]
-            total_importance += curr_emmployee.importance
-            q.extend(curr_emmployee.subordinates)
+            curr_employee = employees_ids[curr_id]
+            total_importance += curr_employee.importance
+            q.extend(curr_employee.subordinates)
 
         return total_importance
 
     # time O(n)
     # space O(n)
 
+
 # -----------------------------------------------------------------------
+"""
+66. Plus One
+
+Given a non-empty array of decimal digits representing a non-negative integer, increment one to the integer.
+
+The digits are stored such that the most significant digit is at the head of the list, and each element in the array contains a single digit.
+
+You may assume the integer does not contain any leading zero, except the number 0 itself.
+
+ 
+
+Example 1:
+
+Input: digits = [1,2,3]
+Output: [1,2,4]
+Explanation: The array represents the integer 123.
+Example 2:
+
+Input: digits = [4,3,2,1]
+Output: [4,3,2,2]
+Explanation: The array represents the integer 4321.
+Example 3:
+
+Input: digits = [0]
+Output: [1]
+"""
+
+
+class Solution:
+    def plusOne(self, digits):
+        if digits == [0]:
+            return [1]
+
+        digits.reverse()
+
+        carry = 1
+        for i in range(len(digits)):
+            curr_sum = digits[i] + carry
+            digits[i] = curr_sum % 10
+            carry = curr_sum // 10
+            if not carry:
+                return reversed(digits)
+
+        if carry:
+            digits.append(carry)
+
+        return reversed(digits)
+
+    # time O(n)
+    # space O(1)
 
 # -----------------------------------------------------------------------
 
