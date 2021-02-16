@@ -1,80 +1,88 @@
 # -----------------------------------------------------------------------
 """
-Sort List
+Intersection Of Sorted Arrays
 
-Sort a linked list in O(n log n) time using constant space complexity.
+Find the intersection of two sorted arrays.
+OR in other words,
+Given 2 sorted arrays, find all the elements which occur in both the arrays.
 
 Example :
 
-Input : 1 -> 5 -> 4 -> 3
+Input :
+    A : [1 2 3 3 4 5 6]
+    B : [3 3 5]
 
-Returned list : 1 -> 3 -> 4 -> 5
+Output : [3 3 5]
 
+Input :
+    A : [1 2 3 3 4 5 6]
+    B : [3 5]
+
+Output : [3 5]
 """
 
 
-# Definition for singly-linked list.
-class ListNode:
-    def __init__(self, x):
-        self.val = x
-        self.next = None
+class Solution:
+    # @param A : tuple of integers
+    # @param B : tuple of integers
+    # @return a list of integers
+    def intersect(self, A, B):
+        if len(A) > len(B):
+            return self.intersect(B, A)
+
+        res = []
+        i, j = 0, 0
+        while i < len(A) and j < len(B):
+            if A[i] == B[j]:
+                res.append(A[i])
+                i += 1
+                j += 1
+            elif A[i] < B[j]:
+                i += 1
+            else:
+                j += 1
+
+        return res
+
+    # time O(n + m)
+    # space O(min(n, m))
+
+
+# -----------------------------------------------------------------------
+"""
+Remove Duplicates from Sorted Array
+
+Remove duplicates from Sorted Array
+Given a sorted array, remove the duplicates in place such that each element appears only once and return the new length.
+
+Note that even though we want you to return the new length, make sure to change the original array as well in place
+
+Do not allocate extra space for another array, you must do this in place with constant memory.
+"""
 
 
 class Solution:
-    # @param A : head node of linked list
-    # @return the head node in the linked list
-    def sortList(self, A):
-        return merge_sort(A)
+    # @param A : list of integers
+    # @return an integer
+    def removeDuplicates(self, A):
+        length, i = 0, 0
 
-    # time O(n*log(n))
-    # space O(n)
+        while i < len(A):
+            if i < len(A) - 1 and A[i] == A[i + 1]:
+                i += 1
+                continue
+            else:
+                A[length] = A[i]
+                length += 1
+            i += 1
+        return length
 
-
-def merge_sort(head):
-    if not head or not head.next:
-        return head
-
-    slow, fast = head, head.next
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next.next
-
-    if not slow:
-        return head
-
-    head1 = head
-    head2 = slow.next
-    slow.next = None
-    head1 = merge_sort(head1)
-    head2 = merge_sort(head2)
-
-    return merge(head1, head2)
-
-
-def merge(head1, head2):
-    p1, p2 = head1, head2
-    res = ListNode('DUMMY')
-    curr = res
-    while p1 or p2:
-        if not p2:
-            curr.next = p1
-            break
-        if not p1:
-            curr.next = p2
-            break
-
-        if p1.val < p2.val:
-            curr.next = p1
-            p1 = p1.next
-        else:
-            curr.next = p2
-            p2 = p2.next
-        curr = curr.next
-
-    return res.next
+    # time O(n)
+    # space O(1)
 
 # -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
+
+
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------

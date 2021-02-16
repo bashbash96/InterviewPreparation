@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------------
 
-""" REVISE
+"""
 Given a string S and a string T, find the minimum window in S which will contain all the
 characters in T in linear time complexity.
 Note that when the count of a character C in T is N, then the count of C in minimum window in S should be at least N.
@@ -55,6 +55,73 @@ class Solution:
 
     # time O(n + m)
     # space O(n + m)
+
+
+# -----------------------------------------------------------------------
+"""
+Longest Consecutive Sequence
+
+Given an unsorted array of integers, find the length of the longest consecutive elements sequence.
+
+Example:
+Given [100, 4, 200, 1, 3, 2],
+The longest consecutive elements sequence is [1, 2, 3, 4]. Return its length: 4.
+
+Your algorithm should run in O(n) complexity.
+"""
+
+
+class Solution:
+    # @param A : tuple of integers
+    # @return an integer
+    def longestConsecutive(self, A):
+        max_length = 0
+        visited = set()
+        nums = set(A)
+
+        for num in A:
+            max_length = max(max_length, get_component_length(num, nums, visited))
+
+        return max_length
+
+    # time O(n)
+    # space O(n)
+
+
+def get_component_length(num, nums, visited):
+    if num in visited:
+        return 1
+
+    visited.add(num)
+    length = 1
+
+    def traverse_component(curr_num, jump):
+        nonlocal length
+        nonlocal visited
+        while curr_num in nums:
+            visited.add(curr_num)
+            length += 1
+            curr_num += jump
+
+    # check right neighbors
+    traverse_component(num + 1, 1)
+    # curr_num = num + 1
+    # while curr_num in nums:
+    #     visited.add(curr_num)
+    #     curr_num += 1
+    #     length += 1
+
+    # check left neighbors
+    traverse_component(num - 1, -1)
+    # curr_num = num - 1
+    # while curr_num in nums:
+    #     visited.add(curr_num)
+    #     curr_num -= 1
+    #     length += 1
+
+    return length
+
+# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
 
