@@ -862,13 +862,236 @@ class Solution:
     # time O(n)
     # space O(1)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+938. Range Sum of BST
+
+Given the root node of a binary search tree, return the sum of values of all nodes with a value in the range [low, high].
+
+ 
+
+Example 1:
+
+
+Input: root = [10,5,15,3,7,null,18], low = 7, high = 15
+Output: 32
+Example 2:
+
+
+Input: root = [10,5,15,3,7,13,18,1,null,6], low = 6, high = 10
+Output: 23
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def rangeSumBST(self, root: TreeNode, low: int, high: int) -> int:
+        return get_sum(root, low, high)
+
+
+def get_sum(node, low, high):
+    if not node:
+        return 0
+
+    if node.val < low:
+        return get_sum(node.right, low, high)
+    elif node.val > high:
+        return get_sum(node.left, low, high)
+
+    return get_sum(node.left, low, high) + node.val + get_sum(node.right, low, high)
+
+    # time O(h + (high - low))
+    # space O(h)
+
 
 # -----------------------------------------------------------------------
+"""
+1021. Remove Outermost Parentheses
+Easy
+
+725
+
+790
+
+Add to List
+
+Share
+A valid parentheses string is either empty (""), "(" + A + ")", or A + B, where A and B are valid parentheses strings, and + represents string concatenation.  For example, "", "()", "(())()", and "(()(()))" are all valid parentheses strings.
+
+A valid parentheses string S is primitive if it is nonempty, and there does not exist a way to split it into S = A+B, with A and B nonempty valid parentheses strings.
+
+Given a valid parentheses string S, consider its primitive decomposition: S = P_1 + P_2 + ... + P_k, where P_i are primitive valid parentheses strings.
+
+Return S after removing the outermost parentheses of every primitive string in the primitive decomposition of S.
+
+ 
+
+Example 1:
+
+Input: "(()())(())"
+Output: "()()()"
+Explanation: 
+The input string is "(()())(())", with primitive decomposition "(()())" + "(())".
+After removing outer parentheses of each part, this is "()()" + "()" = "()()()".
+Example 2:
+
+Input: "(()())(())(()(()))"
+Output: "()()()()(())"
+Explanation: 
+The input string is "(()())(())(()(()))", with primitive decomposition "(()())" + "(())" + "(()(()))".
+After removing outer parentheses of each part, this is "()()" + "()" + "()(())" = "()()()()(())".
+Example 3:
+
+Input: "()()"
+Output: ""
+Explanation: 
+The input string is "()()", with primitive decomposition "()" + "()".
+After removing outer parentheses of each part, this is "" + "" = "".
+"""
+
+
+class Solution:
+    def removeOuterParentheses(self, S: str) -> str:
+
+        curr_group = []
+        res = []
+        counter = 0
+        for c in S:
+            curr_group.append(c)
+            if c == '(':
+                counter += 1
+            else:
+                counter -= 1
+
+            if counter == 0:
+                # remove outermost parentheses
+                curr = ''.join(curr_group[1:-1])
+                res.append(curr)
+                curr_group = []
+
+        return ''.join(res)
+
+    # time O(n)
+    # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+617. Merge Two Binary Trees
+
+You are given two binary trees root1 and root2.
+
+Imagine that when you put one of them to cover the other, some nodes of the two trees are overlapped while the others are not. You need to merge the two trees into a new binary tree. The merge rule is that if two nodes overlap, then sum node values up as the new value of the merged node. Otherwise, the NOT null node will be used as the node of the new tree.
+
+Return the merged tree.
+
+Note: The merging process must start from the root nodes of both trees.
+
+ 
+
+Example 1:
+
+
+Input: root1 = [1,3,2,5], root2 = [2,1,3,null,4,null,7]
+Output: [3,4,5,5,4,null,7]
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def mergeTrees(self, root1, root2):
+
+        if not root1 and not root2:
+            return None
+
+        if not root1:
+            return root2
+
+        if not root2:
+            return root1
+
+        root1.left = self.mergeTrees(root1.left, root2.left)
+        root1.val += root2.val
+        root1.right = self.mergeTrees(root1.right, root2.right)
+
+        return root1
+
+    # time O(n) n : total nodes
+    # space O(h)
+
+
+# -----------------------------------------------------------------------
+"""
+163. Missing Ranges
+
+You are given an inclusive range [lower, upper] and a sorted unique integer array nums, where all elements are in the inclusive range.
+
+A number x is considered missing if x is in the range [lower, upper] and x is not in nums.
+
+Return the smallest sorted list of ranges that cover every missing number exactly. That is, no element of nums is in any of the ranges, and each missing number is in one of the ranges.
+
+Each range [a,b] in the list should be output as:
+
+"a->b" if a != b
+"a" if a == b
+ 
+
+Example 1:
+
+Input: nums = [0,1,3,50,75], lower = 0, upper = 99
+Output: ["2","4->49","51->74","76->99"]
+Explanation: The ranges are:
+[2,2] --> "2"
+[4,49] --> "4->49"
+[51,74] --> "51->74"
+[76,99] --> "76->99"
+Example 2:
+
+Input: nums = [], lower = 1, upper = 1
+Output: ["1"]
+Explanation: The only missing range is [1,1], which becomes "1".
+"""
+
+
+class Solution:
+    def findMissingRanges(self, nums: List[int], lower: int, upper: int) -> List[str]:
+        curr_low = lower
+
+        res = []
+        for num in nums:
+            if num == curr_low:
+                curr_low += 1
+            elif num > curr_low:
+                curr_low = add_range(res, num - 1, curr_low)
+                if curr_low > upper:
+                    break
+
+        if curr_low <= upper:
+            add_range(res, upper, curr_low)
+        return res
+
+    # time O(n)
+    # space O(n)
+
+
+def add_range(res, upper, lower):
+    if upper == lower:
+        res.append(str(lower))
+    else:
+        res.append(f'{lower}->{upper}')
+
+    return upper + 2
 
 # -----------------------------------------------------------------------
 
