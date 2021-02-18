@@ -1619,18 +1619,413 @@ class Solution:
     # time O(n)
     # space O(1)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+695. Max Area of Island
+
+Given a non-empty 2D array grid of 0's and 1's, an island is a group of 1's (representing land) connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded by water.
+
+Find the maximum area of an island in the given 2D array. (If there is no island, the maximum area is 0.)
+
+Example 1:
+
+[[0,0,1,0,0,0,0,1,0,0,0,0,0],
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],
+ [0,1,1,0,1,0,0,0,0,0,0,0,0],
+ [0,1,0,0,1,1,0,0,1,0,1,0,0],
+ [0,1,0,0,1,1,0,0,1,1,1,0,0],
+ [0,0,0,0,0,0,0,0,0,0,1,0,0],
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],
+ [0,0,0,0,0,0,0,1,1,0,0,0,0]]
+Given the above grid, return 6. Note the answer is not 11, because the island must be connected 4-directionally.
+Example 2:
+
+[[0,0,0,0,0,0,0,0]]
+Given the above grid, return 0.
+Note: The length of each dimension in the given grid does not exceed 50.
+"""
+
+
+class Solution:
+    def maxAreaOfIsland(self, grid):
+
+        max_area = 0
+        visited = set()
+        for row in range(len(grid)):
+            for col in range(len(grid[0])):
+                max_area = max(max_area, get_island_area(grid, visited, row, col))
+
+        return max_area
+
+    # time O(n * m)
+    # space O(n * m)
+
+
+def is_valid(grid, row, col):
+    if row < 0 or col < 0 or row >= len(grid) or col >= len(grid[0]) or grid[row][col] == 0:
+        return False
+
+    return True
+
+
+def get_neighbors_directions():
+    return [(-1, 0), (0, 1), (1, 0), (0, -1)]
+
+
+def get_island_area(grid, visited, row, col):
+    if not is_valid(grid, row, col) or (row, col) in visited:
+        return 0
+
+    visited.add((row, col))
+    area = 1
+    for dx, dy in get_neighbors_directions():
+        area += get_island_area(grid, visited, row + dx, col + dy)
+
+    return area
+
+
+"""
+0 1 1 0
+0 1 0 0
+1 0 1 0
+
+visited = ((0, 1), (0, 2), (1, 1)), max_area = 3
+row = 0, col = 1 => area = 1 + 1 + 1 => return 3
+    row = 0, col = 2 => return 1
+    row = 1, col = 1 => return 1
+    
+"""
 
 # -----------------------------------------------------------------------
+"""
+946. Validate Stack Sequences
+
+Given two sequences pushed and popped with distinct values, return true if and only if this could have been the result of a sequence of push and pop operations on an initially empty stack.
+
+ 
+
+Example 1:
+
+Input: pushed = [1,2,3,4,5], popped = [4,5,3,2,1]
+Output: true
+Explanation: We might do the following sequence:
+push(1), push(2), push(3), push(4), pop() -> 4,
+push(5), pop() -> 5, pop() -> 3, pop() -> 2, pop() -> 1
+Example 2:
+
+Input: pushed = [1,2,3,4,5], popped = [4,3,5,1,2]
+Output: false
+Explanation: 1 cannot be popped before 2.
+ 
+
+Constraints:
+
+0 <= pushed.length == popped.length <= 1000
+0 <= pushed[i], popped[i] < 1000
+pushed is a permutation of popped.
+pushed and popped have distinct values.
+"""
+
+
+class Solution:
+    def validateStackSequences(self, pushed, popped):
+
+        if len(pushed) != len(popped):
+            return False
+
+        push_idx, pop_idx = 0, 0
+        stack = []
+
+        while push_idx < len(pushed):
+            stack.append(pushed[push_idx])
+            push_idx += 1
+
+            while stack and pop_idx < len(popped) and stack[-1] == popped[pop_idx]:
+                stack.pop()
+                pop_idx += 1
+
+        return len(stack) == 0
+
+    # time O(n)
+    # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+681. Next Closest Time
+
+Given a time represented in the format "HH:MM", form the next closest time by reusing the current digits. There is no limit on how many times a digit can be reused.
+
+You may assume the given input string is always valid. For example, "01:34", "12:09" are all valid. "1:34", "12:9" are all invalid.
+
+
+
+Example 1:
+
+Input: time = "19:34"
+Output: "19:39"
+Explanation: The next closest time choosing from digits 1, 9, 3, 4, is 19:39, which occurs 5 minutes later.
+It is not 19:33, because this occurs 23 hours and 59 minutes later.
+Example 2:
+
+Input: time = "23:59"
+Output: "22:22"
+Explanation: The next closest time choosing from digits 2, 3, 5, 9, is 22:22.
+It may be assumed that the returned time is next day's time since it is smaller than the input time numerically.
+"""
+
+SECS = 60
+HOURS = 24
+
+
+class Solution:
+    def nextClosestTime(self, time: str) -> str:
+        hours, minutes = time.split(':')
+        total_mins = int(hours) * SECS + int(minutes)
+
+        valid_digits = set(get_integers(hours) + get_integers(minutes))
+        while True:
+            total_mins = (total_mins + 1) % (SECS * HOURS)
+            curr_digits = set(get_digits(total_mins))
+
+            if curr_digits.intersection(valid_digits) == curr_digits:
+                return formate_time(total_mins)
+
+    # time O(1)
+    # space O(1)
+
+
+def get_integers(strs):
+    return list(map(lambda x: int(x), list(strs)))
+
+
+def get_digits(minutes):
+    res = []
+    res.append(minutes // 60 // 10)  # left hours
+    res.append(minutes // 60 % 10)  # right hours
+    res.append(minutes % 60 // 10)  # left minutes
+    res.append(minutes % 60 % 10)  # right minutes
+
+    return res
+
+
+def formate_time(minutes):
+    digits = get_digits(minutes)
+
+    return f'{digits[0]}{digits[1]}:{digits[2]}{digits[3]}'
 
 
 # -----------------------------------------------------------------------
+"""
+19. Remove Nth Node From End of List
+
+Given the head of a linked list, remove the nth node from the end of the list and return its head.
+
+Follow up: Could you do this in one pass?
+
+ 
+
+Example 1:
+
+
+Input: head = [1,2,3,4,5], n = 2
+Output: [1,2,3,5]
+Example 2:
+
+Input: head = [1], n = 1
+Output: []
+Example 3:
+
+Input: head = [1,2], n = 1
+Output: [1]
+"""
+
+
+# Definition for singly-linked list.
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+
+class Solution:
+    def removeNthFromEnd(self, head, n):
+        dummy = ListNode('DUMMY')
+        dummy.next = head
+        prev, curr = dummy, dummy
+
+        while curr and n >= 0:
+            curr = curr.next
+            n -= 1
+
+        while curr:
+            curr = curr.next
+            prev = prev.next
+
+        prev.next = prev.next.next
+
+        return dummy.next
+
+    # time O(n)
+    # space O(1)
+
 
 # -----------------------------------------------------------------------
+"""
+2. Add Two Numbers
+
+You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.
+
+You may assume the two numbers do not contain any leading zero, except the number 0 itself.
+
+ 
+
+Example 1:
+
+
+Input: l1 = [2,4,3], l2 = [5,6,4]
+Output: [7,0,8]
+Explanation: 342 + 465 = 807.
+Example 2:
+
+Input: l1 = [0], l2 = [0]
+Output: [0]
+"""
+
+
+class Solution:
+    def addTwoNumbers(self, l1, l2):
+        p1, p2 = l1, l2
+        res = curr = ListNode('DUMMY')
+        curr_sum = 0
+        carry = 0
+        while p1 and p2:
+            new_node = ListNode(0)
+            curr_sum = p1.val + p2.val + carry
+            new_node.val = curr_sum % 10
+            curr.next = new_node
+            carry = curr_sum // 10
+            p1 = p1.next
+            p2 = p2.next
+            curr = curr.next
+
+        while p2:
+            new_node = ListNode(0)
+            if carry == 0:
+                curr.next = p2
+                return res.next
+
+            curr_sum = p2.val + carry
+            new_node.val = curr_sum % 10
+            curr.next = new_node
+            carry = curr_sum // 10
+            p2 = p2.next
+            curr = curr.next
+
+        while p1:
+            new_node = ListNode(0)
+            if carry == 0:
+                curr.next = p1
+                return res.next
+
+            curr_sum = p1.val + carry
+            new_node.val = curr_sum % 10
+            curr.next = new_node
+            carry = curr_sum // 10
+            p1 = p1.next
+            curr = curr.next
+
+        if carry:
+            curr.next = ListNode(carry)
+
+        return res.next
+
+    # time O(n + m)
+    # space O(n + m)
+
+
+# -----------------------------------------------------------------------
+"""
+138. Copy List with Random Pointer
+
+A linked list of length n is given such that each node contains an additional random pointer, which could point to any node in the list, or null.
+
+Construct a deep copy of the list. The deep copy should consist of exactly n brand new nodes, where each new node has its value set to the value of its corresponding original node. Both the next and random pointer of the new nodes should point to new nodes in the copied list such that the pointers in the original list and copied list represent the same list state. None of the pointers in the new list should point to nodes in the original list.
+
+For example, if there are two nodes X and Y in the original list, where X.random --> Y, then for the corresponding two nodes x and y in the copied list, x.random --> y.
+
+Return the head of the copied linked list.
+
+The linked list is represented in the input/output as a list of n nodes. Each node is represented as a pair of [val, random_index] where:
+
+val: an integer representing Node.val
+random_index: the index of the node (range from 0 to n-1) that the random pointer points to, or null if it does not point to any node.
+Your code will only be given the head of the original linked list.
+
+ 
+
+Example 1:
+
+
+Input: head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+Output: [[7,null],[13,0],[11,4],[10,2],[1,0]]
+Example 2:
+
+
+Input: head = [[1,1],[2,1]]
+Output: [[1,1],[2,1]]
+Example 3:
+
+
+
+Input: head = [[3,null],[3,0],[3,null]]
+Output: [[3,null],[3,0],[3,null]]
+"""
+
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, x: int, next: 'Node' = None, random: 'Node' = None):
+        self.val = int(x)
+        self.next = next
+        self.random = random
+"""
+
+
+class Solution:
+    def copyRandomList(self, head: 'Node') -> 'Node':
+        cloned_list = Node(0)
+
+        curr = head
+        cloned_curr = cloned_list
+
+        # point to the old appropriate node by the random poitner
+        while curr:
+            new_node = Node(curr.val)
+            cloned_curr.next = new_node
+            next_ = curr.next
+
+            curr.next = new_node
+            new_node.random = curr
+
+            curr = next_
+            cloned_curr = cloned_curr.next
+
+        curr = cloned_list.next
+
+        # take the appropriate random from the new cloned list
+        while curr:
+            if curr.random.random:
+                curr.random = curr.random.random.next
+            else:
+                curr.random = None
+            curr = curr.next
+
+        return cloned_list.next
+
+    # time O(n)
+    # space O(n)
 
 # -----------------------------------------------------------------------
 
