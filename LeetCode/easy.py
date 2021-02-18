@@ -141,7 +141,15 @@ A linked list can be reversed either iteratively or recursively. Could you imple
 #         self.val = val
 #         self.next = next
 class Solution:
-    def reverseList(self, head: ListNode) -> ListNode:
+    def reverseList(self, head):
+        # recursive
+        # if not head or not head.next:
+        #     return head
+        #
+        # prev = self.reverseList(head.next)
+        # head.next.next = head
+        # head.next = None
+        # return prev
 
         if not head:
             return head
@@ -1093,12 +1101,175 @@ def add_range(res, upper, lower):
 
     return upper + 2
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+977. Squares of a Sorted Array
+
+Given an integer array nums sorted in non-decreasing order, return an array of the squares of each number sorted in non-decreasing order.
+
+ 
+
+Example 1:
+
+Input: nums = [-4,-1,0,3,10]
+Output: [0,1,9,16,100]
+Explanation: After squaring, the array becomes [16,1,0,9,100].
+After sorting, it becomes [0,1,9,16,100].
+Example 2:
+
+Input: nums = [-7,-3,2,3,11]
+Output: [4,9,9,49,121]
+"""
+
+
+class Solution:
+    def sortedSquares(self, nums):
+
+        non_negative_idx = get_first_non_negative_idx(nums)
+        negative_idx = non_negative_idx - 1
+        res = []
+        while non_negative_idx < len(nums) and negative_idx >= 0:
+            n_g_num = nums[non_negative_idx]
+            n_num = nums[negative_idx]
+            if n_num * n_num <= n_g_num * n_g_num:
+                res.append(n_num * n_num)
+                negative_idx -= 1
+            else:
+                res.append(n_g_num * n_g_num)
+                non_negative_idx += 1
+
+        while non_negative_idx < len(nums):
+            n_g_num = nums[non_negative_idx]
+            res.append(n_g_num * n_g_num)
+            non_negative_idx += 1
+
+        while negative_idx >= 0:
+            n_num = nums[negative_idx]
+            res.append(n_num * n_num)
+            negative_idx -= 1
+
+        return res
+
+    # time O(n)
+    # space O(n)
+
+
+def get_first_non_negative_idx(nums):
+    i = 1
+    while i < len(nums):
+        if nums[i] >= 0:
+            return i
+        i += 1
+
+    return i
 
 
 # -----------------------------------------------------------------------
+"""
+929. Unique Email Addresses
+
+Every email consists of a local name and a domain name, separated by the @ sign.
+
+For example, in alice@leetcode.com, alice is the local name, and leetcode.com is the domain name.
+
+Besides lowercase letters, these emails may contain '.'s or '+'s.
+
+If you add periods ('.') between some characters in the local name part of an email address, mail sent there will be forwarded to the same address without dots in the local name.  For example, "alice.z@leetcode.com" and "alicez@leetcode.com" forward to the same email address.  (Note that this rule does not apply for domain names.)
+
+If you add a plus ('+') in the local name, everything after the first plus sign will be ignored. This allows certain emails to be filtered, for example m.y+name@email.com will be forwarded to my@email.com.  (Again, this rule does not apply for domain names.)
+
+It is possible to use both of these rules at the same time.
+
+Given a list of emails, we send one email to each address in the list.  How many different addresses actually receive mails? 
+
+ 
+
+Example 1:
+
+Input: ["test.email+alex@leetcode.com","test.e.mail+bob.cathy@leetcode.com","testemail+david@lee.tcode.com"]
+Output: 2
+Explanation: "testemail@leetcode.com" and "testemail@lee.tcode.com" actually receive mails
+"""
+
+
+class Solution:
+    def numUniqueEmails(self, emails):
+        unique_emails = set()
+        for email in emails:
+            unique_emails.add(process_email(email))
+
+        return len(unique_emails)
+
+    # time O(n*m)
+    # space O(n*m)
+
+
+def process_email(email):
+    local_name, domain_name = email.split('@')
+    if '+' in local_name:
+        local_name = local_name[:local_name.index('+')]
+    if '.' in local_name:
+        local_name = local_name.replace('.', '')
+
+    return local_name + '@' + domain_name
+
+
+# -----------------------------------------------------------------------
+"""
+226. Invert Binary Tree
+
+Invert a binary tree.
+
+Example:
+
+Input:
+
+     4
+   /   \
+  2     7
+ / \   / \
+1   3 6   9
+Output:
+
+     4
+   /   \
+  7     2
+ / \   / \
+9   6 3   1
+Trivia:
+This problem was inspired by this original tweet by Max Howell:
+
+Google: 90% of our engineers use the software you wrote (Homebrew), but you can’t invert a binary tree on a whiteboard so f*** off.
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def invertTree(self, root):
+        if not root:
+            return root
+
+        curr_queue = [root]
+
+        while len(curr_queue) > 0:
+            curr_node = curr_queue.pop(0)
+            curr_node.left, curr_node.right = curr_node.right, curr_node.left
+            if curr_node.left:
+                curr_queue.append(curr_node.left)
+            if curr_node.right:
+                curr_queue.append(curr_node.right)
+
+        return root
+
+    # time O(n)
+    # space O(width)
+
 
 # -----------------------------------------------------------------------
 
