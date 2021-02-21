@@ -2027,24 +2027,597 @@ class Solution:
     # time O(n)
     # space O(n)
 
+
 # -----------------------------------------------------------------------
+"""
+1376. Time Needed to Inform All Employees
+
+A company has n employees with a unique ID for each employee from 0 to n - 1. The head of the company is the one with headID.
+
+Each employee has one direct manager given in the manager array where manager[i] is the direct manager of the i-th employee, manager[headID] = -1. Also, it is guaranteed that the subordination relationships have a tree structure.
+
+The head of the company wants to inform all the company employees of an urgent piece of news. He will inform his direct subordinates, and they will inform their subordinates, and so on until all employees know about the urgent news.
+
+The i-th employee needs informTime[i] minutes to inform all of his direct subordinates (i.e., After informTime[i] minutes, all his direct subordinates can start spreading the news).
+
+Return the number of minutes needed to inform all the employees about the urgent news.
+
+ 
+
+Example 1:
+
+Input: n = 1, headID = 0, manager = [-1], informTime = [0]
+Output: 0
+Explanation: The head of the company is the only employee in the company.
+Example 2:
+
+
+Input: n = 6, headID = 2, manager = [2,2,-1,2,2,2], informTime = [0,0,1,0,0,0]
+Output: 1
+Explanation: The head of the company with id = 2 is the direct manager of all the employees in the company and needs 1 minute to inform them all.
+The tree structure of the employees in the company is shown.
+Example 3:
+
+
+Input: n = 7, headID = 6, manager = [1,2,3,4,5,6,-1], informTime = [0,6,5,4,3,2,1]
+Output: 21
+Explanation: The head has id = 6. He will inform employee with id = 5 in 1 minute.
+The employee with id = 5 will inform the employee with id = 4 in 2 minutes.
+The employee with id = 4 will inform the employee with id = 3 in 3 minutes.
+The employee with id = 3 will inform the employee with id = 2 in 4 minutes.
+The employee with id = 2 will inform the employee with id = 1 in 5 minutes.
+The employee with id = 1 will inform the employee with id = 0 in 6 minutes.
+Needed time = 1 + 2 + 3 + 4 + 5 + 6 = 21.
+Example 4:
+
+Input: n = 15, headID = 0, manager = [-1,0,0,1,1,2,2,3,3,4,4,5,5,6,6], informTime = [1,1,1,1,1,1,1,0,0,0,0,0,0,0,0]
+Output: 3
+Explanation: The first minute the head will inform employees 1 and 2.
+The second minute they will inform employees 3, 4, 5 and 6.
+The third minute they will inform the rest of employees.
+"""
+
+from collections import deque, defaultdict
+
+
+class Solution:
+    def numOfMinutes(self, n: int, headID: int, manager: List[int], informTime: List[int]) -> int:
+        total_time = 0
+        graph = construct_graph(n, manager)
+
+        q = deque([(headID, 0)])
+
+        while len(q) > 0:
+            curr_id, curr_time = q.popleft()
+            total_time = max(total_time, curr_time)
+            for adj in graph[curr_id]:
+                q.append((adj, curr_time + informTime[curr_id]))
+
+        return total_time
+
+    # time O(n)
+    # space O(n)
+
+
+def construct_graph(n, manager):
+    graph = defaultdict(list)
+    for i in range(n):
+        graph[i] = []
+
+    for idx, val in enumerate(manager):
+        if val == -1:
+            continue
+        graph[val].append(idx)
+
+    return graph
+
+
+# -----------------------------------------------------------------------
+"""
+809. Expressive Words
+
+Sometimes people repeat letters to represent extra feeling, such as "hello" -> "heeellooo", "hi" -> "hiiii".  In these strings like "heeellooo", we have groups of adjacent letters that are all the same:  "h", "eee", "ll", "ooo".
+
+For some given string S, a query word is stretchy if it can be made to be equal to S by any number of applications of the following extension operation: choose a group consisting of characters c, and add some number of characters c to the group so that the size of the group is 3 or more.
+
+For example, starting with "hello", we could do an extension on the group "o" to get "hellooo", but we cannot get "helloo" since the group "oo" has size less than 3.  Also, we could do another extension like "ll" -> "lllll" to get "helllllooo".  If S = "helllllooo", then the query word "hello" would be stretchy because of these two extension operations: query = "hello" -> "hellooo" -> "helllllooo" = S.
+
+Given a list of query words, return the number of words that are stretchy. 
+
+ 
+
+Example:
+Input: 
+S = "heeellooo"
+words = ["hello", "hi", "helo"]
+Output: 1
+Explanation: 
+We can extend "e" and "o" in the word "hello" to get "heeellooo".
+We can't extend "helo" to get "heeellooo" because the group "ll" is not size 3 or more.
+"""
+
+
+class Solution:
+    def expressiveWords(self, S, words):
+
+        res = 0
+        s_chars_count = count_chars(S)
+        for word in words:
+            if can_form_s(s_chars_count, word):
+                res += 1
+
+        return res
+
+    # time O(n * m)
+    # space O(n * m)
+
+
+def count_chars(word):
+    res = []
+    i = 0
+    while i < len(word):
+        curr_count = 0
+        curr_char = word[i]
+        while i < len(word) and word[i] == curr_char:
+            curr_count += 1
+            i += 1
+        res += [curr_char, str(curr_count)]
+
+    return ''.join(res)
+
+
+def can_form_s(s_chars_count, word):
+    word_chars_count = count_chars(word)
+    if len(s_chars_count) != len(word_chars_count):
+        return False
+
+    for i in range(0, len(word_chars_count), 2):
+        curr_char, curr_count = word_chars_count[i], int(word_chars_count[i + 1])
+        s_char, s_count = s_chars_count[i], int(s_chars_count[i + 1])
+
+        if curr_char != s_char:
+            return False
+        elif curr_count == s_count:
+            continue
+        elif s_count > curr_count + 1:
+            continue
+        elif s_count - curr_count == 1 and s_count > 2:
+            continue
+        else:
+            return False
+
+    return True
+
+
+# -----------------------------------------------------------------------
+"""
+833. Find And Replace in String
+
+To some string S, we will perform some replacement operations that replace groups of letters with new ones (not necessarily the same size).
+
+Each replacement operation has 3 parameters: a starting index i, a source word x and a target word y.  The rule is that if x starts at position i in the original string S, then we will replace that occurrence of x with y.  If not, we do nothing.
+
+For example, if we have S = "abcd" and we have some replacement operation i = 2, x = "cd", y = "ffff", then because "cd" starts at position 2 in the original string S, we will replace it with "ffff".
+
+Using another example on S = "abcd", if we have both the replacement operation i = 0, x = "ab", y = "eee", as well as another replacement operation i = 2, x = "ec", y = "ffff", this second operation does nothing because in the original string S[2] = 'c', which doesn't match x[0] = 'e'.
+
+All these operations occur simultaneously.  It's guaranteed that there won't be any overlap in replacement: for example, S = "abc", indexes = [0, 1], sources = ["ab","bc"] is not a valid test case.
+
+ 
+
+Example 1:
+
+Input: S = "abcd", indexes = [0, 2], sources = ["a", "cd"], targets = ["eee", "ffff"]
+Output: "eeebffff"
+Explanation:
+"a" starts at index 0 in S, so it's replaced by "eee".
+"cd" starts at index 2 in S, so it's replaced by "ffff".
+Example 2:
+
+Input: S = "abcd", indexes = [0, 2], sources = ["ab","ec"], targets = ["eee","ffff"]
+Output: "eeecd"
+Explanation:
+"ab" starts at index 0 in S, so it's replaced by "eee".
+"ec" doesn't starts at index 2 in the original S, so we do nothing.
+"""
+
+
+class Solution:
+    def findReplaceString(self, S, indexes, sources, targets):
+        res = []
+        operations = get_operations(indexes, sources, targets)
+        j = 0
+        i = 0
+        while i < len(S) and j < len(operations):
+            if i != operations[j][0]:
+                res.append(S[i])
+                i += 1
+                continue
+            elif i == operations[j][0]:
+                if can_replace(S, i, j, operations):
+                    res.append(operations[j][2])
+                else:
+                    res.append(S[i:i + len(operations[j][1])])
+
+                i += len(operations[j][1])
+                j += 1
+
+        if i < len(S):
+            res.append(S[i:])
+
+        return ''.join(res)
+
+    # time O(n * m)
+    # space O(n)
+
+
+def get_operations(indexes, sources, targets):
+    res = []
+    for i in range(len(indexes)):
+        res.append((indexes[i], sources[i], targets[i]))
+
+    return sorted(res, key=lambda x: x[0])
+
+
+def can_replace(str_, i, j, operations):
+    length = len(operations[j][1])
+
+    if str_[i: i + length] == operations[j][1]:
+        return True
+
+    return False
+
+
+# -----------------------------------------------------------------------
+"""
+849. Maximize Distance to Closest Person
+
+You are given an array representing a row of seats where seats[i] = 1 represents a person sitting in the ith seat, and seats[i] = 0 represents that the ith seat is empty (0-indexed).
+
+There is at least one empty seat, and at least one person sitting.
+
+Alex wants to sit in the seat such that the distance between him and the closest person to him is maximized. 
+
+Return that maximum distance to the closest person.
+
+ 
+
+Example 1:
+
+
+Input: seats = [1,0,0,0,1,0,1]
+Output: 2
+Explanation: 
+If Alex sits in the second open seat (i.e. seats[2]), then the closest person has distance 2.
+If Alex sits in any other open seat, the closest person has distance 1.
+Thus, the maximum distance to the closest person is 2.
+Example 2:
+
+Input: seats = [1,0,0,0]
+Output: 3
+Explanation: 
+If Alex sits in the last seat (i.e. seats[3]), the closest person is 3 seats away.
+This is the maximum distance possible, so the answer is 3.
+Example 3:
+
+Input: seats = [0,1]
+Output: 1
+"""
+
+
+class Solution:
+    def maxDistToClosest(self, seats):
+        if not seats:
+            return -1
+
+        left, right = -1, -1
+        n = len(seats)
+        max_dist = 0
+        i = 0
+
+        while i < n:
+
+            while i < n and seats[i] == 1:
+                i += 1
+            left = i
+
+            while i < n and seats[i] == 0:
+                i += 1
+            right = i
+
+            if left == 0 or right == n:
+                max_dist = max(max_dist, right - left)
+            else:
+                curr_dist = (right - left + 1) // 2
+                max_dist = max(max_dist, curr_dist)
+
+        return max_dist
+
+    # time O(n)
+    # space O(1)
+
+
+#         n = len(seats)
+#         left_dist = [n for _ in range(n)]
+#         right_dist = left_dist.copy()
+
+
+#         for i in range(n):
+#             if seats[i] == 1:
+#                 left_dist[i] = 0
+#             elif i > 0:
+#                 left_dist[i] = left_dist[i - 1] + 1
+
+#         for i in range(n - 1, -1, -1):
+#             if seats[i] == 1:
+#                 right_dist[i] = 0
+#             elif i < n - 1:
+#                 right_dist[i] = right_dist[i + 1] + 1
+
+#         return max(min(left_dist[i], right_dist[i]) for i in range(n))
+
+#     # time O(n)
+#     # space O(n)
 
 # -----------------------------------------------------------------------
 
+"""
+1314. Matrix Block Sum
+
+Given a m * n matrix mat and an integer K, return a matrix answer where each answer[i][j] is the sum of all elements mat[r][c] for i - K <= r <= i + K, j - K <= c <= j + K, and (r, c) is a valid position in the matrix.
+ 
+
+Example 1:
+
+Input: mat = [[1,2,3],[4,5,6],[7,8,9]], K = 1
+Output: [[12,21,16],[27,45,33],[24,39,28]]
+Example 2:
+
+Input: mat = [[1,2,3],[4,5,6],[7,8,9]], K = 2
+Output: [[45,45,45],[45,45,45],[45,45,45]]
+"""
+
+
+class Solution:
+    def matrixBlockSum(self, mat: List[List[int]], K: int) -> List[List[int]]:
+        n = len(mat)
+        m = len(mat[0])
+
+        pre_sum = get_pre_sum(mat, n, m)
+
+        res = [[0 for _ in range(m)] for _ in range(n)]
+
+        for row in range(1, n + 1):
+            for col in range(1, m + 1):
+                starti, startj = max(1, row - K), max(1, col - K)
+                endi, endj = min(n, row + K), min(m, col + K)
+
+                bottom_right = pre_sum[endi][endj]
+                top_right = pre_sum[starti - 1][endj]
+                bottom_left = pre_sum[endi][startj - 1]
+                top_left = pre_sum[starti - 1][startj - 1]
+
+                res[row - 1][col - 1] = bottom_right - top_right - bottom_left + top_left
+
+        return res
+
+    # time O(n *m)
+    # space O(n * m)
+
+
+def get_pre_sum(mat, n, m):
+    pre_sum = [[0 for col in range(m + 1)] for row in range(n + 1)]
+
+    for row in range(1, n + 1):
+        for col in range(1, m + 1):
+            curr_val = mat[row - 1][col - 1]
+            top = pre_sum[row - 1][col]
+            left = pre_sum[row][col - 1]
+            diagonal = pre_sum[row - 1][col - 1]
+            pre_sum[row][col] = curr_val + top + left - diagonal
+
+    return pre_sum
+
+
 # -----------------------------------------------------------------------
+"""
+846. Hand of Straights
+
+Alice has a hand of cards, given as an array of integers.
+
+Now she wants to rearrange the cards into groups so that each group is size W, and consists of W consecutive cards.
+
+Return true if and only if she can.
+
+Note: This question is the same as 1296: https://leetcode.com/problems/divide-array-in-sets-of-k-consecutive-numbers/
+
+ 
+
+Example 1:
+
+Input: hand = [1,2,3,6,2,3,4,7,8], W = 3
+Output: true
+Explanation: Alice's hand can be rearranged as [1,2,3],[2,3,4],[6,7,8]
+"""
+
+
+class Solution:
+    def isNStraightHand(self, hand: List[int], W: int) -> bool:
+        if len(hand) % W != 0:
+            return False
+
+        hand = Counter(hand)
+        curr_num = min(hand.keys())
+        curr_length = 0
+
+        while len(hand) > 0:
+            if curr_num in hand:
+                hand[curr_num] -= 1
+                if hand[curr_num] == 0:
+                    del hand[curr_num]
+                curr_length += 1
+                curr_num += 1
+            else:
+                if curr_length == 0:
+                    if hand:
+                        curr_num = min(hand.keys())
+                else:
+                    return False
+
+            if curr_length == W:
+                curr_length = 0
+                if hand:
+                    curr_num = min(hand.keys())
+
+        return True
+
+    # time O(n * (n / w))
+    # space O(n)
+
+
+# -----------------------------------------------------------------------
+"""
+729. My Calendar I
+
+Implement a MyCalendar class to store your events. A new event can be added if adding the event will not cause a double booking.
+
+Your class will have the method, book(int start, int end). Formally, this represents a booking on the half open interval [start, end), the range of real numbers x such that start <= x < end.
+
+A double booking happens when two events have some non-empty intersection (ie., there is some time that is common to both events.)
+
+For each call to the method MyCalendar.book, return true if the event can be added to the calendar successfully without causing a double booking. Otherwise, return false and do not add the event to the calendar.
+
+Your class will be called like this: MyCalendar cal = new MyCalendar(); MyCalendar.book(start, end)
+Example 1:
+
+MyCalendar();
+MyCalendar.book(10, 20); // returns true
+MyCalendar.book(15, 25); // returns false
+MyCalendar.book(20, 30); // returns true
+Explanation: 
+The first event can be booked.  The second can't because time 15 is already booked by another event.
+The third event can be booked, as the first event takes every time less than 20, but not including 20.
+"""
+
+
+class Node:
+    __slots__ = 'start', 'end', 'left', 'right'
+
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+        self.left = self.right = None
+
+    def insert(self, node):
+        if node.start >= self.end:
+            if not self.right:
+                self.right = node
+                return True
+            return self.right.insert(node)
+        elif node.end <= self.start:
+            if not self.left:
+                self.left = node
+                return True
+            return self.left.insert(node)
+        else:
+            return False
+
+
+class MyCalendar(object):
+    def __init__(self):
+        self.root = None
+
+    def book(self, start, end):
+        if self.root is None:
+            self.root = Node(start, end)
+            return True
+        return self.root.insert(Node(start, end))
+
+    # time O(n^2) / O(n*log(n))
+    # space O(n)
+
 
 # -----------------------------------------------------------------------
 
-# -----------------------------------------------------------------------
+"""
+215. Kth Largest Element in an Array
+
+Find the kth largest element in an unsorted array. Note that it is the kth largest element in the sorted order, not the kth distinct element.
+
+Example 1:
+
+Input: [3,2,1,5,6,4] and k = 2
+Output: 5
+Example 2:
+
+Input: [3,2,3,1,2,4,5,5,6] and k = 4
+Output: 4
+"""
+
+import heapq
+
+
+class Solution:
+    def findKthLargest(self, nums, k):
+
+        k_largest = []
+        for num in nums:
+            heapq.heappush(k_largest, num)
+            if len(k_largest) > k:
+                heapq.heappop(k_largest)
+
+        return heapq.heappop(k_largest)
+
+    # time O(n * log(k))
+    # space O(k)
 
 # -----------------------------------------------------------------------
+"""
+253. Meeting Rooms II
 
-# -----------------------------------------------------------------------
+Given an array of meeting time intervals intervals where intervals[i] = [starti, endi], return the minimum number of conference rooms required.
 
-# -----------------------------------------------------------------------
+ 
+
+Example 1:
+
+Input: intervals = [[0,30],[5,10],[15,20]]
+Output: 2
+Example 2:
+
+Input: intervals = [[7,10],[2,4]]
+Output: 1
+"""
 
 
-# -----------------------------------------------------------------------
+class Solution(object):
+    def minMeetingRooms(self, intervals):
+        """
+        :type intervals: List[List[int]]
+        :rtype: int
+        """
+
+        events = []
+        for time in intervals:
+            events.append((time[0], 'b'))
+            events.append((time[1], 'a'))
+
+        events.sort()
+
+        count = 0
+        rooms_num = 0
+        for time, event in events:
+            if event == 'a':
+                count -= 1
+            else:
+                count += 1
+
+            rooms_num = max(rooms_num, count)
+
+        return rooms_num
+
+    # time O(n * log(n))
+    # space O(n)
 
 # -----------------------------------------------------------------------
 
