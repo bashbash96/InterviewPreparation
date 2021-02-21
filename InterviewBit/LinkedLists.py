@@ -73,7 +73,53 @@ def merge(head1, head2):
 
     return res.next
 
+
 # -----------------------------------------------------------------------
+"""
+Insertion Sort List
+
+Sort a linked list using insertion sort.
+
+We have explained Insertion Sort at Slide 7 of Arrays
+
+Insertion Sort Wiki has some details on Insertion Sort as well.
+
+Example :
+
+Input : 1 -> 3 -> 2
+
+Return 1 -> 2 -> 3
+"""
+
+
+class Solution:
+    # @param A : head node of linked list
+    # @return the head node in the linked list
+    def insertionSortList(self, A):
+        if not A or not A.next:
+            return A
+
+        curr = A.next
+        while curr:
+            A = insert(A, curr)
+            curr = curr.next
+
+        return A
+
+    # time O(n^2)
+    # space O(1)
+
+
+def insert(head, curr):
+    left = head
+    while left != curr:
+        if left.val > curr.val:
+            left.val, curr.val = curr.val, left.val
+
+        left = left.next
+
+    return head
+
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
