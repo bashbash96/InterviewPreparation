@@ -270,8 +270,8 @@ def checkForZeros(arr):
     return rows, cols
 
 
-def makeZeros(arr, arr2, str):
-    if str == 'row':
+def makeZeros(arr, arr2, str_):
+    if str_ == 'row':
         for row in range(len(arr2)):
             if arr2[row]:
                 for col in range(len(arr[0])):
