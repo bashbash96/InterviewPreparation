@@ -1272,23 +1272,530 @@ class Solution:
 
 
 # -----------------------------------------------------------------------
+"""
+706. Design HashMap
+
+Design a HashMap without using any built-in hash table libraries.
+
+To be specific, your design should include these functions:
+
+put(key, value) : Insert a (key, value) pair into the HashMap. If the value already exists in the HashMap, update the value.
+get(key): Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key.
+remove(key) : Remove the mapping for the value key if this map contains the mapping for the key.
+
+Example:
+
+MyHashMap hashMap = new MyHashMap();
+hashMap.put(1, 1);          
+hashMap.put(2, 2);         
+hashMap.get(1);            // returns 1
+hashMap.get(3);            // returns -1 (not found)
+hashMap.put(2, 1);          // update the existing value
+hashMap.get(2);            // returns 1 
+hashMap.remove(2);          // remove the mapping for 2
+hashMap.get(2);            // returns -1 (not found) 
+"""
+
+
+class MyHashMap:
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.size = 2069
+        self.table = [[] for _ in range(self.size)]
+
+    def put(self, key: int, value: int) -> None:
+        """
+        value will always be non-negative.
+        """
+        hash_key = self.hash(key)
+        bucket_list = self.table[hash_key]
+        if bucket_list == []:
+            self.table[hash_key] = [(key, value)]
+        else:
+            self.insert_into_bucket(bucket_list, key, value)
+
+        # time O(k) - k the largest bucket
+
+    def insert_into_bucket(self, bucket, key, value):
+
+        key_idx = self.search_for_key(bucket, key)
+        if key_idx != -1:
+            bucket[key_idx] = (key, value)
+        else:
+            bucket.append((key, value))
+
+    def search_for_key(self, bucket, key):
+
+        for idx, pair in enumerate(bucket):
+            if pair[0] == key:
+                return idx
+        return -1
+
+    def get(self, key: int) -> int:
+        """
+        Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key
+        """
+
+        hash_key = self.hash(key)
+        bucket = self.table[hash_key]
+        if bucket == []:
+            return -1
+
+        key_idx = self.search_for_key(bucket, key)
+        if key_idx != -1:
+            return bucket[key_idx][1]
+
+        return -1
+
+    # time O(k) - k the largest bucket
+
+    def remove(self, key: int) -> None:
+        """
+        Removes the mapping of the specified value key if this map contains a mapping for the key
+        """
+        hash_key = self.hash(key)
+        bucket = self.table[hash_key]
+        key_idx = self.search_for_key(bucket, key)
+        if key_idx != -1:
+            bucket[key_idx], bucket[-1] = bucket[-1], bucket[key_idx]
+            bucket.pop()
+
+    # time O(k) - k the largest bucket
+
+    def hash(self, key):
+        return key % 2069
+
+
+# Your MyHashMap object will be instantiated and called as such:
+# obj = MyHashMap()
+# obj.put(key,value)
+# param_2 = obj.get(key)
+# obj.remove(key)
+
+# -----------------------------------------------------------------------
+"""
+13. Roman to Integer
+
+Roman numerals are represented by seven different symbols: I, V, X, L, C, D and M.
+
+Symbol       Value
+I             1
+V             5
+X             10
+L             50
+C             100
+D             500
+M             1000
+For example, 2 is written as II in Roman numeral, just two one's added together. 12 is written as XII, which is simply X + II. The number 27 is written as XXVII, which is XX + V + II.
+
+Roman numerals are usually written largest to smallest from left to right. However, the numeral for four is not IIII. Instead, the number four is written as IV. Because the one is before the five we subtract it making four. The same principle applies to the number nine, which is written as IX. There are six instances where subtraction is used:
+
+I can be placed before V (5) and X (10) to make 4 and 9. 
+X can be placed before L (50) and C (100) to make 40 and 90. 
+C can be placed before D (500) and M (1000) to make 400 and 900.
+Given a roman numeral, convert it to an integer.
+
+ 
+
+Example 1:
+
+Input: s = "III"
+Output: 3
+Example 2:
+
+Input: s = "IV"
+Output: 4
+Example 3:
+
+Input: s = "IX"
+Output: 9
+Example 4:
+
+Input: s = "LVIII"
+Output: 58
+Explanation: L = 50, V= 5, III = 3.
+"""
+
+roman_to_decimal = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
+
+
+class Solution:
+    def romanToInt(self, s: str) -> int:
+
+        if s == '':
+            return 0
+
+        res = 0
+        for idx in range(len(s) - 1):
+            curr_char, next_char = s[idx], s[idx + 1]
+            if compare_vals(curr_char, next_char) >= 0:
+                res += roman_to_decimal[curr_char]
+            else:
+                res -= roman_to_decimal[curr_char]
+
+        res += roman_to_decimal[s[-1]]
+
+        return res
+
+    # time O(n)
+    # space O(1)
+
+
+def compare_vals(val1, val2):
+    if roman_to_decimal[val1] > roman_to_decimal[val2]:
+        return 1
+    elif roman_to_decimal[val1] < roman_to_decimal[val2]:
+        return -1
+
+    return 0
+
+
+# -----------------------------------------------------------------------
+"""
+733. Flood Fill
+
+An image is represented by a 2-D array of integers, each integer representing the pixel value of the image (from 0 to 65535).
+
+Given a coordinate (sr, sc) representing the starting pixel (row and column) of the flood fill, and a pixel value newColor, "flood fill" the image.
+
+To perform a "flood fill", consider the starting pixel, plus any pixels connected 4-directionally to the starting pixel of the same color as the starting pixel, plus any pixels connected 4-directionally to those pixels (also with the same color as the starting pixel), and so on. Replace the color of all of the aforementioned pixels with the newColor.
+
+At the end, return the modified image.
+
+Example 1:
+Input: 
+image = [[1,1,1],[1,1,0],[1,0,1]]
+sr = 1, sc = 1, newColor = 2
+Output: [[2,2,2],[2,2,0],[2,0,1]]
+Explanation: 
+From the center of the image (with position (sr, sc) = (1, 1)), all pixels connected 
+by a path of the same color as the starting pixel are colored with the new color.
+Note the bottom corner is not colored 2, because it is not 4-directionally connected
+to the starting pixel.
+"""
+
+
+class Solution:
+    def floodFill(self, image, sr: int, sc: int, newColor: int):
+        if newColor == image[sr][sc]:
+            return image
+
+        fill(image, sr, sc, newColor, image[sr][sc])
+
+        return image
+
+    # time O(n * m)
+    # space O(n * m)
+
+
+def is_valid(image, row, col):
+    if row < 0 or col < 0 or row >= len(image) or col >= len(image[0]):
+        return False
+
+    return True
+
+
+def get_neighbors(row, col):
+    # top right down left
+    directions = {'top': (-1, 0), 'right': (0, 1), 'down': (1, 0), 'left': (0, -1)}
+
+    # directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+    res = []
+    for direction in directions:
+        dx, dy = directions[direction]
+        res.append((row + dx, col + dy))
+
+    return res
+
+
+def fill(image, row, col, new_color, old_color):
+    if not is_valid(image, row, col) or image[row][col] != old_color:
+        return
+
+    image[row][col] = new_color
+
+    for n_row, n_col in get_neighbors(row, col):
+        fill(image, n_row, n_col, new_color, old_color)
+
+
+# -----------------------------------------------------------------------
+"""
+118. Pascal's Triangle
+
+Given an integer numRows, return the first numRows of Pascal's triangle.
+
+In Pascal's triangle, each number is the sum of the two numbers directly above it as shown:
+
+
+ 
+
+Example 1:
+
+Input: numRows = 5
+Output: [[1],[1,1],[1,2,1],[1,3,3,1],[1,4,6,4,1]]
+Example 2:
+
+Input: numRows = 1
+Output: [[1]]
+"""
+
+
+class Solution:
+    def generate(self, numRows: int) -> List[List[int]]:
+        if numRows == 1:
+            return [[1]]
+        if numRows == 0:
+            return []
+        res = [[1], [1, 1]]
+        while numRows > 2:
+            prev = res[-1]
+
+            res.append(get_row(prev))
+
+            numRows -= 1
+
+        return res
+
+    # time O(n^2)
+    # space O(n^2)
+
+
+def get_row(prev_row):
+    new_row = [1]
+
+    for i in range(1, len(prev_row)):
+        new_row.append(prev_row[i] + prev_row[i - 1])
+
+    new_row.append(1)
+
+    return new_row
+
+
+# -----------------------------------------------------------------------
+"""
+37. Reorder Data in Log Files
+
+You are given an array of logs. Each log is a space-delimited string of words, where the first word is the identifier.
+
+There are two types of logs:
+
+Letter-logs: All words (except the identifier) consist of lowercase English letters.
+Digit-logs: All words (except the identifier) consist of digits.
+Reorder these logs so that:
+
+The letter-logs come before all digit-logs.
+The letter-logs are sorted lexicographically by their contents. If their contents are the same, then sort them lexicographically by their identifiers.
+The digit-logs maintain their relative ordering.
+Return the final order of the logs.
+
+ 
+
+Example 1:
+
+Input: logs = ["dig1 8 1 5 1","let1 art can","dig2 3 6","let2 own kit dig","let3 art zero"]
+Output: ["let1 art can","let3 art zero","let2 own kit dig","dig1 8 1 5 1","dig2 3 6"]
+Explanation:
+The letter-log contents are all different, so their ordering is "art can", "art zero", "own kit dig".
+The digit-logs have a relative order of "dig1 8 1 5 1", "dig2 3 6".
+"""
+
+
+class Solution:
+    def reorderLogFiles(self, logs):
+        letters, digits = [], []
+
+        for log in logs:
+            if log.split()[1].isalpha():
+                letters.append(log)
+            else:
+                digits.append(log)
+
+        letters = [process_log(log) for log in letters]
+        letters.sort()
+        letters = [log[1] + ' ' + log[0] for log in letters]
+
+        return letters + digits
+
+    # time O(n + k*log(k)*m) - n: number of logs, k: number of letters logs, m the longest log in letters
+    # space O(n)
+
+
+def process_log(log):
+    splitted = log.split()
+    key, other = splitted[0], splitted[1:]
+
+    return (' '.join(other), key)
+
+
+# -----------------------------------------------------------------------
+"""
+100. Same Tree
+
+Given the roots of two binary trees p and q, write a function to check if they are the same or not.
+
+Two binary trees are considered the same if they are structurally identical, and the nodes have the same value.
+
+ 
+
+Example 1:
+
+
+Input: p = [1,2,3], q = [1,2,3]
+Output: true
+Example 2:
+
+
+Input: p = [1,2], q = [1,null,2]
+Output: false
+Example 3:
+
+
+Input: p = [1,2,1], q = [1,1,2]
+Output: false
+
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def isSameTree(self, p: TreeNode, q: TreeNode) -> bool:
+        if not p and not q:
+            return True
+
+        if not p or not q:
+            return False
+
+        return p.val == q.val and self.isSameTree(p.left, q.left) and self.isSameTree(p.right, q.right)
+
+    # time O(min(n, m))
+    # space O(h)
+
+
+# -----------------------------------------------------------------------
+"""
+844. Backspace String Compare
+
+Given two strings S and T, return if they are equal when both are typed into empty text editors. # means a backspace character.
+
+Note that after backspacing an empty text, the text will continue empty.
+
+Example 1:
+
+Input: S = "ab#c", T = "ad#c"
+Output: true
+Explanation: Both S and T become "ac".
+Example 2:
+
+Input: S = "ab##", T = "c#d#"
+Output: true
+Explanation: Both S and T become "".
+Example 3:
+
+Input: S = "a##c", T = "#a#c"
+Output: true
+Explanation: Both S and T become "c".
+Example 4:
+
+Input: S = "a#c", T = "b"
+Output: false
+Explanation: S becomes "c" while T becomes "b".
+Note:
+
+1 <= S.length <= 200
+1 <= T.length <= 200
+S and T only contain lowercase letters and '#' characters.
+Follow up:
+
+Can you solve it in O(N) time and O(1) space?
+"""
+
+
+class Solution(object):
+    def backspaceCompare(self, S, T):
+        """
+        :type S: str
+        :type T: str
+        :rtype: bool
+        """
+
+        return get_final_str(S) == get_final_str(T)
+
+    # time O(n + m)
+    # space O(n + m)
+
+
+def get_final_str(string):
+    res = []
+    skip_count = 0
+    for i in range(len(string) - 1, -1, -1):
+        if string[i] == '#':
+            skip_count += 1
+        elif skip_count == 0:
+            res.append(string[i])
+        else:
+            skip_count -= 1
+
+    return ''.join(res)
+
+
+class Solution(object):
+    def backspaceCompare(self, S, T):
+        """
+        :type S: str
+        :type T: str
+        :rtype: bool
+        """
+
+        s_p, t_p = len(S) - 1, len(T) - 1
+        skip_s, skip_t = 0, 0
+
+        while s_p >= 0 or t_p >= 0:
+
+            # reach the first valid char in S
+            s_p = get_valid_idx(S, s_p, skip_s)
+
+            # reach the first valid char in T
+            t_p = get_valid_idx(T, t_p, skip_t)
+
+            if t_p >= 0 and s_p >= 0 and S[s_p] != T[t_p]:
+                return False
+
+            # if one reached the end and the other didn't
+            if (s_p >= 0) != (t_p >= 0):
+                return False
+
+            s_p -= 1
+            t_p -= 1
+
+        return True
+
+    # time O(n + m)
+    # space O(1)
+
+
+def get_valid_idx(string, curr_idx, skip):
+    while curr_idx >= 0:
+        if string[curr_idx] == '#':
+            skip += 1
+        elif skip > 0:
+            skip -= 1
+        else:
+            break
+        curr_idx -= 1
+
+    return curr_idx
 
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
-
-# -----------------------------------------------------------------------
-
-# -----------------------------------------------------------------------
-
-# -----------------------------------------------------------------------
-
-# -----------------------------------------------------------------------
-
-# -----------------------------------------------------------------------
-
-# -----------------------------------------------------------------------
-
 
 # -----------------------------------------------------------------------
 
