@@ -145,9 +145,6 @@ class Solution:
             i += 1
         return res
 
-        # time O(n)
-        # space O(n)
-
 
 def merge2(interval1, interval2):
     res = Interval()
