@@ -438,7 +438,70 @@ class Solution:
     # time O(n + m)
     # space O(m)
 
+
 # -----------------------------------------------------------------------
+"""
+23. Merge k Sorted Lists
+
+You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
+
+Merge all the linked-lists into one sorted linked-list and return it.
+
+ 
+
+Example 1:
+
+Input: lists = [[1,4,5],[1,3,4],[2,6]]
+Output: [1,1,2,3,4,4,5,6]
+Explanation: The linked-lists are:
+[
+  1->4->5,
+  1->3->4,
+  2->6
+]
+merging them into one sorted list:
+1->1->2->3->4->4->5->6
+Example 2:
+
+Input: lists = []
+Output: []
+"""
+
+
+# Definition for singly-linked list.
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+
+import heapq
+
+
+class Solution:
+    def mergeKLists(self, lists):
+
+        min_heap = []
+        for idx, head in enumerate(lists):
+            if head:
+                heapq.heappush(min_heap, (head.val, idx, head))
+
+        res = ListNode('DUMMY')
+        curr = res
+        while len(min_heap) > 0:
+
+            min_val, idx, min_node = heapq.heappop(min_heap)
+            curr.next = min_node
+            curr = curr.next
+            min_node = min_node.next
+            if min_node:
+                # min_heap.put((min_node.val, min_node))
+                heapq.heappush(min_heap, (min_node.val, idx, min_node))
+
+        return res.next
+
+    # time O(n * log(k))
+    # space O(k)
 
 # -----------------------------------------------------------------------
 
