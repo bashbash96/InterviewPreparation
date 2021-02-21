@@ -278,6 +278,34 @@ class SinglyLinkedList:
         # time O(n)
         # space O(n)
 
+    def partition2(self, x):
+
+        if self.head is None:
+            return None
+
+        smaller, bigger  = Node('DUMMY'), Node('DUMMY')
+        curr_smaller, curr_bigger = smaller, bigger
+
+        curr = self.head
+
+        while curr:
+            if curr.data < x:
+                curr_smaller.next = curr
+                curr_smaller = curr_smaller.next
+            else:
+                curr_bigger.next = curr
+                curr_bigger = curr_bigger.next
+
+            curr = curr.next
+
+        curr_bigger.next = None
+        curr_smaller.next = bigger.next
+
+        return smaller.next
+
+    # time O(n)
+    # space O(1)
+
     # -----------------------------------------------------------------------
     """
     Sum Lists: You have two numbers represented by a linked list, where each node contains a single
@@ -318,12 +346,14 @@ class SinglyLinkedList:
             carry = sum // 10
             sum = sum % 10
             res.append(sum)
+            p1 = p1.next
 
         while p2:
             sum = p2.data + carry
             carry = sum // 10
             sum = sum % 10
             res.append(sum)
+            p2 = p2.next
 
         if carry != 0:
             res.append(carry)
@@ -351,6 +381,11 @@ class SinglyLinkedList:
         # space O(n)
 
     def isEqual(self, lst1, lst2):
+        if not lst1 and not lst2:
+            return True
+
+        if not lst1 or not lst2:
+            return False
 
         p1, p2, = lst1.head, lst2.head
 
@@ -517,3 +552,15 @@ class SinglyLinkedList:
         # space O(1)
 
     # -----------------------------------------------------------------------
+
+
+h = SinglyLinkedList()
+h.append(1)
+h.append(2)
+h.append(10)
+h.append(5)
+h.append(8)
+h.append(5)
+h.append(3)
+res = h.partition2(5)
+print('HEY')
