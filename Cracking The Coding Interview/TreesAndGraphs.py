@@ -283,9 +283,9 @@ class BST:
         right = self.recurCheckBalanced(node.right)
 
         if not left[1] or not right[1]:
-            return (max(left[0], right[0]) + 1, False)
+            return max(left[0], right[0]) + 1, False
 
-        return (max(left[0], right[0]) + 1, abs(left[0] - right[0]) <= 1)
+        return max(left[0], right[0]) + 1, abs(left[0] - right[0]) <= 1
 
     # -----------------------------------------------------------------------
     """
@@ -296,7 +296,7 @@ class BST:
         if not self.root:
             return True
 
-        return self.recurCheckBST(self.root, -sys.maxsize, sys.maxsize)
+        return self.recurCheckBST(self.root, float('-inf'), float('inf'))
 
         # time O(n)
         # space O(h)
@@ -412,6 +412,38 @@ class BST:
 
         return node
 
+    def LCA(self, node1, node2):
+        if self.recurGetHeight(node1) == -1 or self.recurGetHeight(node2) == -1:
+            return None
+
+        return self.recur_LCA(self.root, node1, node2)
+
+    # time O(n)
+    # space O(1)
+
+    def recur_LCA(self, root, node1, node2):
+
+        if not root:
+            return None
+
+        if root == node1 or root == node2:
+            return root
+
+        left = self.recur_LCA(root.left, node1, node2)
+
+        if left and left != node1 and left != node2:
+            return left
+
+        right = self.recur_LCA(root.right, node1, node2)
+
+        if right and right != node1 and right != node2:
+            return right
+
+        if left and right:
+            return root
+
+        return left if left else right
+
     # -----------------------------------------------------------------------
     """
     4.10 Check Subtree: Tl and T2 are two very large binary trees, with Tl much bigger than T2. Create an
@@ -496,8 +528,8 @@ class BST:
         else:
             return self.right.getRandomNode()
 
-        # time O(log(n))
-        # space O(log(n))
+        # time O(h)
+        # space O(h)
 
     # -----------------------------------------------------------------------
     """
