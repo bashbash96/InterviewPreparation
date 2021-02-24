@@ -392,12 +392,172 @@ def get_max_diff(l_min, r_max):
 
     return max_diff
 
+
 # -----------------------------------------------------------------------
+"""
+Max Non Negative SubArray
+
+Given an array of integers, A of length N, find out the maximum sum sub-array of non negative numbers from A.
+
+The sub-array should be contiguous i.e., a sub-array created by choosing the second and fourth element and skipping the 
+third element is invalid.
+
+Maximum sub-array is defined in terms of the sum of the elements in the sub-array.
+
+Find and return the required subarray.
+
+NOTE:
+
+    1. If there is a tie, then compare with segment's length and return segment which has maximum length.
+    2. If there is still a tie, then return the segment with minimum starting index.
+
+
+Input Format:
+
+The first and the only argument of input contains an integer array A, of length N.
+Output Format:
+
+Return an array of integers, that is a subarray of A that satisfies the given conditions.
+Constraints:
+
+1 <= N <= 1e5
+1 <= A[i] <= 1e5
+Examples:
+
+Input 1:
+    A = [1, 2, 5, -7, 2, 3]
+
+Output 1:
+    [1, 2, 5]
+
+Explanation 1:
+    The two sub-arrays are [1, 2, 5] [2, 3].
+    The answer is [1, 2, 5] as its sum is larger than [2, 3].
+
+Input 2:
+    A = [10, -1, 2, 3, -4, 100]
+    
+Output 2:
+    [100]
+
+Explanation 2:
+    The three sub-arrays are [10], [2, 3], [100].
+    The answer is [100] as its sum is larger than the other two.
+"""
+
+
+class Solution:
+    # @param A : list of integers
+    # @return a list of integers
+    def maxset(self, A):
+        n = len(A)
+
+        curr_sum, max_sum, start, length = 0, 0, 0, 0
+        res_start = 0
+        for idx, num in enumerate(A):
+            if num < 0:
+                curr_sum = 0
+                start = idx + 1
+            else:
+                curr_sum += num
+
+            if curr_sum > max_sum:
+                max_sum = curr_sum
+                length = idx - start + 1
+                res_start = start
+            elif curr_sum == max_sum and idx - start + 1 > length:
+                length = idx - start + 1
+                res_start = start
+
+        return A[res_start: res_start + length]
+
+    # time O(n)
+    # space O(n)
 
 
 # -----------------------------------------------------------------------
+"""
+Wave Array
+
+Given an array of integers, sort the array into a wave like array and return it,
+In other words, arrange the elements into a sequence such that a1 >= a2 <= a3 >= a4 <= a5.....
+
+Example
+
+Given [1, 2, 3, 4]
+
+One possible answer : [2, 1, 4, 3]
+Another possible answer : [4, 1, 3, 2]
+ NOTE : If there are multiple answers possible, return the one thats lexicographically smallest.
+So, in example case, you will return [2, 1, 4, 3] 
+"""
+
+
+class Solution:
+    # @param A : list of integers
+    # @return a list of integers
+    def wave(self, A):
+        if len(A) < 2:
+            return A
+
+        A.sort()
+        for i in range(0, len(A) - 1, 2):
+            A[i], A[i + 1] = A[i + 1], A[i]
+
+        return A
+
+    # time O(n * log(n))
+    # space O(1)
+
 
 # -----------------------------------------------------------------------
+"""
+Max Min
+
+Problem Description
+
+Given an array A of size N. You need to find the sum of Maximum and Minimum element in the given array.
+
+NOTE: You should make minimum number of comparisons.
+"""
+
+
+class Solution:
+    # @param A : list of integers
+    # @return an integer
+    def solve(self, A):
+        min_val, max_val = float('inf'), float('-inf')
+        n = len(A)
+        arr = A
+
+        i = 0
+        if n % 2 == 0:
+            if arr[i] < arr[i + 1]:
+                min_val = arr[i]
+                max_val = arr[i + 1]
+            else:
+                min_val = arr[i + 1]
+                max_val = arr[i]
+            i = 2
+        else:
+            min_val = max_val = arr[i]
+            i = 1
+
+        while i < n - 1:
+
+            if arr[i] < arr[i + 1]:
+                min_val = min(min_val, arr[i])
+                max_val = max(max_val, arr[i + 1])
+            else:
+                min_val = min(min_val, arr[i + 1])
+                max_val = max(max_val, arr[i])
+
+            i += 2
+
+        return max_val + min_val
+
+    # time O(n)
+    # space O(1)
 
 # -----------------------------------------------------------------------
 
