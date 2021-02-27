@@ -495,7 +495,6 @@ class Solution:
             curr = curr.next
             min_node = min_node.next
             if min_node:
-                # min_heap.put((min_node.val, min_node))
                 heapq.heappush(min_heap, (min_node.val, idx, min_node))
 
         return res.next
@@ -503,9 +502,161 @@ class Solution:
     # time O(n * log(k))
     # space O(k)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+124. Binary Tree Maximum Path Sum
+
+A path in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence at most once. Note that the path does not need to pass through the root.
+
+The path sum of a path is the sum of the node's values in the path.
+
+Given the root of a binary tree, return the maximum path sum of any path.
+
+ 
+
+Example 1:
+
+
+Input: root = [1,2,3]
+Output: 6
+Explanation: The optimal path is 2 -> 1 -> 3 with a path sum of 2 + 1 + 3 = 6.
+Example 2:
+
+
+Input: root = [-10,9,20,null,null,15,7]
+Output: 42
+Explanation: The optimal path is 15 -> 20 -> 7 with a path sum of 15 + 20 + 7 = 42.
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def maxPathSum(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+
+        return get_max_path(root)[1]
+
+    # time O(n)
+    # space O(h)
+
+
+def get_max_path(node):
+    if not node:
+        return 0, float('-inf')  # max path , max path sum
+
+    left = get_max_path(node.left)
+    right = get_max_path(node.right)
+
+    max_path = max(max(left[0], right[0]) + node.val, node.val)
+
+    max_path_sum = max(node.val, left[1], right[1], left[0] + node.val, right[0] + node.val,
+                       left[0] + right[0] + node.val)
+
+    return max_path, max_path_sum
+
+
+# -----------------------------------------------------------------------
+"""
+127. Word Ladder
+
+A transformation sequence from word beginWord to word endWord using a dictionary wordList is a sequence of words such that:
+
+The first word in the sequence is beginWord.
+The last word in the sequence is endWord.
+Only one letter is different between each adjacent pair of words in the sequence.
+Every word in the sequence is in wordList.
+Given two words, beginWord and endWord, and a dictionary wordList, return the number of words in the shortest transformation sequence from beginWord to endWord, or 0 if no such sequence exists.
+
+ 
+
+Example 1:
+
+Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
+Output: 5
+Explanation: One shortest transformation is "hit" -> "hot" -> "dot" -> "dog" -> "cog" with 5 words.
+Example 2:
+
+Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log"]
+Output: 0
+Explanation: The endWord "cog" is not in wordList, therefore there is no possible transformation.
+"""
+
+from collections import defaultdict, deque
+
+
+class Solution(object):
+    def ladderLength(self, beginWord, endWord, wordList):
+        """
+        :type beginWord: str
+        :type endWord: str
+        :type wordList: List[str]
+        :rtype: int
+        """
+        n = len(wordList)
+        indexes = get_indexes_mapping(wordList)
+        if beginWord not in wordList:
+            wordList.append(beginWord)
+            indexes[beginWord] = n
+            n += 1
+        if endWord not in wordList:
+            return 0
+
+        graph = generate_graph(wordList, indexes)
+        start_idx = indexes[beginWord]
+        end_idx = indexes[endWord]
+
+        q = deque([[start_idx, 1]])
+        visited = set([start_idx])
+
+        while len(q) > 0:
+            curr_word, curr_dist = q.popleft()
+
+            for adj in graph[curr_word]:
+                if adj not in visited:
+                    q.append([adj, curr_dist + 1])
+                    visited.add(adj)
+                    if adj == end_idx:
+                        return curr_dist + 1
+        return 0
+
+    # time O(n * L^2)
+    # space O(n * L^2)
+
+
+def get_indexes_mapping(words):
+    indexes = {}
+    for i, val in enumerate(words):
+        indexes[val] = i
+
+    return indexes
+
+
+def generate_graph(wordList, indexes):
+    graph = defaultdict(set)
+    for i, word in enumerate(wordList):
+        curr_word = list(word)
+        for pos in range(len(curr_word)):
+            temp = curr_word[pos]
+            for dx in range(0, 26):
+                curr_word[pos] = chr(dx + 97)
+                temp_word = ''.join(curr_word)
+                if temp_word == word:
+                    continue
+                if temp_word in indexes:
+                    graph[i].add(indexes[temp_word])
+                    graph[indexes[temp_word]].add(i)
+            curr_word[pos] = temp
+
+    return graph
 
 # -----------------------------------------------------------------------
 
