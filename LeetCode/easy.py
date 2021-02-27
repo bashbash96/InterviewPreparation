@@ -1869,9 +1869,137 @@ class Solution(object):
     # time O(n)
     # space O(1)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+157. Read N Characters Given Read4
+
+Given a file and assume that you can only read the file using a given method read4, implement a method to read n characters.
+
+ 
+
+Method read4:
+
+The API read4 reads 4 consecutive characters from the file, then writes those characters into the buffer array buf4.
+
+The return value is the number of actual characters read.
+
+Note that read4() has its own file pointer, much like FILE *fp in C.
+
+Definition of read4:
+
+    Parameter:  char[] buf4
+    Returns:    int
+
+Note: buf4[] is destination not source, the results from read4 will be copied to buf4[]
+Below is a high level example of how read4 works:
+
+
+
+File file("abcde"); // File is "abcde", initially file pointer (fp) points to 'a'
+char[] buf4 = new char[4]; // Create buffer with enough space to store characters
+read4(buf4); // read4 returns 4. Now buf4 = "abcd", fp points to 'e'
+read4(buf4); // read4 returns 1. Now buf4 = "e", fp points to end of file
+read4(buf4); // read4 returns 0. Now buf4 = "", fp points to end of file
+ 
+
+Method read:
+
+By using the read4 method, implement the method read that reads n characters from the file and store it in the buffer array buf. Consider that you cannot manipulate the file directly.
+
+The return value is the number of actual characters read.
+
+Definition of read:
+
+    Parameters:	char[] buf, int n
+    Returns:	int
+
+Note: buf[] is destination not source, you will need to write the results to buf[]
+"""
+
+"""
+The read4 API is already defined for you.
+
+    @param buf4, a list of characters
+    @return an integer
+    def read4(buf4):
+
+# Below is an example of how the read4 API can be called.
+file = File("abcdefghijk") # File is "abcdefghijk", initially file pointer (fp) points to 'a'
+buf4 = [' '] * 4 # Create buffer with enough space to store characters
+read4(buf4) # read4 returns 4. Now buf = ['a','b','c','d'], fp points to 'e'
+read4(buf4) # read4 returns 4. Now buf = ['e','f','g','h'], fp points to 'i'
+read4(buf4) # read4 returns 3. Now buf = ['i','j','k',...], fp points to end of file
+"""
+
+
+class Solution(object):
+    def read(self, buf, n):
+        """
+        :type buf: Destination buffer (List[str])
+        :type n: Number of characters to read (int)
+        :rtype: The number of actual characters read (int)
+        """
+        ret_val, buff4, curr_idx = 0, ['', '', '', ''], 0
+
+        while curr_idx < n:
+            ret_val = read4(buff4)
+            if ret_val == 0:
+                break
+
+            end_idx = min(n, curr_idx + ret_val)
+            ret_idx = 0
+            while curr_idx < end_idx:
+                buf[curr_idx] = buff4[ret_idx]
+                ret_idx += 1
+                curr_idx += 1
+
+        return curr_idx
+
+    # time O(n)
+    # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+1207. Unique Number of Occurrences
+
+Given an array of integers arr, write a function that returns true if and only if the number of occurrences of each value in the array is unique.
+
+ 
+
+Example 1:
+
+Input: arr = [1,2,2,1,1,3]
+Output: true
+Explanation: The value 1 has 3 occurrences, 2 has 2 and 3 has 1. No two values have the same number of occurrences.
+Example 2:
+
+Input: arr = [1,2]
+Output: false
+"""
+
+from collections import Counter
+
+
+class Solution(object):
+    def uniqueOccurrences(self, arr):
+        """
+        :type arr: List[int]
+        :rtype: bool
+        """
+
+        count = Counter(arr)
+        seen = set()
+        for val in count:
+            if count[val] in seen:
+                return False
+            seen.add(count[val])
+
+        return True
+
+    # time O(n)
+    # space O(n)
 
 # -----------------------------------------------------------------------
 
