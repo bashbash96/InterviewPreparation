@@ -1622,6 +1622,54 @@ class Solution:
 
 # -----------------------------------------------------------------------
 """
+340. Longest Substring with At Most K Distinct Characters
+
+Given a string s and an integer k, return the length of the longest substring of s that contains at most k distinct characters.
+
+ 
+
+Example 1:
+
+Input: s = "eceba", k = 2
+Output: 3
+Explanation: The substring is "ece" with length 3.
+Example 2:
+
+Input: s = "aa", k = 1
+Output: 2
+Explanation: The substring is "aa" with length 2.
+"""
+
+
+class Solution(object):
+    def lengthOfLongestSubstringKDistinct(self, s, k):
+        """
+        :type s: str
+        :type k: int
+        :rtype: int
+        """
+
+        left = 0
+        count = defaultdict(int)
+        max_length = 0
+        for i in range(len(s)):
+            count[s[i]] += 1
+            while len(count) > k:
+                count[s[left]] -= 1
+                if count[s[left]] == 0:
+                    del count[s[left]]
+                left += 1
+
+            max_length = max(max_length, i - left + 1)
+
+        return max_length
+
+    # time O(n)
+    # space O(k)
+
+
+# -----------------------------------------------------------------------
+"""
 695. Max Area of Island
 
 Given a non-empty 2D array grid of 0's and 1's, an island is a group of 1's (representing land) connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded by water.
@@ -2571,6 +2619,7 @@ class Solution:
     # time O(n * log(k))
     # space O(k)
 
+
 # -----------------------------------------------------------------------
 """
 253. Meeting Rooms II
@@ -2618,6 +2667,7 @@ class Solution(object):
 
     # time O(n * log(n))
     # space O(n)
+
 
 # -----------------------------------------------------------------------
 """
@@ -2671,7 +2721,7 @@ class Solution(object):
 
         return res
 
-    # time O(n)
+    # time O(n * h)
     # space O(n^2)
 
 
@@ -2691,10 +2741,224 @@ def count_duplicates(root, res, count):
 
 
 # -----------------------------------------------------------------------
+"""
+1048. Longest String Chain
+
+Given a list of words, each word consists of English lowercase letters.
+
+Let's say word1 is a predecessor of word2 if and only if we can add exactly one letter anywhere in word1 to make it equal to word2.  For example, "abc" is a predecessor of "abac".
+
+A word chain is a sequence of words [word_1, word_2, ..., word_k] with k >= 1, where word_1 is a predecessor of word_2, word_2 is a predecessor of word_3, and so on.
+
+Return the longest possible length of a word chain with words chosen from the given list of words.
+
+ 
+
+Example 1:
+
+Input: words = ["a","b","ba","bca","bda","bdca"]
+Output: 4
+Explanation: One of the longest word chain is "a","ba","bda","bdca".
+Example 2:
+
+Input: words = ["xbc","pcxbcf","xb","cxbc","pcxbc"]
+Output: 5
+
+"""
+
+from collections import defaultdict
+
+
+class Solution(object):
+    def longestStrChain(self, words):
+        """
+        :type words: List[str]
+        :rtype: int
+        """
+
+        str_idxs = get_indexes(words)
+        graph = generate_graph(words, str_idxs)
+
+        longest_word = 0
+        memo = [0 for _ in range(len(words))]
+
+        for i in range(len(words)):
+            longest_word = max(longest_word, get_longest(graph, memo, i))
+
+        return longest_word
+
+    # time O(n * l^2)
+    # space O(n)
+
+
+def get_indexes(words):
+    idxs = {}
+    for idx, word in enumerate(words):
+        idxs[word] = idx
+
+    return idxs
+
+
+def generate_graph(words, str_idxs):
+    graph = defaultdict(set)
+
+    for i, word in enumerate(words):
+        for pos in range(len(word)):
+            new_word = (word[:pos] + word[pos + 1:])
+            if new_word in str_idxs:
+                graph[str_idxs[new_word]].add(i)
+
+    return graph
+
+
+def get_longest(graph, memo, i):
+    if memo[i] > 0:
+        return memo[i]
+
+    memo[i] = 1
+    for adj in graph[i]:
+        memo[i] = max(memo[i], get_longest(graph, memo, adj) + 1)
+
+    return memo[i]
+
 
 # -----------------------------------------------------------------------
+"""
+973. K Closest Points to Origin
+
+We have a list of points on the plane.  Find the K closest points to the origin (0, 0).
+
+(Here, the distance between two points on a plane is the Euclidean distance.)
+
+You may return the answer in any order.  The answer is guaranteed to be unique (except for the order that it is in.)
+
+ 
+
+Example 1:
+
+Input: points = [[1,3],[-2,2]], K = 1
+Output: [[-2,2]]
+Explanation: 
+The distance between (1, 3) and the origin is sqrt(10).
+The distance between (-2, 2) and the origin is sqrt(8).
+Since sqrt(8) < sqrt(10), (-2, 2) is closer to the origin.
+We only want the closest K = 1 points from the origin, so the answer is just [[-2,2]].
+Example 2:
+
+Input: points = [[3,3],[5,-1],[-2,4]], K = 2
+Output: [[3,3],[-2,4]]
+(The answer [[-2,4],[3,3]] would also be accepted.)
+"""
+
+import heapq
+
+
+class Solution(object):
+    def kClosest(self, points, k):
+        """
+        :type points: List[List[int]]
+        :type K: int
+        :rtype: List[List[int]]
+        """
+
+        k_closest = []
+        for point in points:
+            dist = get_distance_from_origin(point)
+            heapq.heappush(k_closest, (-dist, point))
+            if len(k_closest) > k:
+                heapq.heappop(k_closest)
+
+        return [pair[1] for pair in k_closest]
+
+    # time O(n * log(k))
+    # space O(k)
+
+
+def get_distance_from_origin(point):
+    return pow(point[0], 2) + pow(point[1], 2)
+
 
 # -----------------------------------------------------------------------
+"""
+1769. Minimum Number of Operations to Move All Balls to Each Box
+
+You have n boxes. You are given a binary string boxes of length n, where boxes[i] is '0' if the ith box is empty, and '1' if it contains one ball.
+
+In one operation, you can move one ball from a box to an adjacent box. Box i is adjacent to box j if abs(i - j) == 1. Note that after doing so, there may be more than one ball in some boxes.
+
+Return an array answer of size n, where answer[i] is the minimum number of operations needed to move all the balls to the ith box.
+
+Each answer[i] is calculated considering the initial state of the boxes.
+
+ 
+
+Example 1:
+
+Input: boxes = "110"
+Output: [1,1,3]
+Explanation: The answer for each box is as follows:
+1) First box: you will have to move one ball from the second box to the first box in one operation.
+2) Second box: you will have to move one ball from the first box to the second box in one operation.
+3) Third box: you will have to move one ball from the first box to the third box in two operations, and move one ball from the second box to the third box in one operation.
+Example 2:
+
+Input: boxes = "001011"
+Output: [11,8,5,4,3,4]
+"""
+
+
+class Solution(object):
+    def minOperations(self, boxes):
+        """
+        :type boxes: str
+        :rtype: List[int]
+        """
+        n = len(boxes)
+        left_ones_count = []
+        curr_count = 0
+        for i, val in enumerate(boxes):
+            left_ones_count.append(curr_count)
+            if val == '1':
+                curr_count += 1
+
+        right_ones_count = []
+        curr_count = 0
+        for i in range(n - 1, -1, -1):
+            right_ones_count.append(curr_count)
+            if boxes[i] == '1':
+                curr_count += 1
+
+        right_ones_count = right_ones_count[::-1]
+
+        return calculate_distances(boxes, left_ones_count, right_ones_count)
+
+    # time O(n)
+    # space O(n)
+
+
+def calculate_distances(boxes, left_ones_count, right_ones_count):
+    result = [0 for _ in range(len(boxes))]
+    result[0] = get_distances(boxes)
+
+    for i in range(1, len(boxes)):
+        curr_res = result[i - 1]
+        if boxes[i] == '1':
+            curr_res -= 1
+        curr_res += left_ones_count[i]
+        curr_res -= right_ones_count[i]
+
+        result[i] = curr_res
+
+    return result
+
+
+def get_distances(boxes):
+    res = 0
+    for i in range(1, len(boxes)):
+        if boxes[i] == '1':
+            res += i
+
+    return res
 
 # -----------------------------------------------------------------------
 
