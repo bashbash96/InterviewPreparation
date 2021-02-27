@@ -293,16 +293,17 @@ find the index at which an element x occurs. If x occurs multiple times, you may
 
 
 def sortedSearch(arr, val):
-    length = getLength(arr)
+    length = getLength(arr, val)
 
-    start, end = 0, length - 1
+    start, end = length // 2, length
 
     while start <= end:
         mid = (start + end) // 2
-        if val > arr[mid]:
-            start = mid + 1
-        elif val < arr[mid]:
+
+        if arr[mid] == -1 or val < arr[mid]:
             end = mid - 1
+        elif val > arr[mid]:
+            start = mid + 1
         else:
             return mid
 
@@ -312,19 +313,13 @@ def sortedSearch(arr, val):
     # space O(1)
 
 
-def getLength(arr):
+def getLength(arr, val):
     length = 1
 
-    while True:
+    while 0 < arr[length] < val:
+        length *= 2
 
-        if arr[length - 1] != -1 and arr[length] == -1:
-            return length
-        elif arr[length - 1] != -1 and arr[length] != -1:
-            length *= 2
-        elif arr[length - 1] == -1 and arr[length - 2] != -1:
-            return length - 1
-        else:
-            length = ((length // 2) + length) // 2
+    return length
 
 
 # -----------------------------------------------------------------------
@@ -338,19 +333,31 @@ Output: 4
 """
 
 
+def get_nearest(arr, end_idx, start_idx, jump):
+    while arr[start_idx] == '' and start_idx != end_idx:
+        start_idx += jump
+
+    return start_idx
+
+
 def sparseSearch(arr, s):
     start, end = 0, len(arr) - 1
 
     while start <= end:
         mid = (start + end) // 2
         if arr[mid] == '':
-            left = mid - 1
-            right = mid + 1
 
-            while arr[left] == '' and left > start:  # nearest left non empty str or till start
-                left -= 1
-            while arr[right] == '' and right < end:  # nearest right non empty str or till end
-                right += 1
+            left = get_nearest(arr, start, mid - 1, -1)
+            right = get_nearest(arr, end, mid + 1, 1)
+
+            # left = mid - 1
+            # right = mid + 1
+            #
+            # while arr[left] == '' and left > start:  # nearest left non empty str or till start
+            #     left -= 1
+            # while arr[right] == '' and right < end:  # nearest right non empty str or till end
+            #     right += 1
+
             # if the string is smaller than the left one then its in the left half
             if arr[left] != '' and s < arr[left]:
                 end = left - 1
@@ -409,6 +416,9 @@ def sortedMatrixSearch(mat, val):
     if val == mat[upRightRow][upRightCol]:
         return True
     return False
+
+    # time O(n + m)
+    # space O(1)
 
 
 # -----------------------------------------------------------------------
