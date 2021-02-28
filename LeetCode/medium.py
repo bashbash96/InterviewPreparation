@@ -2960,16 +2960,441 @@ def get_distances(boxes):
 
     return res
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+721. Accounts Merge
+
+Given a list accounts, each element accounts[i] is a list of strings, where the first element accounts[i][0] is a name, and the rest of the elements are emails representing emails of the account.
+
+Now, we would like to merge these accounts. Two accounts definitely belong to the same person if there is some email that is common to both accounts. Note that even if two accounts have the same name, they may belong to different people as people could have the same name. A person can have any number of accounts initially, but all of their accounts definitely have the same name.
+
+After merging the accounts, return the accounts in the following format: the first element of each account is the name, and the rest of the elements are emails in sorted order. The accounts themselves can be returned in any order.
+
+Example 1:
+Input: 
+accounts = [["John", "johnsmith@mail.com", "john00@mail.com"], ["John", "johnnybravo@mail.com"], ["John", "johnsmith@mail.com", "john_newyork@mail.com"], ["Mary", "mary@mail.com"]]
+Output: [["John", 'john00@mail.com', 'john_newyork@mail.com', 'johnsmith@mail.com'],  ["John", "johnnybravo@mail.com"], ["Mary", "mary@mail.com"]]
+Explanation: 
+The first and third John's are the same person as they have the common email "johnsmith@mail.com".
+The second John and Mary are different people as none of their email addresses are used by other accounts.
+We could return these lists in any order, for example the answer [['Mary', 'mary@mail.com'], ['John', 'johnnybravo@mail.com'], 
+['John', 'john00@mail.com', 'john_newyork@mail.com', 'johnsmith@mail.com']] would still be accepted.
+"""
+
+from collections import defaultdict
+
+
+class Solution(object):
+    def accountsMerge(self, accounts):
+        """
+        :type accounts: List[List[str]]
+        :rtype: List[List[str]]
+        """
+        if not accounts:
+            return accounts
+
+        email_to_name, graph = generate_graph(accounts)
+
+        visited = set()
+        res = []
+        for email in graph:
+            if email not in visited:
+                curr_res = [email_to_name[email]] + sorted(get_component(graph, visited, email))
+                res += [curr_res]
+
+        return res
+
+    # time O(n * m * log(m)) - n num of accounts, m - max emails number
+    # space O(n * m)
+
+
+def get_component(graph, visited, vertex):
+    if vertex in visited:
+        return []
+
+    visited.add(vertex)
+
+    curr = [vertex]
+    for adj in graph[vertex]:
+        curr += get_component(graph, visited, adj)
+
+    return curr
+
+
+def generate_graph(accounts):
+    email_to_name = {}
+    graph = defaultdict(set)
+
+    for account in accounts:
+        name = account[0]
+        for email in account[1:]:
+            graph[email].add(account[1])
+            graph[account[1]].add(email)
+            email_to_name[email] = name
+
+    return email_to_name, graph
+
 
 # -----------------------------------------------------------------------
+"""
+1138. Alphabet Board Path
+
+On an alphabet board, we start at position (0, 0), corresponding to character board[0][0].
+
+Here, board = ["abcde", "fghij", "klmno", "pqrst", "uvwxy", "z"], as shown in the diagram below.
+
+
+
+We may make the following moves:
+
+'U' moves our position up one row, if the position exists on the board;
+'D' moves our position down one row, if the position exists on the board;
+'L' moves our position left one column, if the position exists on the board;
+'R' moves our position right one column, if the position exists on the board;
+'!' adds the character board[r][c] at our current position (r, c) to the answer.
+(Here, the only positions that exist on the board are positions with letters on them.)
+
+Return a sequence of moves that makes our answer equal to target in the minimum number of moves.  You may return any path that does so.
+
+ 
+
+Example 1:
+
+Input: target = "leet"
+Output: "DDR!UURRR!!DDD!"
+Example 2:
+
+Input: target = "code"
+Output: "RR!DDRR!UUL!R!"
+"""
+
+from collections import defaultdict, deque
+
+board = ["abcde", "fghij", "klmno", "pqrst", "uvwxy", "z"]
+
+directions = {'U': [-1, 0], 'R': [0, 1], 'D': [1, 0], 'L': [0, -1]}
+add = '!'
+ROWS = 6
+COLS = 5
+
+
+class Solution(object):
+    def alphabetBoardPath(self, target):
+        """
+        :type target: str
+        :rtype: str
+        """
+
+        path = []
+        curr_pos = (0, 0)
+        for char in target:
+            curr_pos, curr_path = get_path(curr_pos, char)
+            path += curr_path
+
+        return ''.join(path)
+
+    # time O(m * 26)
+    # space O(m)
+
+
+def get_path(curr_pos, char):
+    row, col = curr_pos
+    if board[row][col] == char:
+        return curr_pos, [add]
+
+    parent = defaultdict()
+    visited = set()
+    final_pos = ()
+
+    q = deque([curr_pos])
+    visited.add(curr_pos)
+
+    while len(q) > 0:
+        curr = q.popleft()
+
+        row, col = curr
+        if board[row][col] == char:
+            final_pos = (row, col)
+            break
+
+        for direction in directions:
+            dx, dy = directions[direction]
+            new_row, new_col = row + dx, col + dy
+            if is_valid(new_row, new_col) and not (new_row, new_col) in visited:
+                parent[(new_row, new_col)] = direction
+                visited.add((new_row, new_col))
+                q.append((new_row, new_col))
+
+    curr_path = generate_path(parent, final_pos, curr_pos)
+
+    return final_pos, curr_path
+
+
+def is_valid(row, col):
+    if row < 0 or col < 0 or col >= COLS or row >= ROWS:
+        return False
+
+    if row == ROWS - 1 and col != 0:
+        return False
+
+    return True
+
+
+def generate_path(parent, end_pos, start_pos):
+    path = [add]
+
+    curr_pos = end_pos
+
+    while curr_pos != start_pos:
+        path.append(parent[curr_pos])
+        curr_pos = get_opposite_direction(curr_pos, parent[curr_pos])
+
+    return path[::-1]
+
+
+def get_opposite_direction(curr_pos, parent):
+    row, col = curr_pos
+    if parent == 'U':
+        dx, dy = directions['D']
+    elif parent == 'D':
+        dx, dy = directions['U']
+    elif parent == 'L':
+        dx, dy = directions['R']
+    else:
+        dx, dy = directions['L']
+
+    return row + dx, col + dy
+
 
 # -----------------------------------------------------------------------
+"""
+200. Number of Islands
+
+Given an m x n 2d grid map of '1's (land) and '0's (water), return the number of islands.
+
+An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
+
+ 
+
+Example 1:
+
+Input: grid = [
+  ["1","1","1","1","0"],
+  ["1","1","0","1","0"],
+  ["1","1","0","0","0"],
+  ["0","0","0","0","0"]
+]
+Output: 1
+Example 2:
+
+Input: grid = [
+  ["1","1","0","0","0"],
+  ["1","1","0","0","0"],
+  ["0","0","1","0","0"],
+  ["0","0","0","1","1"]
+]
+Output: 3
+"""
+
+
+class Solution(object):
+    def numIslands(self, grid):
+        """
+        :type grid: List[List[str]]
+        :rtype: int
+        """
+        counter = 0
+
+        for row in range(len(grid)):
+            for col in range(len(grid[0])):
+                if grid[row][col] == '1':
+                    self.islandVisit(grid, row, col)
+                    counter += 1
+        return counter
+
+    # time O(n * m)
+    # space O(n * m)
+
+    def islandVisit(self, grid, row, col):
+        if row < 0 or row >= len(grid) or col < 0 or col >= len(grid[0]) or grid[row][col] != '1':
+            return
+
+        grid[row][col] = '-1'
+
+        self.islandVisit(grid, row, col + 1)
+        self.islandVisit(grid, row, col - 1)
+        self.islandVisit(grid, row + 1, col)
+        self.islandVisit(grid, row - 1, col)
+
 
 # -----------------------------------------------------------------------
+"""
+210. Course Schedule II
 
+There are a total of n courses you have to take labelled from 0 to n - 1.
+
+Some courses may have prerequisites, for example, if prerequisites[i] = [ai, bi] this means you must take the course bi before the course ai.
+
+Given the total number of courses numCourses and a list of the prerequisite pairs, return the ordering of courses you should take to finish all courses.
+
+If there are many valid answers, return any of them. If it is impossible to finish all courses, return an empty array.
+
+ 
+
+Example 1:
+
+Input: numCourses = 2, prerequisites = [[1,0]]
+Output: [0,1]
+Explanation: There are a total of 2 courses to take. To take course 1 you should have finished course 0. So the correct course order is [0,1].
+Example 2:
+
+Input: numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]
+Output: [0,2,1,3]
+Explanation: There are a total of 4 courses to take. To take course 3 you should have finished both courses 1 and 2. Both courses 1 and 2 should be taken after you finished course 0.
+So one correct course order is [0,1,2,3]. Another correct ordering is [0,2,1,3].
+Example 3:
+
+Input: numCourses = 1, prerequisites = []
+Output: [0]
+"""
+
+from collections import defaultdict
+
+
+class Solution(object):
+    def findOrder(self, numCourses, prerequisites):
+        """
+        :type numCourses: int
+        :type prerequisites: List[List[int]]
+        :rtype: List[int]
+        """
+        n = numCourses
+        graph = generate_graph(prerequisites)
+        status = defaultdict()
+        for i in range(n):
+            status[i] = 'not visited'
+
+        res = []
+        for i in range(n):
+            if status[i] == 'not visited':
+                curr = []
+                if not get_schedule(graph, status, i, curr):
+                    return []
+                res += curr
+
+        return res
+
+    # time O(n + e)
+    # space O(n + e)
+
+
+def get_schedule(graph, status, i, curr_res):
+    status[i] = 'visiting'
+    for adj in graph[i]:
+        if status[adj] == 'not visited':
+            if not get_schedule(graph, status, adj, curr_res):
+                return False
+        elif status[adj] == 'visiting':
+            return False
+
+    status[i] = 'visited'
+    curr_res.append(i)
+
+    return True
+
+
+def generate_graph(dependencies):
+    graph = defaultdict(set)
+
+    for pair in dependencies:
+        graph[pair[0]].add(pair[1])
+
+    return graph
+
+
+# -----------------------------------------------------------------------
+"""
+222. Count Complete Tree Nodes
+
+Given the root of a complete binary tree, return the number of the nodes in the tree.
+
+According to Wikipedia, every level, except possibly the last, is completely filled in a complete binary tree, and all nodes in the last level are as far left as possible. It can have between 1 and 2h nodes inclusive at the last level h.
+
+ 
+
+Example 1:
+
+
+Input: root = [1,2,3,4,5,6]
+Output: 6
+Example 2:
+
+Input: root = []
+Output: 0
+Example 3:
+
+Input: root = [1]
+Output: 1
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def countNodes(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+        if not root:
+            return 0
+
+        d = get_depth(root)
+        if d == 0:
+            return 1
+
+        left, right = 1, pow(2, d) - 1
+
+        while left <= right:
+            mid = (left + right) // 2
+            if exists_in_tree(mid, d, root):
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        return pow(2, d) - 1 + left
+
+    # time O(d^2)
+    # space O(d)
+
+
+def exists_in_tree(idx, d, root):
+    left, right = 0, pow(2, d) - 1
+
+    for _ in range(d):
+        mid = (left + right) // 2
+        if idx <= mid:
+            root = root.left
+            right = mid
+        else:
+            root = root.right
+            left = mid + 1
+
+    return root != None
+
+
+def get_depth(root):
+    depth = 0
+    while root.left:
+        root = root.left
+        depth += 1
+
+    return depth
 
 # -----------------------------------------------------------------------
 
