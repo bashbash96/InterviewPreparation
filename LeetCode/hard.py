@@ -658,7 +658,93 @@ def generate_graph(wordList, indexes):
 
     return graph
 
+
 # -----------------------------------------------------------------------
+"""
+329. Longest Increasing Path in a Matrix
+
+Given an m x n integers matrix, return the length of the longest increasing path in matrix.
+
+From each cell, you can either move in four directions: left, right, up, or down. You may not move diagonally or move outside the boundary (i.e., wrap-around is not allowed).
+
+ 
+
+Example 1:
+
+
+Input: matrix = [[9,9,4],[6,6,8],[2,1,1]]
+Output: 4
+Explanation: The longest increasing path is [1, 2, 6, 9].
+Example 2:
+
+
+Input: matrix = [[3,4,5],[3,2,6],[2,2,1]]
+Output: 4
+Explanation: The longest increasing path is [3, 4, 5, 6]. Moving diagonally is not allowed.
+Example 3:
+
+Input: matrix = [[1]]
+Output: 1
+"""
+
+from collections import defaultdict
+
+directions = {'U': [-1, 0], 'R': [0, 1], 'D': [1, 0], 'L': [0, -1]}
+
+
+class Solution(object):
+    def longestIncreasingPath(self, matrix):
+        """
+        :type matrix: List[List[int]]
+        :rtype: int
+        """
+        n = len(matrix)
+        m = len(matrix[0])
+
+        distances = defaultdict()
+        max_dist = 0
+
+        for row in range(n):
+            for col in range(m):
+                max_dist = max(max_dist, get_distance(matrix, distances, row, col))
+
+        return max_dist
+
+    # time O(n * m)
+    # space O(n * m)
+
+
+def is_valid(matrix, row, col):
+    if row < 0 or col < 0 or row >= len(matrix) or col >= len(matrix[0]):
+        return False
+
+    return True
+
+
+def get_neighbors(row, col):
+    res = []
+    for dir_ in directions:
+        dx = directions[dir_][0]
+        dy = directions[dir_][1]
+        res.append((row + dx, col + dy))
+
+    return res
+
+
+def get_distance(matrix, distances, row, col):
+    if (row, col) in distances:
+        return distances[(row, col)]
+
+    curr_dist = 0
+
+    for n_row, n_col in get_neighbors(row, col):
+        if is_valid(matrix, n_row, n_col) and matrix[n_row][n_col] > matrix[row][col]:
+            curr_dist = max(curr_dist, get_distance(matrix, distances, n_row, n_col))
+
+    curr_dist += 1
+    distances[(row, col)] = curr_dist
+
+    return curr_dist
 
 # -----------------------------------------------------------------------
 
