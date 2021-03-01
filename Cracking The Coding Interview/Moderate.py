@@ -1,4 +1,5 @@
 import sys
+from collections import defaultdict
 
 # -----------------------------------------------------------------------
 """
@@ -20,7 +21,33 @@ def numSwapper(num1, num2):
 
     return num1, num2
 
-    # time O(x) -> num of the bits in longest number
+    # time O(x) -> num of the bits
+    # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+16.2 Word Frequencies: Design a method to find the frequency of occurrences of any given word in a
+book. What if we were running this algorithm multiple times?
+"""
+
+
+def pre_process(book):
+    table = defaultdict(int)
+
+    for word in book:
+        table[word.lower()] += 1
+
+    return table
+
+    # time O(n)
+    # space O(n)
+
+
+def get_frequency(table, word):
+    return table.get(word, 0)
+
+    # time O(1)
     # space O(1)
 
 
@@ -66,13 +93,13 @@ Output 3. That is, the pair (11, 8).
 
 def smallestDiff(arr1, arr2):
     if not arr1 or not arr2:
-        return sys.maxsize
+        return float('inf')
 
     arr1.sort()
     arr2.sort()
 
     p1, p2 = 0, 0
-    minDiff = sys.maxsize
+    minDiff = float('inf')
     while p1 < len(arr1) and p2 < len(arr2):
         currDiff = abs(arr1[p1] - arr2[p2])
         if currDiff < minDiff:
@@ -184,11 +211,11 @@ def operations(n, m, op):
         return sub(n, m)
     elif op == '*':
         if n > 0 and m > 0:
-            return mult(max(m, n), min(m, n))
+            return mult(n, m)
         elif n < 0 and m < 0:
             return mult(changeSign(m), changeSign(n))
         else:
-            return mult(min(m, n), max(m, n))
+            return changeSign(mult(changeSign(min(m, n)), max(m, n)))
     else:
         if n > 0 and m > 0:
             return div(n, m)
@@ -206,6 +233,8 @@ def operations(n, m, op):
 
 
 def mult(n, m):
+    if n < m:
+        return mult(m, n)
     res = 0
     while m > 0:
         res += n
@@ -249,27 +278,28 @@ be included in that year's count. For example, Person (birth = 1908, death = 190
 counts for both 1908 and 1909.
 """
 
-"""
-res = []
-for p in persons:
-    res.append(p.birthYear(), 'b')
-    res.append(p.deathYear(), 'd')
-    
-res = sorted(res, key = lambda pair: pair[0])
-count = 0
-maxVal = 0
-maxYear = 0
-for pair in res:
-    if pair[1] == 'b':
-        count += 1
-        if count > maxVal:
-            maxVal = count
-            maxYear = pair[0]
-    else:
-        count -= 1
 
-return maxYear
-"""
+def get_max_alive_year(persons):
+    res = []
+    for p in persons:
+        res.append(p.birthYear(), 'b')
+        res.append(p.deathYear(), 'd')
+
+    res = sorted(res, key=lambda pair: pair[0])
+    count = 0
+    maxVal = 0
+    maxYear = 0
+    for pair in res:
+        if pair[1] == 'b':
+            count += 1
+            if count > maxVal:
+                maxVal = count
+                maxYear = pair[0]
+        else:
+            count -= 1
+
+    return maxYear
+
 
 # -----------------------------------------------------------------------
 """
