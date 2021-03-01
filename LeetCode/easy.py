@@ -2072,9 +2072,138 @@ def reverse_num(num):
         num //= 10
 
     return rev
-# -----------------------------------------------------------------------
+
 
 # -----------------------------------------------------------------------
+"""
+1576. Replace All ?'s to Avoid Consecutive Repeating Characters
+
+Given a string s containing only lower case English letters and the '?' character, convert all the '?' characters into lower case letters such that the final string does not contain any consecutive repeating characters. You cannot modify the non '?' characters.
+
+It is guaranteed that there are no consecutive repeating characters in the given string except for '?'.
+
+Return the final string after all the conversions (possibly zero) have been made. If there is more than one solution, return any of them. It can be shown that an answer is always possible with the given constraints.
+
+ 
+
+Example 1:
+
+Input: s = "?zs"
+Output: "azs"
+Explanation: There are 25 solutions for this problem. From "azs" to "yzs", all are valid. Only "z" is an invalid modification as the string will consist of consecutive repeating characters in "zzs".
+Example 2:
+
+Input: s = "ubv?w"
+Output: "ubvaw"
+Explanation: There are 24 solutions for this problem. Only "v" and "w" are invalid modifications as the strings will consist of consecutive repeating characters in "ubvvw" and "ubvww".
+Example 3:
+
+Input: s = "j?qg??b"
+Output: "jaqgacb"
+Example 4:
+
+Input: s = "??yw?ipkj?"
+Output: "acywaipkja"
+"""
+
+CHAR_DIFF = 97
+CHARS_NUM = 26
+
+
+class Solution(object):
+    def modifyString(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+
+        curr_char_idx = 0
+
+        chars = list(s)
+
+        for i in range(len(chars)):
+            if chars[i] == '?':
+                curr_char_idx = set_valid_char(curr_char_idx, chars, i)
+
+        return ''.join(chars)
+
+    # time O(n)
+    # space O(n)
+
+
+def set_valid_char(curr_char_idx, chars, i):
+    prev_char = ''
+    next_char = ''
+    if i > 0:
+        prev_char = chars[i - 1]
+
+    if i < len(chars) - 1:
+        next_char = chars[i + 1]
+
+    while True:
+        curr_char = chr((curr_char_idx + CHAR_DIFF))
+        if curr_char != prev_char and curr_char != next_char:
+            break
+
+        curr_char_idx += 1
+        curr_char_idx %= CHARS_NUM
+
+    chars[i] = chr(curr_char_idx + CHAR_DIFF)
+
+    return curr_char_idx
+
+
+# -----------------------------------------------------------------------
+"""
+415. Add Strings
+
+Given two non-negative integers num1 and num2 represented as string, return the sum of num1 and num2.
+
+Note:
+
+The length of both num1 and num2 is < 5100.
+Both num1 and num2 contains only digits 0-9.
+Both num1 and num2 does not contain any leading zero.
+You must not use any built-in BigInteger library or convert the inputs to integer directly.
+"""
+
+
+class Solution(object):
+    def addStrings(self, num1, num2):
+        """
+        :type num1: str
+        :type num2: str
+        :rtype: str
+        """
+
+        res = []
+
+        idx1, idx2 = len(num1) - 1, len(num2) - 1
+        carry = 0
+
+        while idx1 >= 0 or idx2 >= 0:
+            val1 = num1[idx1] if idx1 >= 0 else '0'
+            val2 = num2[idx2] if idx2 >= 0 else '0'
+
+            curr_sum, carry = sum_two_digits(val1, val2, carry)
+            res.append(str(curr_sum))
+
+            idx1 -= 1
+            idx2 -= 1
+
+        if carry:
+            res.append(str(carry))
+
+        return ''.join(list(reversed(res)))
+
+    # time O(max(n, m))
+    # space O(max(n, m))
+
+
+def sum_two_digits(digit1, digit2, carry):
+    curr_sum = int(digit1) + int(digit2) + carry
+
+    return curr_sum % 10, curr_sum // 10
 
 # -----------------------------------------------------------------------
 
