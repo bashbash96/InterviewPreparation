@@ -3396,13 +3396,390 @@ def get_depth(root):
 
     return depth
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+792. Number of Matching Subsequences
+
+Given string S and a dictionary of words words, find the number of words[i] that is a subsequence of S.
+
+Example :
+Input: 
+S = "abcde"
+words = ["a", "bb", "acd", "ace"]
+Output: 3
+Explanation: There are three words in words that are a subsequence of S: "a", "acd", "ace".
+Note:
+
+All words in words and S will only consists of lowercase letters.
+The length of S will be in the range of [1, 50000].
+The length of words will be in the range of [1, 5000].
+The length of words[i] will be in the range of [1, 50].
+"""
+
+
+class Solution(object):
+    def numMatchingSubseq(self, S, words):
+        """
+        :type S: str
+        :type words: List[str]
+        :rtype: int
+        """
+
+        counter = 0
+        cached_subsequence = {}
+
+        for word in words:
+            if is_subsequence(word, S, cached_subsequence):
+                counter += 1
+
+        return counter
+
+    # time O(n * min(m1, m2)) : m1 length of longest word, m2 length of S
+    # space O(n * m1)
+
+
+def is_subsequence(word, string, cached_subsequence):
+    if (word, string) in cached_subsequence:
+        return cached_subsequence[(word, string)]
+
+    p1, p2 = 0, 0
+
+    while p1 < len(word) and p2 < len(string):
+        if word[p1] == string[p2]:
+            p1 += 1
+            p2 += 1
+        else:
+            p2 += 1
+
+    res = p1 == len(word)
+    cached_subsequence[(word, string)] = res
+
+    return res
+
+
+class Solution(object):
+    def numMatchingSubseq(self, S, words):
+        """
+        :type S: str
+        :type words: List[str]
+        :rtype: int
+        """
+
+        counter = 0
+        head = [[] for _ in range(26)]
+
+        # map each word for its appropriate bucket
+        for word in words:
+            it = iter(word)
+            head[ord(next(it)) - ord('a')].append(it)
+
+        for char in S:
+            curr_idx = ord(char) - ord('a')
+            curr_bucket = head[curr_idx]
+            head[curr_idx] = []
+
+            for it in curr_bucket:
+                next_char = next(it, None)
+
+                if next_char:
+                    next_idx = ord(next_char) - ord('a')
+                    head[next_idx].append(it)
+                else:
+                    counter += 1
+
+        return counter
+
+        # time O(n * m1 + m2)
+        # space O(n * m1)
+
 
 # -----------------------------------------------------------------------
+"""
+1423. Maximum Points You Can Obtain from Cards
+
+There are several cards arranged in a row, and each card has an associated number of points The points are given in the integer array cardPoints.
+
+In one step, you can take one card from the beginning or from the end of the row. You have to take exactly k cards.
+
+Your score is the sum of the points of the cards you have taken.
+
+Given the integer array cardPoints and the integer k, return the maximum score you can obtain.
+
+ 
+
+Example 1:
+
+Input: cardPoints = [1,2,3,4,5,6,1], k = 3
+Output: 12
+Explanation: After the first step, your score will always be 1. However, choosing the rightmost card first will maximize your total score. The optimal strategy is to take the three cards on the right, giving a final score of 1 + 6 + 5 = 12.
+Example 2:
+
+Input: cardPoints = [2,2,2], k = 2
+Output: 4
+Explanation: Regardless of which two cards you take, your score will always be 4.
+Example 3:
+
+Input: cardPoints = [9,7,7,9,7,7,9], k = 7
+Output: 55
+Explanation: You have to take all the cards. Your score is the sum of points of all cards.
+Example 4:
+
+Input: cardPoints = [1,1000,1], k = 1
+Output: 1
+Explanation: You cannot take the card in the middle. Your best score is 1. 
+Example 5:
+
+Input: cardPoints = [1,79,80,1,1,1,200,1], k = 3
+Output: 202
+ 
+"""
+
+
+class Solution(object):
+    def maxScore(self, cardPoints, k):
+        """
+        :type cardPoints: List[int]
+        :type k: int
+        :rtype: int
+        """
+        points = cardPoints
+        n = len(points)
+
+        if k == n:
+            return sum(points)
+
+        curr_sum = sum(points[:k])
+        max_sum = curr_sum
+        left_ptr, right_ptr = k - 1, n - 1
+
+        while left_ptr >= 0:
+            curr_sum -= points[left_ptr]
+            curr_sum += points[right_ptr]
+            max_sum = max(max_sum, curr_sum)
+
+            left_ptr -= 1
+            right_ptr -= 1
+
+        return max_sum
+
+    # time O(k)
+    # space O(1)
+
 
 # -----------------------------------------------------------------------
+"""
+394. Decode String
+
+Given an encoded string, return its decoded string.
+
+The encoding rule is: k[encoded_string], where the encoded_string inside the square brackets is being repeated exactly k times. Note that k is guaranteed to be a positive integer.
+
+You may assume that the input string is always valid; No extra white spaces, square brackets are well-formed, etc.
+
+Furthermore, you may assume that the original data does not contain any digits and that digits are only for those repeat numbers, k. For example, there won't be input like 3a or 2[4].
+
+ 
+
+Example 1:
+
+Input: s = "3[a]2[bc]"
+Output: "aaabcbc"
+Example 2:
+
+Input: s = "3[a2[c]]"
+Output: "accaccacc"
+"""
+
+
+class Solution(object):
+    def decodeString(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+
+        res = []
+        for char in s:
+            if char == ']':
+                add_sequence(res)
+            else:
+                res.append(char)
+
+        return ''.join(res)
+
+    # time O(n * k * l)
+    # space O(n * k * l)
+
+
+def add_sequence(res):
+    curr_seq = get_sequence(res)
+
+    res.pop()  # remove the [
+
+    count = get_count(res)
+
+    curr_seq = curr_seq * count  # decode the sequence
+
+    res += curr_seq
+
+
+def get_count(res):
+    count = []
+    while res and res[-1].isnumeric():
+        count.append(res.pop())
+
+    count = int(''.join(reversed(count)))
+
+    return count
+
+
+def get_sequence(res):
+    curr_seq = []
+    while res and res[-1] != '[':
+        curr_seq.append(res.pop())
+
+    if not res or res[-1] != '[':
+        raise ValueError('Invalid argument')
+
+    curr_seq.reverse()
+
+    return curr_seq
+
+
+
+# -----------------------------------------------------------------------
+"""
+947. Most Stones Removed with Same Row or Column
+
+On a 2D plane, we place n stones at some integer coordinate points. Each coordinate point may have at most one stone.
+
+A stone can be removed if it shares either the same row or the same column as another stone that has not been removed.
+
+Given an array stones of length n where stones[i] = [xi, yi] represents the location of the ith stone, return the largest possible number of stones that can be removed.
+
+ 
+
+Example 1:
+
+Input: stones = [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]]
+Output: 5
+Explanation: One way to remove 5 stones is as follows:
+1. Remove stone [2,2] because it shares the same row as [2,1].
+2. Remove stone [2,1] because it shares the same column as [0,1].
+3. Remove stone [1,2] because it shares the same row as [1,0].
+4. Remove stone [1,0] because it shares the same column as [0,0].
+5. Remove stone [0,1] because it shares the same row as [0,0].
+Stone [0,0] cannot be removed since it does not share a row/column with another stone still on the plane.
+Example 2:
+
+Input: stones = [[0,0],[0,2],[1,1],[2,0],[2,2]]
+Output: 3
+Explanation: One way to make 3 moves is as follows:
+1. Remove stone [2,2] because it shares the same row as [2,0].
+2. Remove stone [2,0] because it shares the same column as [0,0].
+3. Remove stone [0,2] because it shares the same row as [0,0].
+Stones [0,0] and [1,1] cannot be removed since they do not share a row/column with another stone still on the plane.
+Example 3:
+
+Input: stones = [[0,0]]
+Output: 0
+Explanation: [0,0] is the only stone on the plane, so you cannot remove it.
+"""
+
+from collections import defaultdict
+
+
+class Solution(object):
+    def removeStones(self, stones):
+        """
+        :type stones: List[List[int]]
+        :rtype: int
+        """
+
+        # map_ids = defaultdict(int)
+        rows, cols = defaultdict(list), defaultdict(list)
+        graph = generate_graph(stones, rows, cols)
+
+        visited = set()
+        ans = 0
+        for ver in graph:
+            if ver not in visited:
+                ans += count_component(graph, ver, visited) - 1
+
+        return ans
+
+    # time O(n + e) : n num of stones, e num of edges between stones
+    # space O(n + e)
+
+
+def generate_graph(stones, rows, cols):
+    graph = defaultdict(set)
+
+    for i, coordinate in enumerate(stones):
+        row, col = coordinate
+
+        # add same row adjacents
+        for adj in rows[row]:
+            graph[i].add(adj)
+            graph[adj].add(i)
+
+        # add same col adjacents
+        for adj in cols[col]:
+            graph[i].add(adj)
+            graph[adj].add(i)
+
+        rows[row].append(i)
+        cols[col].append(i)
+
+    return graph
+
+
+def count_component(graph, ver, visited):
+    visited.add(ver)
+
+    curr_res = 1
+
+    for adj in graph[ver]:
+        if adj not in visited:
+            curr_res += count_component(graph, adj, visited)
+
+    return curr_res
+
+
+"""
+1. generate graph between all stones which shared the same row/col
+2. count the vertices in the connected components => (count) and add (count -1) to answer
+
+[[0,0], 0
+ [0,1], 1
+ [1,0], 2
+ [1,2], 3
+ [2,1], 4
+ [2,2]] 5
+
+ rows           
+ 0: [0, 1]
+ 1: [2, 3]
+ 2: [4, 5]
+
+ cols
+ 0: [0, 2]
+ 1: [1, 4]
+ 2: [3, 5]
+
+
+ *********
+ *RR******
+ R*R******
+ #R*******
+
+ *********
+ #*#******
+ *#*******
+ #*#******
+
+"""
 
 # -----------------------------------------------------------------------
 
