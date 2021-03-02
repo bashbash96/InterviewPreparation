@@ -3647,7 +3647,6 @@ def get_sequence(res):
     return curr_seq
 
 
-
 # -----------------------------------------------------------------------
 """
 947. Most Stones Removed with Same Row or Column
@@ -3782,14 +3781,289 @@ def count_component(graph, ver, visited):
 """
 
 # -----------------------------------------------------------------------
+"""
+692. Top K Frequent Words
+
+Given a non-empty list of words, return the k most frequent elements.
+
+Your answer should be sorted by frequency from highest to lowest. If two words have the same frequency, then the word with the lower alphabetical order comes first.
+
+Example 1:
+Input: ["i", "love", "leetcode", "i", "love", "coding"], k = 2
+Output: ["i", "love"]
+Explanation: "i" and "love" are the two most frequent words.
+    Note that "i" comes before "love" due to a lower alphabetical order.
+Example 2:
+Input: ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"], k = 4
+Output: ["the", "is", "sunny", "day"]
+Explanation: "the", "is", "sunny" and "day" are the four most frequent words,
+    with the number of occurrence being 4, 3, 2 and 1 respectively.
+"""
+
+import heapq
+
+
+class Solution(object):
+    def topKFrequent(self, words, k):
+        """
+        :type words: List[str]
+        :type k: int
+        :rtype: List[str]
+        """
+
+        words_frequency = Counter(words)
+        min_heap = [(-freq, word) for word, freq in words_frequency.items()]
+        heapq.heapify(min_heap)
+
+        return [heapq.heappop(min_heap)[1] for _ in range(k)]
+
+    # time O(n * log(k))
+    # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+900. RLE Iterator
+
+Write an iterator that iterates through a run-length encoded sequence.
+
+The iterator is initialized by RLEIterator(int[] A), where A is a run-length encoding of some sequence.  More specifically, for all even i, A[i] tells us the number of times that the non-negative integer value A[i+1] is repeated in the sequence.
+
+The iterator supports one function: next(int n), which exhausts the next n elements (n >= 1) and returns the last element exhausted in this way.  If there is no element left to exhaust, next returns -1 instead.
+
+For example, we start with A = [3,8,0,9,2,5], which is a run-length encoding of the sequence [8,8,8,5,5].  This is because the sequence can be read as "three eights, zero nines, two fives".
+
+ 
+
+Example 1:
+
+Input: ["RLEIterator","next","next","next","next"], [[[3,8,0,9,2,5]],[2],[1],[1],[2]]
+Output: [null,8,8,5,-1]
+Explanation: 
+RLEIterator is initialized with RLEIterator([3,8,0,9,2,5]).
+This maps to the sequence [8,8,8,5,5].
+RLEIterator.next is then called 4 times:
+
+.next(2) exhausts 2 terms of the sequence, returning 8.  The remaining sequence is now [8, 5, 5].
+
+.next(1) exhausts 1 term of the sequence, returning 8.  The remaining sequence is now [5, 5].
+
+.next(1) exhausts 1 term of the sequence, returning 5.  The remaining sequence is now [5].
+
+.next(2) exhausts 2 terms, returning -1.  This is because the first term exhausted was 5,
+but the second term did not exist.  Since the last term exhausted does not exist, we return -1.
+"""
+
+
+class RLEIterator(object):
+
+    def __init__(self, A):
+        """
+        :type A: List[int]
+        """
+
+        self.nums = A
+        self.idx = 0
+
+    def next(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+
+        while self.idx < len(self.nums) - 1:
+
+            if n <= self.nums[self.idx]:
+                self.nums[self.idx] -= n
+                return self.nums[self.idx + 1]
+            else:
+                n -= self.nums[self.idx]
+                self.nums[self.idx] = 0
+                self.idx += 2
+
+        return -1
+
+
+# Your RLEIterator object will be instantiated and called as such:
+# obj = RLEIterator(A)
+# param_1 = obj.next(n)
 
 # -----------------------------------------------------------------------
+"""
+34. Find First and Last Position of Element in Sorted Array
+
+Given an array of integers nums sorted in ascending order, find the starting and ending position of a given target value.
+
+If target is not found in the array, return [-1, -1].
+
+Follow up: Could you write an algorithm with O(log n) runtime complexity?
+
+ 
+
+Example 1:
+
+Input: nums = [5,7,7,8,8,10], target = 8
+Output: [3,4]
+Example 2:
+
+Input: nums = [5,7,7,8,8,10], target = 6
+Output: [-1,-1]
+"""
+
+
+class Solution(object):
+    def searchRange(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: List[int]
+        """
+
+        left = get_limit(nums, target, 'left')
+        right = get_limit(nums, target, 'right')
+
+        return [left, right]
+
+    # time O(log(n))
+    # space O(1)
+
+
+def get_limit(nums, target, limit):
+    start, end = 0, len(nums) - 1
+    res = -1
+    while start <= end:
+        mid = (start + end) // 2
+
+        if target < nums[mid]:
+            end = mid - 1
+        elif target > nums[mid]:
+            start = mid + 1
+        else:
+            res = mid
+            if limit == 'left':
+                end = mid - 1
+            else:
+                start = mid + 1
+
+    return res
+
 
 # -----------------------------------------------------------------------
+"""
+56. Merge Intervals
+
+Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.
+
+ 
+
+Example 1:
+
+Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
+Output: [[1,6],[8,10],[15,18]]
+Explanation: Since intervals [1,3] and [2,6] overlaps, merge them into [1,6].
+Example 2:
+
+Input: intervals = [[1,4],[4,5]]
+Output: [[1,5]]
+Explanation: Intervals [1,4] and [4,5] are considered overlapping.
+"""
+
+
+class Solution(object):
+    def merge(self, intervals):
+        """
+        :type intervals: List[List[int]]
+        :rtype: List[List[int]]
+        """
+
+        intervals.sort(key=lambda x: x[0])
+
+        res = [intervals[0]]
+        n = len(intervals)
+
+        for i in range(1, n):
+            curr = intervals[i]
+            while res and curr[0] <= res[-1][1]:
+                curr = merge_intervals(curr, res[-1])
+                res.pop()
+            res.append(curr)
+
+        return res
+
+    # time O(n * log(n))
+    # space O(n)
+
+
+def merge_intervals(interval1, interval2):
+    left = min(interval1[0], interval2[0])
+    right = max(interval1[1], interval2[1])
+
+    return [left, right]
+
 
 # -----------------------------------------------------------------------
+"""
+57. Insert Interval
+
+Given a set of non-overlapping intervals, insert a new interval into the intervals (merge if necessary).
+
+You may assume that the intervals were initially sorted according to their start times.
+
+ 
+
+Example 1:
+
+Input: intervals = [[1,3],[6,9]], newInterval = [2,5]
+Output: [[1,5],[6,9]]
+Example 2:
+
+Input: intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+Output: [[1,2],[3,10],[12,16]]
+Explanation: Because the new interval [4,8] overlaps with [3,5],[6,7],[8,10].
+"""
+
+
+class Solution(object):
+    def insert(self, intervals, newInterval):
+        """
+        :type intervals: List[List[int]]
+        :type newInterval: List[int]
+        :rtype: List[List[int]]
+        """
+
+        n = len(intervals)
+        res = []
+
+        i = 0
+        while i < n and intervals[i][0] <= newInterval[0]:
+            res.append(intervals[i])
+            i += 1
+
+        insert_interval(res, newInterval)
+
+        while i < n:
+            insert_interval(res, intervals[i])
+            i += 1
+
+        return res
+
+    # time O(n)
+    # space O(n)
+
+
+def insert_interval(res, interval):
+    while res and res[-1][1] >= interval[0]:
+        interval = merge_intervals(res[-1], interval)
+        res.pop()
+
+    res.append(interval)
+
+
+def merge_intervals(interval1, interval2):
+    left = min(interval1[0], interval2[0])
+    right = max(interval1[1], interval2[1])
+
+    return [left, right]
 
 # -----------------------------------------------------------------------
 
