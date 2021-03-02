@@ -746,9 +746,177 @@ def get_distance(matrix, distances, row, col):
 
     return curr_dist
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+4. Median of Two Sorted Arrays
+
+Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.
+
+ 
+
+Example 1:
+
+Input: nums1 = [1,3], nums2 = [2]
+Output: 2.00000
+Explanation: merged array = [1,2,3] and median is 2.
+Example 2:
+
+Input: nums1 = [1,2], nums2 = [3,4]
+Output: 2.50000
+Explanation: merged array = [1,2,3,4] and median is (2 + 3) / 2 = 2.5.
+Example 3:
+
+Input: nums1 = [0,0], nums2 = [0,0]
+Output: 0.00000
+Example 4:
+
+Input: nums1 = [], nums2 = [1]
+Output: 1.00000
+Example 5:
+
+Input: nums1 = [2], nums2 = []
+Output: 2.00000
+"""
+
+
+class Solution(object):
+    def findMedianSortedArrays(self, nums1, nums2):
+        """
+        :type nums1: List[int]
+        :type nums2: List[int]
+        :rtype: float
+        """
+
+        if len(nums2) < len(nums1):
+            return self.findMedianSortedArrays(nums2, nums1)
+
+        n = len(nums1)
+        m = len(nums2)
+
+        if n == 0:
+            return median(nums2)
+        if m == 0:
+            return median(nums1)
+
+        smaller, larger = nums1, nums2
+
+        left, right = 0, n
+
+        while left <= right:
+            mid = (left + right) // 2
+            small_part = mid
+            large_part = ((n + m + 1) // 2) - small_part
+
+            left_small = float('-inf') if small_part == 0 else smaller[small_part - 1]
+            right_small = float('inf') if small_part == n else smaller[small_part]
+
+            left_large = float('-inf') if large_part == 0 else larger[large_part - 1]
+            right_large = float('inf') if large_part == m else larger[large_part]
+
+            if left_small <= right_large and left_large <= right_small:
+                if (n + m) % 2 == 0:
+                    left_val = max(left_small, left_large)
+                    right_val = min(right_small, right_large)
+
+                    return (left_val + right_val) / 2.0
+                else:
+                    return max(left_small, left_large)
+
+            if left_large > right_small:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        # time O(log(min(n, m)))
+        # space O(1)
+
+
+def median(nums):
+    n = len(nums)
+    mid = n // 2
+    if n % 2 == 1:
+        return nums[mid]
+
+    return (nums[mid] + nums[mid - 1]) / 2.0
+# -----------------------------------------------------------------------
+"""
+315. Count of Smaller Numbers After Self
+
+You are given an integer array nums and you have to return a new counts array. The counts array has the property where counts[i] is the number of smaller elements to the right of nums[i].
+
+ 
+
+Example 1:
+
+Input: nums = [5,2,6,1]
+Output: [2,1,1,0]
+Explanation:
+To the right of 5 there are 2 smaller elements (2 and 1).
+To the right of 2 there is only 1 smaller element (1).
+To the right of 6 there is 1 smaller element (1).
+To the right of 1 there is 0 smaller element.
+"""
+
+
+class TreeNode:
+    def __init__(self, val):
+        self.val = val
+        self.left_count = 0
+        self.right = self.left = None
+
+
+class AVL:
+    def __init__(self):
+        self.root = None
+
+    def insert(self, val):
+        self.root = self.insert_val(self.root, val)
+
+    def insert_val(self, node, val):
+        if not node:
+            return TreeNode(val)
+
+        if val < node.val:
+            node.left_count += 1
+            node.left = self.insert_val(node.left, val)
+        else:
+            node.right = self.insert_val(node.right, val)
+
+        return node
+
+    def get_smaller_count(self, val):
+
+        return self.get_smaller(self.root, val)
+
+    def get_smaller(self, node, val):
+
+        if node.val == val:
+            return node.left_count
+
+        if val < node.val:
+            return self.get_smaller(node.left, val)
+        else:
+            return node.left_count + 1 + self.get_smaller(node.right, val)
+
+
+class Solution(object):
+    def countSmaller(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[int]
+        """
+
+        res = []
+        tree = AVL()
+        for val in nums[::-1]:
+            tree.insert(val)
+            res.append(tree.get_smaller_count(val))
+
+        return res[::-1]
+
+    # time O(n * h)
+    # space O(n)
 
 # -----------------------------------------------------------------------
 
