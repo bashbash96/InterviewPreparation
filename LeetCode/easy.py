@@ -2302,14 +2302,251 @@ def get_pivot(arr, start, end):
 
     return start
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+303. Range Sum Query - Immutable
+
+Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.
+
+Implement the NumArray class:
+
+NumArray(int[] nums) Initializes the object with the integer array nums.
+int sumRange(int i, int j) Return the sum of the elements of the nums array in the range [i, j] inclusive (i.e., sum(nums[i], nums[i + 1], ... , nums[j]))
+ 
+
+Example 1:
+
+Input
+["NumArray", "sumRange", "sumRange", "sumRange"]
+[[[-2, 0, 3, -5, 2, -1]], [0, 2], [2, 5], [0, 5]]
+Output
+[null, 1, -1, -3]
+
+Explanation
+NumArray numArray = new NumArray([-2, 0, 3, -5, 2, -1]);
+numArray.sumRange(0, 2); // return 1 ((-2) + 0 + 3)
+numArray.sumRange(2, 5); // return -1 (3 + (-5) + 2 + (-1)) 
+numArray.sumRange(0, 5); // return -3 ((-2) + 0 + 3 + (-5) + 2 + (-1))
+"""
+
+from collections import defaultdict
+
+
+class NumArray(object):
+
+    def __init__(self, nums):
+        """
+        :type nums: List[int]
+        """
+
+        self.nums = nums
+        self.range_sum = self.process_range_sum(nums)
+
+    def process_range_sum(self, nums):
+
+        range_sum = [0 for _ in range(len(nums) + 1)]
+
+        for i in range(len(nums)):
+            range_sum[i + 1] = range_sum[i] + nums[i]
+
+        return range_sum
+
+    # time O(n)
+    # space O(n)
+
+    def sumRange(self, i, j):
+        """
+        :type i: int
+        :type j: int
+        :rtype: int
+        """
+
+        if j < i:
+            return -1
+
+        return self.range_sum[j + 1] - self.range_sum[i]
+
+    # time O(1)
+    # space O(1)
+
+
+# Your NumArray object will be instantiated and called as such:
+# obj = NumArray(nums)
+# param_1 = obj.sumRange(i,j)
+
+# -----------------------------------------------------------------------
+"""
+26. Remove Duplicates from Sorted Array
+
+Given a sorted array nums, remove the duplicates in-place such that each element appears only once and returns the new length.
+
+Do not allocate extra space for another array, you must do this by modifying the input array in-place with O(1) extra memory.
+
+Clarification:
+
+Confused why the returned value is an integer but your answer is an array?
+
+Note that the input array is passed in by reference, which means a modification to the input array will be known to the caller as well.
+
+Internally you can think of this:
+
+// nums is passed in by reference. (i.e., without making a copy)
+int len = removeDuplicates(nums);
+
+// any modification to nums in your function would be known by the caller.
+// using the length returned by your function, it prints the first len elements.
+for (int i = 0; i < len; i++) {
+    print(nums[i]);
+}
+ 
+
+Example 1:
+
+Input: nums = [1,1,2]
+Output: 2, nums = [1,2]
+Explanation: Your function should return length = 2, with the first two elements of nums being 1 and 2 respectively. 
+It doesn't matter what you leave beyond the returned length.
+Example 2:
+
+Input: nums = [0,0,1,1,1,2,2,3,3,4]
+Output: 5, nums = [0,1,2,3,4]
+Explanation: Your function should return length = 5, with the first five elements of nums being modified 
+to 0, 1, 2, 3, and 4 respectively. It doesn't matter what values are set beyond the returned length.
+"""
+
+
+class Solution(object):
+    def removeDuplicates(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+
+        if len(nums) == 0:
+            return 0
+
+        length = 1
+
+        for i in range(1, len(nums)):
+            if nums[i] != nums[length - 1]:
+                nums[length] = nums[i]
+                length += 1
+
+        return length
+
+    # time O(n)
+    # space O(1)
 
 
 # -----------------------------------------------------------------------
+"""
+345. Reverse Vowels of a String
+
+Write a function that takes a string as input and reverse only the vowels of a string.
+
+Example 1:
+
+Input: "hello"
+Output: "holle"
+Example 2:
+
+Input: "leetcode"
+Output: "leotcede"
+"""
+
+
+class Solution(object):
+    def reverseVowels(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+        vowels = ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']
+
+        string = list(s)
+        left, right = 0, len(s) - 1
+
+        while left < right:
+
+            while left < right and string[left] not in vowels:
+                left += 1
+
+            while left < right and string[right] not in vowels:
+                right -= 1
+
+            string[left], string[right] = string[right], string[left]
+            left += 1
+            right -= 1
+
+        return ''.join(string)
+
+    # time O(n)
+    # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+110. Balanced Binary Tree
+
+Given a binary tree, determine if it is height-balanced.
+
+For this problem, a height-balanced binary tree is defined as:
+
+a binary tree in which the left and right subtrees of every node differ in height by no more than 1.
+
+ 
+
+Example 1:
+
+
+Input: root = [3,9,20,null,null,15,7]
+Output: true
+Example 2:
+
+
+Input: root = [1,2,2,3,3,null,null,4,4]
+Output: false
+Example 3:
+
+Input: root = []
+Output: true
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def isBalanced(self, root):
+        """
+        :type root: TreeNode
+        :rtype: bool
+        """
+
+        return True if is_balanced(root) != float('inf') else False
+
+    # time O(n)
+    # space O(h)
+
+
+def is_balanced(node):
+    if not node:
+        return 0
+
+    left = is_balanced(node.left)
+    right = is_balanced(node.right)
+
+    if left == float('inf') or right == float('inf'):
+        return float('inf')
+
+    if abs(left - right) > 1:
+        return float('inf')
+
+    return max(left, right) + 1
 
 # -----------------------------------------------------------------------
 
