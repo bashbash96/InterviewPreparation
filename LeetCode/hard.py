@@ -839,6 +839,8 @@ def median(nums):
         return nums[mid]
 
     return (nums[mid] + nums[mid - 1]) / 2.0
+
+
 # -----------------------------------------------------------------------
 """
 315. Count of Smaller Numbers After Self
@@ -918,9 +920,188 @@ class Solution(object):
     # time O(n * h)
     # space O(n)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+425. Word Squares
+
+Given a set of words (without duplicates), find all word squares you can build from them.
+
+A sequence of words forms a valid word square if the kth row and column read the exact same string, where 0 ≤ k < max(numRows, numColumns).
+
+For example, the word sequence ["ball","area","lead","lady"] forms a word square because each word reads the same both horizontally and vertically.
+
+b a l l
+a r e a
+l e a d
+l a d y
+Note:
+There are at least 1 and at most 1000 words.
+All words will have the exact same length.
+Word length is at least 1 and at most 5.
+Each word contains only lowercase English alphabet a-z.
+"""
+
+from collections import defaultdict
+
+
+class Solution(object):
+    def wordSquares(self, words):
+        """
+        :type words: List[str]
+        :rtype: List[List[str]]
+        """
+
+        res = []
+        prefixes = build_prefixes(words)
+
+        for word in words:
+            build_square([word], 1, res, words, prefixes)
+
+        return res
+
+    # time O(n * n^l)
+    # space O(n ^ l^2)
+
+
+def build_prefixes(words):
+    prefixes = defaultdict(list)
+
+    for word in words:
+        for i in range(1, len(word) + 1):
+            prefix = word[:i]
+            prefixes[prefix].append(word)
+
+    return prefixes
+
+
+def build_square(curr, idx, res, words, prefixes):
+    n = len(words[0])
+    if idx == n:
+        res.append(curr[:])
+        return
+
+    pref = ''.join([val[idx] for val in curr])
+
+    for candidate in prefixes[pref]:
+        build_square(curr + [candidate], idx + 1, res, words, prefixes)
+
+
+# -----------------------------------------------------------------------
+"""
+212. Word Search II
+
+Given an m x n board of characters and a list of strings words, return all words on the board.
+
+Each word must be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once in a word.
+
+ 
+
+Example 1:
+
+
+Input: board = [["o","a","a","n"],["e","t","a","e"],["i","h","k","r"],["i","f","l","v"]], words = ["oath","pea","eat","rain"]
+Output: ["eat","oath"]
+Example 2:
+
+
+Input: board = [["a","b"],["c","d"]], words = ["abcb"]
+Output: []
+ 
+
+Constraints:
+
+m == board.length
+n == board[i].length
+1 <= m, n <= 12
+board[i][j] is a lowercase English letter.
+1 <= words.length <= 3 * 104
+1 <= words[i].length <= 10
+words[i] consists of lowercase English letters.
+All the strings of words are unique.
+"""
+
+from collections import defaultdict
+
+
+class Solution(object):
+    def findWords(self, board, words):
+        """
+        :type board: List[List[str]]
+        :type words: List[str]
+        :rtype: List[str]
+        """
+
+        prefix = starts_with_same(words)
+        res = set()
+
+        for row in range(len(board)):
+            for col in range(len(board[0])):
+                curr_char = board[row][col]
+                if curr_char not in prefix:
+                    continue
+
+                for word in prefix[curr_char]:
+                    if word in res:
+                        continue
+
+                    if can_generate(word, board, row, col, set(), 1):
+                        res.add(word)
+
+                if len(res) == len(words):
+                    return res
+
+        return list(res)
+
+    # time O(n * m + K * l) n: rows, m: cols, k: num of words, l: largest word
+    # space O(K * l)
+
+
+def is_valid(row, col, board):
+    if row < 0 or col < 0 or row >= len(board) or col >= len(board[0]):
+        return False
+
+    return True
+
+
+def can_generate(word, board, row, col, seen, idx):
+    if idx == len(word):
+        return True
+
+    if (row, col) in seen:
+        return False
+
+    seen.add((row, col))
+
+    for n_row, n_col in get_neighbors(row, col):
+        if (n_row, n_col) in seen or not is_valid(n_row, n_col, board):
+            continue
+
+        if board[n_row][n_col] == word[idx]:
+            if can_generate(word, board, n_row, n_col, seen, idx + 1):
+                return True
+
+    return False
+
+
+directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+
+def get_neighbors(row, col):
+    res = []
+    for dx, dy in directions:
+        res.append((row + dx, col + dy))
+
+    return res
+
+
+def starts_with_same(words):
+    prefix = defaultdict(list)
+
+    for word in words:
+        prefix[word[0]].append(word)
+
+    return prefix
 
 # -----------------------------------------------------------------------
 
