@@ -4161,17 +4161,345 @@ class Solution(object):
     # time O(log(n))
     # space O(1)
 
+
 # Your Solution object will be instantiated and called as such:
 # obj = Solution(w)
 # param_1 = obj.pickIndex()
 
 # -----------------------------------------------------------------------
+"""
+1631. Path With Minimum Effort
+
+You are a hiker preparing for an upcoming hike. You are given heights, a 2D array of size rows x columns, where heights[row][col] represents the height of cell (row, col). You are situated in the top-left cell, (0, 0), and you hope to travel to the bottom-right cell, (rows-1, columns-1) (i.e., 0-indexed). You can move up, down, left, or right, and you wish to find a route that requires the minimum effort.
+
+A route's effort is the maximum absolute difference in heights between two consecutive cells of the route.
+
+Return the minimum effort required to travel from the top-left cell to the bottom-right cell.
+
+ 
+
+Example 1:
+
+
+
+Input: heights = [[1,2,2],[3,8,2],[5,3,5]]
+Output: 2
+Explanation: The route of [1,3,5,3,5] has a maximum absolute difference of 2 in consecutive cells.
+This is better than the route of [1,2,2,2,5], where the maximum absolute difference is 3.
+Example 2:
+
+
+
+Input: heights = [[1,2,3],[3,8,4],[5,3,5]]
+Output: 1
+Explanation: The route of [1,2,3,4,5] has a maximum absolute difference of 1 in consecutive cells, which is better than route [1,3,5,3,5].
+Example 3:
+
+
+Input: heights = [[1,2,1,1,1],[1,2,1,2,1],[1,2,1,2,1],[1,2,1,2,1],[1,1,1,2,1]]
+Output: 0
+Explanation: This route does not require any effort.
+"""
+
+import heapq
+
+
+class Solution(object):
+    def minimumEffortPath(self, heights):
+        """
+        :type heights: List[List[int]]
+        :rtype: int
+        """
+
+        rows = len(heights)
+        cols = len(heights[0])
+
+        diff_matrix = [[float('inf') for _ in range(cols)] for _ in range(rows)]
+        diff_matrix[0][0] = 0
+
+        visited = set()
+
+        min_heap = [(0, 0, 0)]
+
+        while len(min_heap) > 0:
+
+            curr_diff, row, col = heapq.heappop(min_heap)
+
+            visited.add((row, col))
+
+            for n_row, n_col in get_neighbors(row, col):
+                if (n_row, n_col) not in visited and is_valid(n_row, n_col, heights):
+                    diff = abs(heights[row][col] - heights[n_row][n_col])
+
+                    max_diff = max(diff, curr_diff)
+
+                    if diff_matrix[n_row][n_col] > max_diff:
+                        diff_matrix[n_row][n_col] = max_diff
+                        heapq.heappush(min_heap, (max_diff, n_row, n_col))
+
+        return diff_matrix[rows - 1][cols - 1]
+
+    # time O(n * m * log(m * n))
+    # space O(n * m)
+
+
+def get_neighbors(row, col):
+    directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+
+    res = []
+    for dx, dy in directions:
+        res.append((row + dx, col + dy))
+
+    return res
+
+
+def is_valid(row, col, mat):
+    if row < 0 or col < 0 or row >= len(mat) or col >= len(mat[0]):
+        return False
+
+    return True
+
 
 # -----------------------------------------------------------------------
+"""
+1438. Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit
+
+Given an array of integers nums and an integer limit, return the size of the longest non-empty subarray such that 
+the absolute difference between any two elements of this subarray is less than or equal to limit.
+
+ 
+
+Example 1:
+
+Input: nums = [8,2,4,7], limit = 4
+Output: 2 
+Explanation: All subarrays are: 
+[8] with maximum absolute diff |8-8| = 0 <= 4.
+[8,2] with maximum absolute diff |8-2| = 6 > 4. 
+[8,2,4] with maximum absolute diff |8-2| = 6 > 4.
+[8,2,4,7] with maximum absolute diff |8-2| = 6 > 4.
+[2] with maximum absolute diff |2-2| = 0 <= 4.
+[2,4] with maximum absolute diff |2-4| = 2 <= 4.
+[2,4,7] with maximum absolute diff |2-7| = 5 > 4.
+[4] with maximum absolute diff |4-4| = 0 <= 4.
+[4,7] with maximum absolute diff |4-7| = 3 <= 4.
+[7] with maximum absolute diff |7-7| = 0 <= 4. 
+Therefore, the size of the longest subarray is 2.
+Example 2:
+
+Input: nums = [10,1,2,4,7,2], limit = 5
+Output: 4 
+Explanation: The subarray [2,4,7,2] is the longest since the maximum absolute diff is |2-7| = 5 <= 5.
+Example 3:
+
+Input: nums = [4,2,2,2,4,4,2,2], limit = 0
+Output: 3
+"""
+
+from collections import deque
+
+
+class Solution(object):
+    def longestSubarray(self, nums, limit):
+        """
+        :type nums: List[int]
+        :type limit: int
+        :rtype: int
+        """
+
+        max_q, min_q = deque(), deque()
+
+        left = 0
+        res = 0
+        for i, num in enumerate(nums):
+
+            add_to_min_q(min_q, num)
+            add_to_max_q(max_q, num)
+
+            if max_q[0] - min_q[0] > limit:
+                if max_q[0] == nums[left]:
+                    max_q.popleft()
+                if min_q[0] == nums[left]:
+                    min_q.popleft()
+
+                left += 1
+
+            res = max(res, i - left + 1)
+
+        return res
+
+    # time O(n)
+    # space O(n)
+
+
+def add_to_min_q(q, num):
+    while q and num < q[-1]:
+        q.pop()
+
+    q.append(num)
+
+
+def add_to_max_q(q, num):
+    while q and num > q[-1]:
+        q.pop()
+    q.append(num)
+
 
 # -----------------------------------------------------------------------
+"""
+351. Android Unlock Patterns
+Medium
+
+458
+
+801
+
+Add to List
+
+Share
+Android devices have a special lock screen with a 3 x 3 grid of dots. Users can set an "unlock pattern" by 
+connecting the dots in a specific sequence, forming a series of joined line segments where each segment's endpoints 
+are two consecutive dots in the sequence. A sequence of k dots is a valid unlock pattern if both of the following are true:
+
+All the dots in the sequence are distinct.
+If the line segment connecting two consecutive dots in the sequence passes through any other dot, the other dot must 
+have previously appeared in the sequence. No jumps through non-selected dots are allowed.
+Here are some example valid and invalid unlock patterns:
+
+
+
+The 1st pattern [4,1,3,6] is invalid because the line connecting dots 1 and 3 pass through dot 2, but dot 2 did not 
+previously appear in the sequence.
+The 2nd pattern [4,1,9,2] is invalid because the line connecting dots 1 and 9 pass through dot 5, but dot 5 did not 
+previously appear in the sequence.
+The 3rd pattern [2,4,1,3,6] is valid because it follows the conditions. The line connecting dots 1 and 3 meets the 
+condition because dot 2 previously appeared in the sequence.
+The 4th pattern [6,5,4,1,9,2] is valid because it follows the conditions. The line connecting dots 1 and 9 meets the 
+condition because dot 5 previously appeared in the sequence.
+Given two integers m and n, return the number of unique and valid unlock patterns of the Android grid lock screen that 
+consist of at least m keys and at most n keys.
+
+Two unlock patterns are considered unique if there is a dot in one sequence that is not in the other, or the order of 
+the dots is different.
+
+ 
+
+Example 1:
+
+Input: m = 1, n = 1
+Output: 9
+Example 2:
+
+Input: m = 1, n = 2
+Output: 65
+"""
+
+start, end = 1, 9
+
+
+class Solution(object):
+
+    def __init__(self):
+        self.has_obstacle = {(1, 3): 2, (1, 7): 4, (1, 9): 5, (2, 8): 5, (3, 7): 5, (3, 1): 2, (3, 9): 6, (4, 6): 5,
+                             (6, 4): 5, (7, 1): 4, (7, 3): 5, (7, 9): 8, (8, 2): 5, (9, 7): 8, (9, 3): 6, (9, 1): 5}
+
+    def numberOfPatterns(self, m, n):
+        """
+        :type m: int
+        :type n: int
+        :rtype: int
+        """
+
+        if m == n and n == 1:
+            return 9
+
+        self.res = 0
+        for num in range(start, end + 1):
+            self.visited = set()
+            self.count_patterns(num, 1, m, n)
+
+        return self.res
+
+    # time O(n^9)
+    # space O(n)
+
+    def count_patterns(self, num, count, m, n):
+
+        if count >= m and count <= n:
+            self.res += 1
+
+        if count == n:
+            return
+
+        self.visited.add(num)
+
+        for next_ in range(start, end + 1):
+            if next_ not in self.visited:
+                if (num, next_) in self.has_obstacle:
+                    if self.has_obstacle[(num, next_)] not in self.visited:
+                        continue
+                self.count_patterns(next_, count + 1, m, n)
+
+        self.visited.remove(num)
+
 
 # -----------------------------------------------------------------------
+"""
+17. Letter Combinations of a Phone Number
+
+Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent. Return the answer in any order.
+
+A mapping of digit to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
+
+
+
+ 
+
+Example 1:
+
+Input: digits = "23"
+Output: ["ad","ae","af","bd","be","bf","cd","ce","cf"]
+Example 2:
+
+Input: digits = ""
+Output: []
+Example 3:
+
+Input: digits = "2"
+Output: ["a","b","c"]
+"""
+
+digits_map = {'2': ['a', 'b', 'c'], '3': ['d', 'e', 'f'], '4': ['g', 'h', 'i'], '5': ['j', 'k', 'l'],
+              '6': ['m', 'n', 'o'], '7': ['p', 'q', 'r', 's'], '8': ['t', 'u', 'v'], '9': ['w', 'x', 'y', 'z']}
+
+
+class Solution(object):
+    def letterCombinations(self, digits):
+        """
+        :type digits: str
+        :rtype: List[str]
+        """
+
+        if len(digits) == 0:
+            return []
+
+        res = []
+
+        generate_letters(digits, 0, [], res)
+
+        return res
+
+    # time O(3^n 4^m)
+    # space O(3^n * 4^m)
+
+
+def generate_letters(digits, idx, curr, res):
+    if idx == len(digits):
+        res.append(''.join(curr))
+        return
+
+    for char in digits_map[digits[idx]]:
+        generate_letters(digits, idx + 1, curr + [char], res)
 
 # -----------------------------------------------------------------------
 
