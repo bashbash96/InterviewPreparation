@@ -2548,11 +2548,212 @@ def is_balanced(node):
 
     return max(left, right) + 1
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+1592. Rearrange Spaces Between Words
+
+You are given a string text of words that are placed among some number of spaces. Each word consists of one or more lowercase English letters and are separated by at least one space. It's guaranteed that text contains at least one word.
+
+Rearrange the spaces so that there is an equal number of spaces between every pair of adjacent words and that number is maximized. If you cannot redistribute all the spaces equally, place the extra spaces at the end, meaning the returned string should be the same length as text.
+
+Return the string after rearranging the spaces.
+
+ 
+
+Example 1:
+
+Input: text = "  this   is  a sentence "
+Output: "this   is   a   sentence"
+Explanation: There are a total of 9 spaces and 4 words. We can evenly divide the 9 spaces between the words: 9 / (4-1) = 3 spaces.
+"""
+
+
+class Solution(object):
+    def reorderSpaces(self, text):
+        """
+        :type text: str
+        :rtype: str
+        """
+
+        space_counts = text.count(' ')
+
+        words = text.split()
+        print(words)
+        n = len(words)
+        if n == 1:
+            return ''.join(words + [' '] * space_counts)
+
+        word_spaces = space_counts // (n - 1)
+        extra_spaces = space_counts - (word_spaces * (n - 1))
+
+        res = []
+        for i, word in enumerate(words):
+            res.append(word)
+            if i < n - 1:
+                res.extend([' '] * word_spaces)
+
+        res.extend([' '] * extra_spaces)
+
+        return ''.join(res)
+
+    # time O(n)
+    # space O(n)
 
 # -----------------------------------------------------------------------
+"""
+501. Find Mode in Binary Search Tree
+
+Given a binary search tree (BST) with duplicates, find all the mode(s) (the most frequently occurred element) in the given BST.
+
+Assume a BST is defined as follows:
+
+The left subtree of a node contains only nodes with keys less than or equal to the node's key.
+The right subtree of a node contains only nodes with keys greater than or equal to the node's key.
+Both the left and right subtrees must also be binary search trees.
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def findMode(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[int]
+        """
+
+        counts = defaultdict(int)
+
+        max_val = get_count(root, counts)
+
+        return [val for val, freq in counts.items() if freq == max_val]
+
+    # time O(n)
+    # space O(n)
+
+
+def get_count(root, counts):
+    if not root:
+        return 0
+
+    left_max = get_count(root.left, counts)
+    right_max = get_count(root.right, counts)
+
+    counts[root.val] += 1
+
+    return max(left_max, right_max, counts[root.val])
+
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+
+class Solution(object):
+
+    def __init__(self):
+        self.res = []
+        self.curr_val = float('inf')
+        self.max_count = 0
+        self.curr_count = 0
+
+    def findMode(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[int]
+        """
+
+        self.in_order(root)
+
+        return self.res
+
+    # time O(n)
+    # space O(h)
+
+    def in_order(self, node):
+        if not node:
+            return
+
+        self.in_order(node.left)
+
+        # update counters
+        if node.val == self.curr_val:
+            self.curr_count += 1
+        else:
+            self.curr_count = 1
+            self.curr_val = node.val
+
+        # update result
+        if self.curr_count > self.max_count:
+            self.max_count = self.curr_count
+            self.res = [node.val]
+        elif self.curr_count == self.max_count:
+            self.res.append(node.val)
+
+        self.in_order(node.right)
+
+# -----------------------------------------------------------------------
+"""
+459. Repeated Substring Pattern
+
+Given a string s, check if it can be constructed by taking a substring of it and appending multiple copies of the substring together.
+
+ 
+
+Example 1:
+
+Input: s = "abab"
+Output: true
+Explanation: It is the substring "ab" twice.
+Example 2:
+
+Input: s = "aba"
+Output: false
+"""
+
+
+class Solution(object):
+    def repeatedSubstringPattern(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+
+        n = len(s)
+
+        for i in range(1, (n // 2) + 1):
+
+            curr_sub = s[:i]
+            if can_generate_from_sub(s, curr_sub):
+                return True
+
+        return False
+
+    # time O(n^2)
+    # space O(n)
+
+
+def can_generate_from_sub(s, curr_sub):
+    length = len(curr_sub)
+
+    if len(s) % length != 0:
+        return False
+
+    for idx in range(length, len(s), length):
+        if s[idx: idx + length] != curr_sub:
+            return False
+
+    return True
+
+
 
 # -----------------------------------------------------------------------
 
