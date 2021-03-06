@@ -333,78 +333,112 @@ cache.get(4);       // returns 4
 
 
 class Node:
-    def __init__(self, key, data):
-        self.data = data
+    def __init__(self, val, key):
+        self.val = val
         self.key = key
         self.next = None
         self.prev = None
 
 
-class LRUCache:
-    def __init__(self, capacity: int):
-        self.capacity = capacity
-        self.map = {}
+class DoubleLinkedList:
+    def __init__(self):
         self.head = None
         self.tail = None
 
-    def get(self, key: int) -> int:
-        if key not in self.map:
-            return -1
-        resultData = self.map[key].data
-        if len(self.map) == 1:
-            return resultData
-        self.remove(key)
-        self.add(key, resultData)
-        return resultData
+    def add(self, value, key):
+        node = Node(value, key)
 
-        # time O(1)
-        # space O(1)
-
-    def put(self, key: int, value: int) -> None:
-
-        if key in self.map:
-            self.remove(key)
-            self.add(key, value)
-            return
-        if len(self.map) < self.capacity:
-            self.add(key, value)
-            return
-
-        self.remove(self.tail.key)
-        self.add(key, value)
-
-        # time O(1)
-        # space O(1)
-
-    def add(self, key, value):
-        node = Node(key, value)
-        self.map[key] = node
         if not self.head:
             self.head = self.tail = node
-            return
+            return node
 
         node.next = self.head
         self.head.prev = node
         self.head = node
 
-    def remove(self, key):
-        if key not in self.map:
+        return node
+
+    def delete(self, node):
+
+        if node == self.head:
+            self.head = node.next
+            if not self.head:
+                self.tail = None
+            else:
+                self.head.prev = None
             return
-        currNode = self.map[key]
-        del self.map[key]
 
-        if self.head == currNode and self.tail == currNode:
-            self.head = self.tail = None
+        if node == self.tail:
+            self.tail = node.prev
+            if not self.tail:
+                self.head = None
+            else:
+                self.tail.next = None
             return
 
-        currNode.prev.next = currNode.next
+        node.prev.next = node.next
+        node.next.prev = node.prev
 
-        if self.tail == currNode:
-            self.tail = currNode.prev
+
+class LRUCache(object):
+
+    def __init__(self, capacity):
+        """
+        :type capacity: int
+        """
+        self.list = DoubleLinkedList()
+        self.capacity = capacity
+        self.size = 0
+        self.keys = {}
+
+    def get(self, key):
+        """
+        :type key: int
+        :rtype: int
+        """
+
+        if key not in self.keys:
+            return -1
+
+        val = self.keys[key].val
+
+        self.put(key, val)
+
+        return val
+
+    # time O(1)
+    # space O(1)
+
+    def put(self, key, value):
+        """
+        :type key: int
+        :type value: int
+        :rtype: None
+        """
+
+        if key in self.keys:
+            self.list.delete(self.keys[key])
+            del self.keys[key]
         else:
-            if currNode.next:
-                currNode.next.prev = currNode.prev
+            self.size += 1
 
+        if self.size > self.capacity:
+            self.size = self.capacity
+            del_key = self.list.tail.key
+            self.list.delete(self.keys[del_key])
+            del self.keys[del_key]
+
+        node = self.list.add(value, key)
+        self.keys[key] = node
+
+    # time O(1)
+    # space O(1)
+
+
+# Your LRUCache object will be instantiated and called as such:
+# obj = LRUCache(capacity)
+# param_1 = obj.get(key)
+# obj.put(key,value)
 
 # -----------------------------------------------------------------------
 """
@@ -4501,18 +4535,478 @@ def generate_letters(digits, idx, curr, res):
     for char in digits_map[digits[idx]]:
         generate_letters(digits, idx + 1, curr + [char], res)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+853. Car Fleet
+
+N cars are going to the same destination along a one lane road.  The destination is target miles away.
+
+Each car i has a constant speed speed[i] (in miles per hour), and initial position position[i] miles towards the target along the road.
+
+A car can never pass another car ahead of it, but it can catch up to it, and drive bumper to bumper at the same speed.
+
+The distance between these two cars is ignored - they are assumed to have the same position.
+
+A car fleet is some non-empty set of cars driving at the same position and same speed.  Note that a single car is also a car fleet.
+
+If a car catches up to a car fleet right at the destination point, it will still be considered as one car fleet.
+
+
+How many car fleets will arrive at the destination?
+
+ 
+
+Example 1:
+
+Input: target = 12, position = [10,8,0,5,3], speed = [2,4,1,1,3]
+Output: 3
+Explanation:
+The cars starting at 10 and 8 become a fleet, meeting each other at 12.
+The car starting at 0 doesn't catch up to any other car, so it is a fleet by itself.
+The cars starting at 5 and 3 become a fleet, meeting each other at 6.
+Note that no other cars meet these fleets before the destination, so the answer is 3.
+"""
+
+
+class Solution(object):
+    def carFleet(self, target, position, speed):
+        """
+        :type target: int
+        :type position: List[int]
+        :type speed: List[int]
+        :rtype: int
+        """
+
+        cars = sorted(zip(position, speed))
+
+        times = [float(target - p) / s for p, s in cars]
+
+        res = 0
+
+        while len(times) > 1:
+            last = times.pop()
+
+            if last < times[-1]:
+                res += 1
+            else:
+                times[-1] = last
+
+        return res + len(times)
+
+    # time O(n * log(n))
+    # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+304. Range Sum Query 2D - Immutable
+
+Given a 2D matrix matrix, find the sum of the elements inside the rectangle defined by its upper left corner (row1, col1) and lower right corner (row2, col2).
+
+Range Sum Query 2D
+The above rectangle (with the red border) is defined by (row1, col1) = (2, 1) and (row2, col2) = (4, 3), which contains sum = 8.
+
+Example:
+Given matrix = [
+  [3, 0, 1, 4, 2],
+  [5, 6, 3, 2, 1],
+  [1, 2, 0, 1, 5],
+  [4, 1, 0, 1, 7],
+  [1, 0, 3, 0, 5]
+]
+
+sumRegion(2, 1, 4, 3) -> 8
+sumRegion(1, 1, 2, 2) -> 11
+sumRegion(1, 2, 2, 4) -> 12
+"""
+
+
+class NumMatrix(object):
+
+    def __init__(self, matrix):
+        """
+        :type matrix: List[List[int]]
+        """
+
+        self.mat = matrix
+        self.calc_regions()
+
+    def calc_regions(self):
+        n = len(self.mat)
+        if n == 0:
+            self.regions = [[0, 0]]
+            return
+        m = len(self.mat[0])
+
+        self.regions = [[0 for _ in range(m + 1)] for _ in range(n + 1)]
+
+        for row in range(1, n + 1):
+            for col in range(1, m + 1):
+                curr_area = self.regions[row - 1][col] + self.regions[row][col - 1]
+                curr_area -= self.regions[row - 1][col - 1]
+                curr_area += self.mat[row - 1][col - 1]
+
+                self.regions[row][col] = curr_area
+
+    # time O(n * m)
+    # space O(n * m)
+
+    def sumRegion(self, row1, col1, row2, col2):
+        """
+        :type row1: int
+        :type col1: int
+        :type row2: int
+        :type col2: int
+        :rtype: int
+        """
+
+        if not self.is_valid(row1, col1) or not self.is_valid(row2, col2):
+            return -1
+
+        area = self.regions[row2 + 1][col2 + 1]
+        area -= self.regions[row1][col2 + 1]
+        area -= self.regions[row2 + 1][col1]
+        area += self.regions[row1][col1]
+
+        return area
+
+    # time O(1)
+    # space O(1)
+
+    def is_valid(self, row, col):
+        if row < 0 or col < 0 or row >= len(self.mat) or col >= len(self.mat[0]):
+            return False
+
+        return True
+
+
+# Your NumMatrix object will be instantiated and called as such:
+# obj = NumMatrix(matrix)
+# param_1 = obj.sumRegion(row1,col1,row2,col2)
+
 
 # -----------------------------------------------------------------------
+"""
+247. Strobogrammatic Number II
+
+A strobogrammatic number is a number that looks the same when rotated 180 degrees (looked at upside down).
+
+Find all strobogrammatic numbers that are of length = n.
+
+Example:
+
+Input:  n = 2
+Output: ["11","69","88","96"]
+"""
+
+opposite = {
+    '1': '1',
+    '6': '9',
+    '9': '6',
+    '8': '8',
+    '0': '0'
+}
+
+
+class Solution(object):
+    def findStrobogrammatic(self, n):
+        """
+        :type n: int
+        :rtype: List[str]
+        """
+
+        res = []
+        generate_stro_numbers([None] * n, 0, n - 1, res)
+
+        return res
+
+    # time O(5^n)
+    # space O(n)
+
+
+def generate_stro_numbers(curr, start, end, res):
+    if start > end:
+        res.append(''.join(curr))
+        return
+
+    for num in opposite:
+        if start == end and num in ('6', '9'):
+            continue
+
+        if start != end and start == 0 and num == '0':
+            continue
+
+        curr[start], curr[end] = num, opposite[num]
+
+        generate_stro_numbers(curr, start + 1, end - 1, res)
+
 
 # -----------------------------------------------------------------------
+"""
+155. Min Stack
+
+Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.
+
+push(x) -- Push element x onto stack.
+pop() -- Removes the element on top of the stack.
+top() -- Get the top element.
+getMin() -- Retrieve the minimum element in the stack.
+ 
+
+Example 1:
+
+Input
+["MinStack","push","push","push","getMin","pop","top","getMin"]
+[[],[-2],[0],[-3],[],[],[],[]]
+
+Output
+[null,null,null,null,-3,null,0,-2]
+
+Explanation
+MinStack minStack = new MinStack();
+minStack.push(-2);
+minStack.push(0);
+minStack.push(-3);
+minStack.getMin(); // return -3
+minStack.pop();
+minStack.top();    // return 0
+minStack.getMin(); // return -2
+"""
+
+
+class MinStack(object):
+
+    def __init__(self):
+        """
+        initialize your data structure here.
+        """
+
+        self.nums = []
+        self.mins = []
+
+    def push(self, x):
+        """
+        :type x: int
+        :rtype: None
+        """
+
+        self.nums.append(x)
+        if not self.mins or x <= self.mins[-1]:
+            self.mins.append(x)
+
+    def pop(self):
+        """
+        :rtype: None
+        """
+        if not self.nums:
+            return
+
+        curr = self.nums.pop()
+        if curr == self.mins[-1]:
+            self.mins.pop()
+
+    def top(self):
+        """
+        :rtype: int
+        """
+
+        if not self.nums:
+            return None
+
+        return self.nums[-1]
+
+    def getMin(self):
+        """
+        :rtype: int
+        """
+
+        if not self.mins:
+            return None
+
+        return self.mins[-1]
+
+
+# Your MinStack object will be instantiated and called as such:
+# obj = MinStack()
+# obj.push(x)
+# obj.pop()
+# param_3 = obj.top()
+# param_4 = obj.getMin()
 
 # -----------------------------------------------------------------------
+"""
+380. Insert Delete GetRandom O(1)
 
+Implement the RandomizedSet class:
+
+bool insert(int val) Inserts an item val into the set if not present. Returns true if the item was not present, false otherwise.
+bool remove(int val) Removes an item val from the set if present. Returns true if the item was present, false otherwise.
+int getRandom() Returns a random element from the current set of elements (it's guaranteed that at least one element exists when this method is called). Each element must have the same probability of being returned.
+Follow up: Could you implement the functions of the class with each function works in average O(1) time?
+"""
+
+from random import randint
+
+
+class RandomizedSet(object):
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+
+        self.nums = []
+        self.val_to_idx = {}
+
+    def insert(self, val):
+        """
+        Inserts a value to the set. Returns true if the set did not already contain the specified element.
+        :type val: int
+        :rtype: bool
+        """
+
+        if val in self.val_to_idx:
+            return False
+
+        self.nums.append(val)
+        self.val_to_idx[val] = len(self.nums) - 1
+
+        return True
+
+    # time O(1)
+    # space O(1)
+
+    def remove(self, val):
+        """
+        Removes a value from the set. Returns true if the set contained the specified element.
+        :type val: int
+        :rtype: bool
+        """
+        if val not in self.val_to_idx or not self.nums:
+            return False
+
+        idx = self.val_to_idx[val]
+
+        self.nums[idx], self.nums[-1] = self.nums[-1], self.nums[idx]
+        self.nums.pop()
+        del self.val_to_idx[val]
+
+        if idx != len(self.nums):
+            self.val_to_idx[self.nums[idx]] = idx
+
+        return True
+
+    # time O(1)
+    # space O(1)
+
+    def getRandom(self):
+        """
+        Get a random element from the set.
+        :rtype: int
+        """
+
+        if not self.nums:
+            return -1
+
+        idx = randint(0, len(self.nums) - 1)
+
+        return self.nums[idx]
+
+    # time O(1)
+    # space O(1)
+
+
+# Your RandomizedSet object will be instantiated and called as such:
+# obj = RandomizedSet()
+# param_1 = obj.insert(val)
+# param_2 = obj.remove(val)
+# param_3 = obj.getRandom()
+
+# -----------------------------------------------------------------------
+"""
+1146. Snapshot Array
+
+Implement a SnapshotArray that supports the following interface:
+
+SnapshotArray(int length) initializes an array-like data structure with the given length.  Initially, each element equals 0.
+void set(index, val) sets the element at the given index to be equal to val.
+int snap() takes a snapshot of the array and returns the snap_id: the total number of times we called snap() minus 1.
+int get(index, snap_id) returns the value at the given index, at the time we took the snapshot with the given snap_id
+ 
+
+Example 1:
+
+Input: ["SnapshotArray","set","snap","set","get"]
+[[3],[0,5],[],[0,6],[0,0]]
+Output: [null,null,0,null,5]
+Explanation: 
+SnapshotArray snapshotArr = new SnapshotArray(3); // set the length to be 3
+snapshotArr.set(0,5);  // Set array[0] = 5
+snapshotArr.snap();  // Take a snapshot, return snap_id = 0
+snapshotArr.set(0,6);
+snapshotArr.get(0,0);  // Get the value of array[0] with snap_id = 0, return 5
+"""
+
+
+class SnapshotArray(object):
+
+    def __init__(self, length):
+        """
+        :type length: int
+        """
+
+        self.snap_id = 0
+        self.nums = [{0: 0} for _ in range(length)]
+
+    def set(self, index, val):
+        """
+        :type index: int
+        :type val: int
+        :rtype: None
+        """
+
+        curr_map = self.nums[index]
+        curr_map[self.snap_id] = val
+
+    # time O(1)
+    # space O(1)
+
+    def snap(self):
+        """
+        :rtype: int
+        """
+
+        self.snap_id += 1
+
+        return self.snap_id - 1
+
+    # time O(1)
+    # space O(1)
+
+    def get(self, index, snap_id):
+        """
+        :type index: int
+        :type snap_id: int
+        :rtype: int
+        """
+
+        curr_map = self.nums[index]
+
+        # can improve using binary search to find the first valid snap id
+        while snap_id not in curr_map:
+            snap_id -= 1
+
+        return curr_map.get(snap_id, 0)
+
+    # time O(s_id)
+    # space O(1)
+
+# Your SnapshotArray object will be instantiated and called as such:
+# obj = SnapshotArray(length)
+# obj.set(index,val)
+# param_2 = obj.snap()
+# param_3 = obj.get(index,snap_id)
 
 # -----------------------------------------------------------------------
 
