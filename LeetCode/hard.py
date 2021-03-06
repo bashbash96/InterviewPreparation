@@ -97,14 +97,17 @@ class Codec:
         if not root:
             return ''
 
-        q = [root]
         res = []
+        q = deque([root])
+
         while len(q) > 0:
-            curr_node = q.pop(0)
-            if curr_node:
-                res.append(str(curr_node.val))
-                q.append(curr_node.left)
-                q.append(curr_node.right)
+
+            curr = q.popleft()
+
+            if curr:
+                q.append(curr.left)
+                q.append(curr.right)
+                res.append(str(curr.val))
             else:
                 res.append('#')
 
@@ -117,36 +120,36 @@ class Codec:
         :rtype: TreeNode
         """
 
-        if len(data) == 0:
+        if not data:
             return None
-        data = data.split()
-        res = TreeNode(data[0])
-        curr_level, idx = [res], 1
-        while len(curr_level) > 0 and idx < len(data):
-            next_level = []
 
-            for node in curr_level:
-                if data[idx] != '#':
-                    node.left = TreeNode(data[idx])
-                    next_level.append(node.left)
-                idx += 1
-                if data[idx] != '#':
-                    node.right = TreeNode(data[idx])
-                    next_level.append(node.right)
-                idx += 1
-            curr_level = next_level
+        data = data.split(' ')
+        res = TreeNode(data[0])
+
+        curr_level = deque([res])
+        idx = 1
+
+        while idx < len(data) and curr_level:
+
+            curr = curr_level.popleft()
+
+            if data[idx] != '#':
+                curr.left = TreeNode(data[idx])
+                curr_level.append(curr.left)
+
+            idx += 1
+            if data[idx] != '#':
+                curr.right = TreeNode(data[idx])
+                curr_level.append(curr.right)
+            idx += 1
 
         return res
-
-    # time O(n)
-    # space O(n)
 
 
 # Your Codec object will be instantiated and called as such:
 # ser = Codec()
 # deser = Codec()
 # ans = deser.deserialize(ser.serialize(root))
-
 # -----------------------------------------------------------------------
 """
 72. Edit Distance
