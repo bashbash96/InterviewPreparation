@@ -122,6 +122,76 @@ def get_component_length(num, nums, visited):
     return length
 
 # -----------------------------------------------------------------------
+"""
+4 Sum
+
+Given an array S of n integers, are there elements a, b, c, and d in S such that a + b + c + d = target? Find all unique quadruplets in the array which gives the sum of target.
+
+ Note:
+Elements in a quadruplet (a,b,c,d) must be in non-descending order. (ie, a ≤ b ≤ c ≤ d)
+The solution set must not contain duplicate quadruplets.
+Example :
+Given array S = {1 0 -1 0 -2 2}, and target = 0
+A solution set is:
+
+    (-2, -1, 1, 2)
+    (-2,  0, 0, 2)
+    (-1,  0, 0, 1)
+"""
+
+
+class Solution:
+    # @param A : list of integers
+    # @param B : integer
+    # @return a list of list of integers
+    def fourSum(self, A, B):
+        arr = sorted(A)
+        target = B
+
+        return kSum(arr, target, 0, 4)
+
+    # time O(n ^ 3)
+    # space O(n)
+
+
+def kSum(arr, target, start, k):
+    if k == 2:
+        return get_doubles(arr, target, start)
+
+    res = []
+    i = start
+    while i < len(arr):
+
+        curr = kSum(arr, target - arr[i], i + 1, k - 1)
+        for val in curr:
+            res.append([arr[i]] + val)
+
+        while i < len(arr) - 1 and arr[i] == arr[i + 1]:
+            i += 1
+        i += 1
+
+    return res
+
+
+def get_doubles(arr, target, start):
+    end = len(arr) - 1
+    res = []
+
+    while start < end:
+
+        curr_sum = arr[start] + arr[end]
+        if curr_sum > target:
+            end -= 1
+        elif curr_sum < target:
+            start += 1
+        else:
+            res.append([arr[start], arr[end]])
+            start += 1
+            while start < end and arr[start] == arr[start - 1]:
+                start += 1
+
+    return res
+
 
 # -----------------------------------------------------------------------
 
