@@ -2600,6 +2600,7 @@ class Solution(object):
     # time O(n)
     # space O(n)
 
+
 # -----------------------------------------------------------------------
 """
 501. Find Mode in Binary Search Tree
@@ -2700,6 +2701,7 @@ class Solution(object):
 
         self.in_order(node.right)
 
+
 # -----------------------------------------------------------------------
 """
 459. Repeated Substring Pattern
@@ -2754,7 +2756,179 @@ def can_generate_from_sub(s, curr_sub):
     return True
 
 
+# -----------------------------------------------------------------------
+"""
+671. Second Minimum Node In a Binary Tree
+
+Given a non-empty special binary tree consisting of nodes with the non-negative value, where each node in this tree has exactly two or zero sub-node. If the node has two sub-nodes, then this node's value is the smaller value among its two sub-nodes. More formally, the property root.val = min(root.left.val, root.right.val) always holds.
+
+Given such a binary tree, you need to output the second minimum value in the set made of all the nodes' value in the whole tree.
+
+If no such second minimum value exists, output -1 instead.
+
+ 
+
+Example 1:
+
+
+Input: root = [2,2,5,null,null,5,7]
+Output: 5
+Explanation: The smallest value is 2, the second smallest value is 5.
+Example 2:
+
+
+Input: root = [2,2,2]
+Output: -1
+Explanation: The smallest value is 2, but there isn't any second smallest value.
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def findSecondMinimumValue(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+        seen = set()
+        second_min(root, seen)
+
+        min_val = root.val
+        res = float('inf')
+
+        for val in seen:
+            if val > min_val and val < res:
+                res = val
+
+        return res if res != float('inf') else -1
+
+    # time O(n)
+    # space O(n)
+
+
+def second_min(node, seen):
+    if not node:
+        return
+
+    seen.add(node.val)
+
+    second_min(node.left, seen)
+    second_min(node.right, seen)
+
 
 # -----------------------------------------------------------------------
+"""
+326. Power of Three
 
+Given an integer n, return true if it is a power of three. Otherwise, return false.
+
+An integer n is a power of three, if there exists an integer x such that n == 3x.
+
+ 
+
+Example 1:
+
+Input: n = 27
+Output: true
+"""
+
+
+class Solution(object):
+    def isPowerOfThree(self, n):
+        """
+        :type n: int
+        :rtype: bool
+        """
+
+        if n < 1:
+            return False
+
+        while n > 1:
+            if n % 3 != 0:
+                return False
+            n //= 3
+
+        return n == 1
+
+    # time O(log(n))
+    # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+205. Isomorphic Strings
+
+Given two strings s and t, determine if they are isomorphic.
+
+Two strings s and t are isomorphic if the characters in s can be replaced to get t.
+
+All occurrences of a character must be replaced with another character while preserving the order of characters. No two characters may map to the same character, but a character may map to itself.
+
+ 
+
+Example 1:
+
+Input: s = "egg", t = "add"
+Output: true
+Example 2:
+
+Input: s = "foo", t = "bar"
+Output: false
+"""
+
+from collections import defaultdict
+
+
+class Solution(object):
+    def isIsomorphic(self, s, t):
+        """
+        :type s: str
+        :type t: str
+        :rtype: bool
+        """
+
+        if len(s) != len(t):
+            return False
+
+        d1, d2 = defaultdict(), defaultdict()
+
+        for c1, c2 in zip(s, t):
+
+            if (c1 in d1 and d1[c1] != c2) or (c2 in d2 and d2[c2] != c1):
+                return False
+
+            d1[c1], d2[c2] = c2, c1
+
+        return True
+
+    # time O(n)
+    # space O(n)
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
