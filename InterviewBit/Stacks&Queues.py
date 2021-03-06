@@ -219,5 +219,109 @@ class Solution:
     # time O(n)
     # space O(1)
 
+
 # -----------------------------------------------------------------------
+"""
+Largest Rectangle in Histogram
+
+Given an array of integers A of size N. A represents a histogram i.e A[i] denotes height of
+the ith histogram’s bar. Width of each bar is 1.
+
+Largest Rectangle in Histogram: Example 1
+
+Above is a histogram where width of each bar is 1, given height = [2,1,5,6,2,3].
+
+Largest Rectangle in Histogram: Example 2
+
+The largest rectangle is shown in the shaded area, which has area = 10 unit.
+
+Find the area of largest rectangle in the histogram.
+
+
+
+Input Format
+
+The only argument given is the integer array A.
+Output Format
+
+Return the area of largest rectangle in the histogram.
+"""
+
+
+class Solution:
+    # @param A : list of integers
+    # @return an integer
+    def largestRectangleArea(self, A):
+
+        max_area = 0
+        stack_idxs = []
+
+        i = 0
+        while i < len(A):
+            if not stack_idxs or A[i] >= A[stack_idxs[-1]]:
+                stack_idxs.append(i)
+                i += 1
+            else:
+                max_area = max(max_area, calc_area(A, stack_idxs, i))
+
+        while stack_idxs:
+            max_area = max(max_area, calc_area(A, stack_idxs, i))
+
+        return max_area
+
+    # time O(n)
+    # space O(n)
+
+
+def calc_area(arr, stack_idxs, i):
+    curr_idx = stack_idxs.pop()
+    height = arr[curr_idx]
+
+    width = i if not stack_idxs else i - stack_idxs[-1] - 1
+
+    return height * width
+
+
+# sol2
+class Solution:
+    # @param A : list of integers
+    # @return an integer
+    def largestRectangleArea(self, A):
+        n = len(A)
+        max_area = 0
+
+        left_limits = calc_limits(A, 0, n, 1)
+        right_limits = calc_limits(A, n - 1, -1, -1)[::-1]
+
+        for i in range(n):
+            max_area = max(max_area, ((right_limits[i] - left_limits[i] + 1) * A[i]))
+
+        return max_area
+
+    # time O(n)
+    # space O(n)
+
+
+def calc_limits(arr, start, end, jump):
+    stack = []
+    limits = []
+    while start != end:
+
+        while stack and arr[stack[-1]] >= arr[start]:
+            stack.pop()
+
+        if not stack:
+            if jump > 0:
+                limits.append(0)
+            else:
+                limits.append(len(arr) - 1)
+        else:
+            limits.append(stack[-1] + jump)
+
+        stack.append(start)
+
+        start += jump
+
+    return limits
+
 # -----------------------------------------------------------------------
