@@ -2909,11 +2909,230 @@ class Solution(object):
     # time O(n)
     # space O(n)
 
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+941. Valid Mountain Array
+
+Given an array of integers arr, return true if and only if it is a valid mountain array.
+
+Recall that arr is a mountain array if and only if:
+
+arr.length >= 3
+There exists some i with 0 < i < arr.length - 1 such that:
+arr[0] < arr[1] < ... < arr[i - 1] < arr[i]
+arr[i] > arr[i + 1] > ... > arr[arr.length - 1]
+
+ 
+
+Example 1:
+
+Input: arr = [2,1]
+Output: false
+"""
+
+
+class Solution(object):
+    def validMountainArray(self, arr):
+        """
+        :type arr: List[int]
+        :rtype: bool
+        """
+
+        n = len(arr)
+
+        if n < 3:
+            return False
+
+        i = 0
+        while i < n - 1 and arr[i] < arr[i + 1]:
+            i += 1
+
+        if i == n - 1 or i == 0:
+            return False
+
+        while i < n - 1 and arr[i] > arr[i + 1]:
+            i += 1
+
+        return i == n - 1
+
+    # time O(n)
+    # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+168. Excel Sheet Column Title
+
+Given an integer columnNumber, return its corresponding column title as it appears in an Excel sheet.
+
+For example:
+
+A -> 1
+B -> 2
+C -> 3
+...
+Z -> 26
+AA -> 27
+AB -> 28 
+...
+ 
+
+Example 1:
+
+Input: columnNumber = 1
+Output: "A"
+"""
+
+
+class Solution(object):
+    def convertToTitle(self, columnNumber):
+        """
+        :type columnNumber: int
+        :rtype: str
+        """
+
+        num = columnNumber
+        res = []
+
+        while num > 0:
+            if num < 27:
+                res.append(map_num_to_char(num))
+                break
+
+            mod = num % 26
+            num //= 26
+
+            if mod == 0:
+                mod = 26
+                num -= 1
+
+            res.append(map_num_to_char(mod))
+
+        return ''.join(res[::-1])
+
+    # time O(log(n))
+    # space O(log(n))
+
+
+A = 65
+
+
+def map_num_to_char(num):
+    if num < 1 or num > 26:
+        return ''
+
+    return chr(num + A - 1)
+
+
+# -----------------------------------------------------------------------
+"""
+7. Reverse Integer
+
+Given a signed 32-bit integer x, return x with its digits reversed. If reversing x causes the value to go outside the signed 32-bit integer range [-231, 231 - 1], then return 0.
+
+Assume the environment does not allow you to store 64-bit integers (signed or unsigned).
+
+ 
+
+Example 1:
+
+Input: x = 123
+Output: 321
+Example 2:
+
+Input: x = -123
+Output: -321
+"""
+
+LOW = -1 * pow(2, 31)
+HIGH = pow(2, 31) - 1
+
+
+class Solution(object):
+    def reverse(self, x):
+        """
+        :type x: int
+        :rtype: int
+        """
+
+        neg = False
+        if x < 0:
+            neg = True
+            x *= -1
+
+        rev = reverse_num(x)
+
+        if neg:
+            rev *= -1
+
+        if rev < LOW or rev > HIGH:
+            return 0
+
+        return rev
+
+    # time O(log(n))
+    # space O(1)
+
+
+def reverse_num(num):
+    rev = 0
+
+    while num > 0:
+        rev = rev * 10 + num % 10
+        num //= 10
+
+    return rev
+
+
+# -----------------------------------------------------------------------
+"""
+1470. Shuffle the Array
+
+Given the array nums consisting of 2n elements in the form [x1,x2,...,xn,y1,y2,...,yn].
+
+Return the array in the form [x1,y1,x2,y2,...,xn,yn].
+
+ 
+
+Example 1:
+
+Input: nums = [2,5,1,3,4,7], n = 3
+Output: [2,3,5,4,1,7] 
+Explanation: Since x1=2, x2=5, x3=1, y1=3, y2=4, y3=7 then the answer is [2,3,5,4,1,7].
+Example 2:
+
+Input: nums = [1,2,3,4,4,3,2,1], n = 4
+Output: [1,4,2,3,3,2,4,1]
+"""
+
+
+class Solution(object):
+    def shuffle(self, nums, n):
+        """
+        :type nums: List[int]
+        :type n: int
+        :rtype: List[int]
+        """
+
+        p1, p2 = 0, n
+        flag = True
+        res = []
+        while p2 < 2 * n and p1 < 2 * n:
+            if flag:
+                res.append(nums[p1])
+                p1 += 1
+                flag = False
+            else:
+                res.append(nums[p2])
+                p2 += 1
+                flag = True
+
+        return res
+
+    # time O(n)
+    # space O(n)
+
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
