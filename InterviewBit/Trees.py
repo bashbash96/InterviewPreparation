@@ -81,7 +81,76 @@ def get_path(node, path, val):
 
     return False
 
+
 # -----------------------------------------------------------------------
+"""
+Sum Root to Leaf Numbers
+
+Given a binary tree containing digits from 0-9 only, each root-to-leaf path could represent a number.
+
+An example is the root-to-leaf path 1->2->3 which represents the number 123.
+
+Find the total sum of all root-to-leaf numbers % 1003.
+
+Example :
+
+    1
+   / \
+  2   3
+The root-to-leaf path 1->2 represents the number 12.
+The root-to-leaf path 1->3 represents the number 13.
+
+Return the sum = (12 + 13) % 1003 = 25 % 1003 = 25.
+"""
+
+
+# Definition for a  binary tree node
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    # @param A : root node of tree
+    # @return an integer
+
+    def __init__(self):
+        self.res = 0
+
+    def sumNumbers(self, A):
+
+        path = []
+        self.calc_path_nums(A, path)
+
+        return self.res % 1003
+
+    # time O(n)
+    # space O(h)
+
+    def calc_path_nums(self, node, path):
+        if not node:
+            return
+
+        if not node.left and not node.right:
+            self.res += get_num(path + [node.val])
+            return
+
+        path.append(node.val)
+
+        self.calc_path_nums(node.left, path)
+        self.calc_path_nums(node.right, path)
+        path.pop()
+
+
+def get_num(digs):
+    res = 0
+
+    for dig in digs:
+        res = res * 10 + dig
+
+    return res
+
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
