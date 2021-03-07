@@ -303,6 +303,55 @@ def get_max_alive_year(persons):
 
 # -----------------------------------------------------------------------
 """
+16.11 Diving Board: You are building a diving board by placing a bunch of planks of wood end-to-end.
+There are two types of planks, one of length shorter and one of length longer. You must use
+exactly K planks of wood. Write a method to generate all possible lengths for the diving board.
+"""
+
+
+def all_lengths(k, shorter, longer):
+    res = []
+
+    generate_lengths(k, shorter, longer, 0, res, set())
+
+    return res
+
+    # time O(k^2)
+    # space O(k^2)
+
+
+def generate_lengths(k, shorter, longer, curr_length, res, seen):
+    if k < 0:
+        return
+
+    if k == 0:
+        res.append(curr_length)
+        return
+
+    key = f'{k} {curr_length}'
+    if key in seen:
+        return
+
+    generate_lengths(k - 1, shorter, longer, curr_length + longer, res, seen)
+    generate_lengths(k - 1, shorter, longer, curr_length + shorter, res, seen)
+    seen.add(key)
+
+
+def all_lengths1(k, shorter, longer):
+    lengths = []
+
+    for num in range(k + 1):
+        long_num = k - num
+        lengths.append(num * shorter + long_num * longer)
+
+    return lengths
+
+    # time O(k)
+    # space O(k)
+
+
+# -----------------------------------------------------------------------
+"""
 16.15 Master Mind: The Game of Master Mind is played as follows:
 The computer has four slots, and each slot will contain a ball that is red (R), yellow (Y), green (G) or
 blue (B). For example, the computer might have RGGB (Slot #1 is red, Slots #2 and #3 are green, Slot
@@ -376,6 +425,9 @@ Output: (3, 9)
 
 def subSort(arr):
     leftIdx = getLeftSub(arr)
+    if leftIdx >= len(arr):
+        return None, None
+
     rightIdx = getRightSub(arr)
 
     minIdx = leftIdx
@@ -452,6 +504,20 @@ def contiguousSeq(arr):
 
     # time O(n)
     # space O(n)
+
+
+def contiguous_seq(arr):
+    max_sum = 0
+    curr_sum = 0
+
+    for num in arr:
+        curr_sum = max(curr_sum + num, num)
+        max_sum = max(max_sum, curr_sum)
+
+    return max_sum
+
+    # time O(n)
+    # space O(1)
 
 
 # -----------------------------------------------------------------------
