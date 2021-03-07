@@ -5002,6 +5002,7 @@ class SnapshotArray(object):
     # time O(s_id)
     # space O(1)
 
+
 # Your SnapshotArray object will be instantiated and called as such:
 # obj = SnapshotArray(length)
 # obj.set(index,val)
@@ -5009,6 +5010,66 @@ class SnapshotArray(object):
 # param_3 = obj.get(index,snap_id)
 
 # -----------------------------------------------------------------------
+"""
+1477. Find Two Non-overlapping Sub-arrays Each With Target Sum
+
+Given an array of integers arr and an integer target.
+
+You have to find two non-overlapping sub-arrays of arr each with sum equal target. There can be multiple answers so you have to find an answer where the sum of the lengths of the two sub-arrays is minimum.
+
+Return the minimum sum of the lengths of the two required sub-arrays, or return -1 if you cannot find such two sub-arrays.
+
+ 
+
+Example 1:
+
+Input: arr = [3,2,2,4,3], target = 3
+Output: 2
+Explanation: Only two sub-arrays have sum = 3 ([3] and [3]). The sum of their lengths is 2.
+Example 2:
+
+Input: arr = [7,3,4,7], target = 7
+Output: 2
+Explanation: Although we have three non-overlapping sub-arrays of sum = 7 ([7], [3,4] and [7]), but we will choose the first and third sub-arrays as the sum of their lengths is 2.
+"""
+
+
+class Solution(object):
+    def minSumOfLengths(self, arr, target):
+        """
+        :type arr: List[int]
+        :type target: int
+        :rtype: int
+        """
+        n = len(arr)
+
+        min_length = [float('inf') for _ in range(n)]
+
+        curr_sum = 0
+        left = 0
+        curr_shortest = float('inf')
+        res = float('inf')
+
+        for right, val in enumerate(arr):
+
+            curr_sum += val
+
+            while curr_sum > target:
+                curr_sum -= arr[left]
+                left += 1
+
+            if curr_sum == target:
+                if left > 0 and min_length[left - 1] != float('inf'):
+                    res = min(res, min_length[left - 1] + right - left + 1)
+
+                curr_shortest = min(curr_shortest, right - left + 1)
+
+            min_length[right] = curr_shortest
+
+        return res if res != float('inf') else -1
+
+    # time O(n)
+    # space O(n)
 
 # -----------------------------------------------------------------------
 
