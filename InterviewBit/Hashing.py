@@ -121,6 +121,7 @@ def get_component_length(num, nums, visited):
 
     return length
 
+
 # -----------------------------------------------------------------------
 """
 4 Sum
@@ -194,5 +195,145 @@ def get_doubles(arr, target, start):
 
 
 # -----------------------------------------------------------------------
+"""
+Points on the Straight Line
+
+Given n points on a 2D plane, find the maximum number of points that lie on the same straight line.
+
+Sample Input :
+
+(1, 1)
+(2, 2)
+Sample Output :
+
+2
+"""
+
+from collections import defaultdict
+
+
+class Solution:
+    # @param A : list of integers
+    # @param B : list of integers
+    # @return an integer
+    def maxPoints(self, A, B):
+
+        if len(A) < 3:
+            return len(A)
+
+        max_points = 0
+
+        points = [[x, y] for x, y in zip(A, B)]
+
+        for p1 in points:
+            curr_max = 0
+            duplicates = 0
+            lines_count = defaultdict(int)
+
+            for p2 in points:
+                if p1 != p2:
+                    curr_incline = get_incline(p1, p2)
+                    print(curr_incline)
+                    lines_count[curr_incline] += 1
+                    curr_max = max(curr_max, lines_count[curr_incline])
+
+                else:
+                    duplicates += 1
+
+            max_points = max(max_points, curr_max + duplicates)
+
+        return max_points
+
+    # time O(n^2)
+    # space O(n)
+
+
+def get_incline(point1, point2):
+    x1, y1 = point1
+    x2, y2 = point2
+
+    if x1 == x2:
+        return float('inf')
+
+    return float((y2 - y1)) / (x2 - x1)
+
+
+# -----------------------------------------------------------------------
+"""
+Valid Sudoku
+
+Determine if a Sudoku is valid, according to: http://sudoku.com.au/TheRules.aspx
+
+The Sudoku board could be partially filled, where empty cells are filled with the character ‘.’.
+"""
+
+N = 9
+
+
+class Solution:
+    # @param A : tuple of strings
+    # @return an integer
+    def isValidSudoku(self, A):
+
+        # check rows and cols
+        for num in range(N):
+            if not is_valid_row(A, num):
+                return 0
+
+            if not is_valid_col(A, num):
+                return 0
+
+        # check boxes
+        for row in range(3):
+            curr_row = row * 3
+            for col in range(3):
+                curr_col = col * 3
+
+                if not is_valid_box(A, curr_row, curr_col):
+                    return 0
+
+        return 1
+
+    # time O(n^2)
+    # space O(n)
+
+
+def is_valid_row(arr, row):
+    seen = set()
+    for col in range(N):
+        if arr[row][col] in seen:
+            return False
+
+        if arr[row][col] != '.':
+            seen.add(arr[row][col])
+
+    return True
+
+
+def is_valid_col(arr, col):
+    seen = set()
+
+    for row in range(N):
+        if arr[row][col] in seen:
+            return False
+
+        if arr[row][col] != '.':
+            seen.add(arr[row][col])
+
+    return True
+
+
+def is_valid_box(arr, row, col):
+    seen = set()
+
+    for r in range(row, row + 3):
+        for c in range(col, col + 3):
+            if arr[r][c] in seen:
+                return False
+
+            if arr[r][c] != '.':
+                seen.add(arr[r][c])
+
+    return True
 
 # -----------------------------------------------------------------------
