@@ -151,30 +151,194 @@ def get_num(digs):
 
     return res
 
+
 # -----------------------------------------------------------------------
+"""
+Order of People Heights
+
+You are given the following :
+
+A positive number N
+Heights : A list of heights of N persons standing in a queue
+Infronts : A list of numbers corresponding to each person (P) that gives the number of persons who are taller than P and standing in front of P
+You need to return list of actual order of persons’s height
+
+Consider that heights will be unique
+
+Example
+
+Input : 
+Heights: 5 3 2 6 1 4
+InFronts: 0 1 2 0 3 2
+Output : 
+actual order is: 5 3 2 1 6 4 
+"""
+
+
+class Solution:
+    # @param A : list of integers
+    # @param B : list of integers
+    # @return a list of integers
+    def order(self, A, B):
+        pairs = [(val, count) for val, count in zip(A, B)]
+        pairs.sort()
+        n = len(pairs)
+
+        res = [None for _ in range(n)]
+
+        for pair in pairs:
+            idx = get_appropriate_idx(res, pair)
+            res[idx] = pair[0]
+
+        return res
+
+    # time O(n^2)
+    # space O(n)
+
+
+def get_appropriate_idx(res, pair):
+    val, count = pair
+    idx = 0
+
+    while idx < len(res) and count > 0:
+        if res[idx] == None:
+            count -= 1
+        idx += 1
+
+    while idx < len(res) and res[idx] != None and res[idx] <= val:
+        idx += 1
+
+    return idx
+
+
 # -----------------------------------------------------------------------
+"""
+Shortest Unique Prefix
+
+Find shortest unique prefix to represent each word in the list.
+
+Example:
+
+Input: [zebra, dog, duck, dove]
+Output: {z, dog, du, dov}
+where we can see that
+zebra = z
+dog = dog
+duck = du
+dove = dov
+"""
+
+
+class Trie:
+    def __init__(self):
+        self.head = {}
+
+    def insert(self, word):
+        curr = self.head
+
+        for char in word:
+            if char not in curr:
+                curr[char] = {}
+            curr = curr[char]
+
+        curr['*'] = '*'
+
+    def shortest_prefix(self, word):
+
+        if word[0] not in self.head:
+            raise ValueError("Invalid word")
+        res = []
+        self.shortes_pre(word, 0, res, self.head[word[0]])
+        if res == []:
+            return word[0]
+        return ''.join(res)
+
+    def shortes_pre(self, word, idx, res, curr):
+
+        if idx >= len(word) - 1:
+            return False
+
+        res.append(word[idx])
+        found = self.shortes_pre(word, idx + 1, res, curr[word[idx + 1]])
+        if found:
+            return True
+
+        if len(curr) > 1:
+            res.append(word[idx + 1])
+            return True
+
+        res.pop()
+        return False
+
+
+class Solution:
+    # @param A : list of strings
+    # @return a list of strings
+    def prefix(self, A):
+
+        tree = Trie()
+
+        for word in A:
+            tree.insert(word)
+
+        res = []
+        for word in A:
+            res.append(tree.shortest_prefix(word))
+
+        return res
+
+    # time O(n * l)
+    # space O(n * l)
+
+
 # -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
+"""
+Invert the Binary Tree
+
+Given a binary tree, invert the binary tree and return it.
+Look at the example for more details.
+
+Example :
+Given binary tree
+
+     1
+   /   \
+  2     3
+ / \   / \
+4   5 6   7
+invert and return
+
+     1
+   /   \
+  3     2
+ / \   / \
+7   6 5   4
+"""
+
+
+# Definition for a  binary tree node
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    # @param A : root node of tree
+    # @return the root node in the tree
+    def invertTree(self, node):
+        if not node:
+            return node
+
+        left = self.invertTree(node.left)
+        right = self.invertTree(node.right)
+
+        node.left = right
+        node.right = left
+
+        return node
+
+    # time O(n)
+    # space O(h)
+
 # -----------------------------------------------------------------------
