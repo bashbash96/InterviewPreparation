@@ -1107,6 +1107,74 @@ def starts_with_same(words):
     return prefix
 
 # -----------------------------------------------------------------------
+"""
+857. Minimum Cost to Hire K Workers
+
+There are N workers.  The i-th worker has a quality[i] and a minimum wage expectation wage[i].
+
+Now we want to hire exactly K workers to form a paid group.  When hiring a group of K workers, we must pay them according to the following rules:
+
+Every worker in the paid group should be paid in the ratio of their quality compared to other workers in the paid group.
+Every worker in the paid group must be paid at least their minimum wage expectation.
+Return the least amount of money needed to form a paid group satisfying the above conditions.
+
+ 
+
+Example 1:
+
+Input: quality = [10,20,5], wage = [70,50,30], K = 2
+Output: 105.00000
+Explanation: We pay 70 to 0-th worker and 35 to 2-th worker.
+Example 2:
+
+Input: quality = [3,1,10,10,1], wage = [4,8,2,2,7], K = 3
+Output: 30.66667
+Explanation: We pay 4 to 0-th worker, 13.33333 to 2-th and 3-th workers seperately. 
+"""
+
+import heapq
+
+
+class Worker:
+    def __init__(self, quality, wage):
+        self.quality = quality
+        self.wage = wage
+        self.min_ratio = wage / quality
+
+
+class Solution(object):
+    def mincostToHireWorkers(self, quality, wage, k):
+        """
+        :type quality: List[int]
+        :type wage: List[int]
+        :type K: int
+        :rtype: float
+        """
+
+        workers = []
+        for q, w in zip(quality, wage):
+            workers.append(Worker(q, w))
+
+        workers.sort(key=lambda x: x.min_ratio)
+        min_wages = float('inf')
+        qualities = 0
+        max_heap = []
+
+        for w in workers:
+            qualities += w.quality
+            heapq.heappush(max_heap, -1 * w.quality)
+
+            if len(max_heap) > k:
+                max_q = heapq.heappop(max_heap) * -1
+                qualities -= max_q
+
+            if len(max_heap) == k:
+                min_wages = min(min_wages, w.min_ratio * qualities)
+
+        return min_wages
+
+    # time O(n * log(n))
+    # space O(n)
 
 # -----------------------------------------------------------------------
 
