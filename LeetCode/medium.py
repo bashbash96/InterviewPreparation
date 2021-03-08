@@ -5071,9 +5071,145 @@ class Solution(object):
     # time O(n)
     # space O(n)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+535. Encode and Decode TinyURL
+
+Note: This is a companion problem to the System Design problem: Design TinyURL.
+TinyURL is a URL shortening service where you enter a URL such as https://leetcode.com/problems/design-tinyurl and it returns a short URL such as http://tinyurl.com/4e9iAk.
+
+Design the encode and decode methods for the TinyURL service. There is no restriction on how your encode/decode algorithm should work. You just need to ensure that a URL can be encoded to a tiny URL and the tiny URL can be decoded to the original URL.
+"""
+
+
+class Codec:
+    def __init__(self):
+        self.id = 0
+        self.url_map = {}
+        self.base_url = 'http://tinyurl.com/'
+
+    def encode(self, longUrl):
+        """Encodes a URL to a shortened URL.
+
+        :type longUrl: str
+        :rtype: str
+        """
+
+        self.url_map[self.id] = longUrl
+        url = self.base_url + str(self.id)
+        self.id += 1
+
+        return url
+
+    # time O(1)
+    # space O(1)
+
+    def decode(self, shortUrl):
+        """Decodes a shortened URL to its original URL.
+
+        :type shortUrl: str
+        :rtype: str
+        """
+
+        id_ = int(shortUrl.replace(self.base_url, ''))
+        return self.url_map.get(id_, 0)
+
+    # time O(1)
+    # space O(1)
+
+
+# Your Codec object will be instantiated and called as such:
+# codec = Codec()
+# codec.decode(codec.encode(url))
+
+# -----------------------------------------------------------------------
+"""
+130. Surrounded Regions
+
+Given an m x n matrix board containing 'X' and 'O', capture all regions surrounded by 'X'.
+
+A region is captured by flipping all 'O's into 'X's in that surrounded region.
+
+ 
+
+Example 1:
+
+
+Input: board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]]
+Output: [["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]
+Explanation: Surrounded regions should not be on the border, which means that any 'O' on the border of the board are not flipped to 'X'. Any 'O' that is not on the border and it is not connected to an 'O' on the border will be flipped to 'X'. Two cells are connected if they are adjacent cells connected horizontally or vertically.
+Example 2:
+
+Input: board = [["X"]]
+Output: [["X"]]
+"""
+
+
+class Solution(object):
+    def solve(self, board):
+        """
+        :type board: List[List[str]]
+        :rtype: None Do not return anything, modify board in-place instead.
+        """
+
+        n = len(board)
+        m = len(board[0])
+
+        visited = set()
+
+        for row in range(1, n):
+            for col in range(1, m):
+                if board[row][col] == 'O' and (row, col) not in visited:
+                    if is_surrounded(board, row, col, visited):
+                        flip(board, row, col)
+
+    # time O(n * m)
+    # space O(k) k: num of O's
+
+
+def is_surrounded(board, row, col, visited):
+    if not is_valid(board, row, col):
+        return False
+
+    if (row, col) in visited or board[row][col] == 'X':
+        return True
+
+    visited.add((row, col))
+
+    res = True
+    for n_row, n_col in get_neighbors(row, col):
+        if not is_surrounded(board, n_row, n_col, visited):
+            res = False
+
+    return res
+
+
+def is_valid(board, row, col):
+    if row < 0 or col < 0 or row >= len(board) or col >= len(board[0]):
+        return False
+
+    return True
+
+
+def get_neighbors(row, col):
+    directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+    res = []
+
+    for dx, dy in directions:
+        res.append((row + dx, col + dy))
+
+    return res
+
+
+def flip(board, row, col):
+    if board[row][col] == 'X':
+        return
+
+    board[row][col] = 'X'
+
+    for n_row, n_col in get_neighbors(row, col):
+        flip(board, n_row, n_col)
 
 # -----------------------------------------------------------------------
 
