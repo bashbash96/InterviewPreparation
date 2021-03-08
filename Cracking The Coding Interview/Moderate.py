@@ -644,22 +644,21 @@ Output: {l, 3}
 
 
 def sumSwap(arr1, arr2):
-    setNums = set()
-
-    for num in arr1:
-        setNums.add(num)
-
     sum1 = sum(arr1)
     sum2 = sum(arr2)
 
-    if (sum1 + sum2) % 2 != 0:
+    if sum1 > sum2:
+        return sumSwap(arr2, arr1)
+
+    if (sum1 - sum2) % 2 != 0:
         return 'ERROR'
 
-    mid = (sum1 + sum2) // 2
+    setNums = set(arr1)
+
+    mid = (sum2 - sum1) // 2
 
     for num in arr2:
-        currSum2 = sum2 - num
-        comp = mid - currSum2
+        comp = num - mid
         if comp in setNums:
             return num, comp
 
@@ -692,16 +691,17 @@ specified value.
 """
 
 
-def pairsWithSum(arr, sum):
-    setNums = set()
-    for num in arr:
-        setNums.add(num)
+def pairsWithSum(arr, target):
+    nums_count = defaultdict(int)
 
     res = []
     for num in arr:
-        if sum - num in setNums:
-            setNums.remove(num)
-            res.append((num, sum - num))
+        diff = target - num
+        if nums_count.get(diff, 0) > 0:
+            res.append((diff, num))
+            nums_count[diff] -= 1
+        else:
+            nums_count[num] += 1
 
     return res
 
@@ -715,11 +715,11 @@ Input: 2*3+5/6*3+15
 Output: 23.5
 """
 
+operations = {'*', '-', '+', '/'}
+
 
 def calc(equation):
     stack = []
-
-    operations = {'*', '-', '+', '/'}
 
     i = 0
     while i < len(equation):
@@ -755,13 +755,14 @@ def calc(equation):
     return stack[0]
 
 
+valid = []
+for i in range(10):
+    valid.append(str(i))
+
+valid.extend(['+', '-', '*', '/'])
+
+
 def isValid(c):
-    valid = []
-    for i in range(10):
-        valid.append(str(i))
-
-    valid.extend(['+', '-', '*', '/'])
-
     if c in valid:
         return True
 
@@ -770,7 +771,6 @@ def isValid(c):
 
 def getNumFromEqu(equation, i):
     res = 0
-    operations = {'*', '-', '+', '/'}
     while i < len(equation) and equation[i] not in operations:
         res = res * 10 + float(equation[i])
         i += 1
