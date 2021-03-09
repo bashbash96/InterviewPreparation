@@ -5212,6 +5212,142 @@ def flip(board, row, col):
         flip(board, n_row, n_col)
 
 # -----------------------------------------------------------------------
+"""
+399. Evaluate Division
+
+You are given an array of variable pairs equations and an array of real numbers values, where equations[i] = [Ai, Bi] and values[i] represent the equation Ai / Bi = values[i]. Each Ai or Bi is a string that represents a single variable.
+
+You are also given some queries, where queries[j] = [Cj, Dj] represents the jth query where you must find the answer for Cj / Dj = ?.
+
+Return the answers to all queries. If a single answer cannot be determined, return -1.0.
+
+Note: The input is always valid. You may assume that evaluating the queries will not result in division by zero and that there is no contradiction.
+
+ 
+
+Example 1:
+
+Input: equations = [["a","b"],["b","c"]], values = [2.0,3.0], queries = [["a","c"],["b","a"],["a","e"],["a","a"],["x","x"]]
+Output: [6.00000,0.50000,-1.00000,1.00000,-1.00000]
+Explanation: 
+Given: a / b = 2.0, b / c = 3.0
+queries are: a / c = ?, b / a = ?, a / e = ?, a / a = ?, x / x = ?
+return: [6.0, 0.5, -1.0, 1.0, -1.0 ]
+Example 2:
+
+Input: equations = [["a","b"],["b","c"],["bc","cd"]], values = [1.5,2.5,5.0], queries = [["a","c"],["c","b"],["bc","cd"],["cd","bc"]]
+Output: [3.75000,0.40000,5.00000,0.20000]
+"""
+
+from collections import defaultdict, deque
+
+
+class Edge:
+    def __init__(self, u, v, weight):
+        self.u = u
+        self.v = v
+        self.weight = weight
+
+
+class Graph:
+    def __init__(self):
+        self.edges = defaultdict(set)
+        self.vertices = set()
+
+    def add_edge(self, u, v, weight):
+        edge = Edge(u, v, weight)
+        rev_edge = Edge(v, u, 1 / weight)
+        self.edges[u].add(edge)
+        self.edges[v].add(rev_edge)
+        self.vertices.add(u)
+        self.vertices.add(v)
+
+    def calc_equation(self, u, v):
+        if u not in self.vertices or v not in self.vertices:
+            return -1
+
+        if u == v:
+            return 1
+
+        #         visited = set()
+        #         res = self.calc_res(u, v, visited)
+
+        res = self.calc_res(u, v)
+
+        if res == -1:
+            return res
+
+        self.add_edge(u, v, res)
+
+        return res
+
+    # BFS
+    def calc_res(self, u, v):
+
+        q = deque([(u, 1)])
+        visited = set([u])
+
+        while q:
+            curr, curr_res = q.popleft()
+
+            for neigh in self.edges[curr]:
+                if neigh.v in visited:
+                    continue
+
+                if neigh.v == v:
+                    return curr_res * neigh.weight
+
+                visited.add(neigh.v)
+                q.append((neigh.v, neigh.weight * curr_res))
+
+        return -1
+
+    # DFS
+
+
+#     def calc_res(self, u, v, visited):
+
+#         visited.add(u)
+#         res = 1
+#         for neigh in self.edges[u]:
+#             if neigh.v in visited:
+#                 continue
+
+#             res *= neigh.weight
+#             if v == neigh.v:
+#                 return res
+
+#             calc = self.calc_res(neigh.v, v, visited)
+#             if calc != -1:
+#                 return res * calc
+#             res /= neigh.weight
+
+#         return -1
+
+
+class Solution(object):
+    def calcEquation(self, equations, values, queries):
+        """
+        :type equations: List[List[str]]
+        :type values: List[float]
+        :type queries: List[List[str]]
+        :rtype: List[float]
+
+        """
+
+        graph = Graph()
+        for i, pair in enumerate(equations):
+            u, v = pair
+            graph.add_edge(u, v, values[i])
+
+        res = []
+        for u, v in queries:
+            res.append(graph.calc_equation(u, v))
+
+        return res
+
+    # time O(n + q * n)
+    # space O(n + q)
 
 # -----------------------------------------------------------------------
 
