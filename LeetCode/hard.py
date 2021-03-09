@@ -1106,6 +1106,7 @@ def starts_with_same(words):
 
     return prefix
 
+
 # -----------------------------------------------------------------------
 """
 857. Minimum Cost to Hire K Workers
@@ -1176,10 +1177,283 @@ class Solution(object):
     # time O(n * log(n))
     # space O(n)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+642. Design Search Autocomplete System
 
+Design a search autocomplete system for a search engine. Users may input a sentence (at least one word and end with a special character '#'). For each character they type except '#', you need to return the top 3 historical hot sentences that have prefix the same as the part of sentence already typed. Here are the specific rules:
+
+The hot degree for a sentence is defined as the number of times a user typed the exactly same sentence before.
+The returned top 3 hot sentences should be sorted by hot degree (The first is the hottest one). If several sentences have the same degree of hot, you need to use ASCII-code order (smaller one appears first).
+If less than 3 hot sentences exist, then just return as many as you can.
+When the input is a special character, it means the sentence ends, and in this case, you need to return an empty list.
+Your job is to implement the following functions:
+
+The constructor function:
+
+AutocompleteSystem(String[] sentences, int[] times): This is the constructor. The input is historical data. Sentences is a string array consists of previously typed sentences. Times is the corresponding times a sentence has been typed. Your system should record these historical data.
+
+Now, the user wants to input a new sentence. The following function will provide the next character the user types:
+
+List<String> input(char c): The input c is the next character typed by the user. The character will only be lower-case letters ('a' to 'z'), blank space (' ') or a special character ('#'). Also, the previously typed sentence should be recorded in your system. The output will be the top 3 historical hot sentences that have prefix the same as the part of sentence already typed.
+
+ 
+Example:
+Operation: AutocompleteSystem(["i love you", "island","ironman", "i love leetcode"], [5,3,2,2])
+The system have already tracked down the following sentences and their corresponding times:
+"i love you" : 5 times
+"island" : 3 times
+"ironman" : 2 times
+"i love leetcode" : 2 times
+Now, the user begins another search:
+
+Operation: input('i')
+Output: ["i love you", "island","i love leetcode"]
+Explanation:
+There are four sentences that have prefix "i". Among them, "ironman" and "i love leetcode" have same hot degree. Since ' ' has ASCII code 32 and 'r' has ASCII code 114, "i love leetcode" should be in front of "ironman". Also we only need to output top 3 hot sentences, so "ironman" will be ignored.
+
+Operation: input(' ')
+Output: ["i love you","i love leetcode"]
+Explanation:
+There are only two sentences that have prefix "i ".
+
+Operation: input('a')
+Output: []
+Explanation:
+There are no sentences that have prefix "i a".
+
+Operation: input('#')
+Output: []
+Explanation:
+The user finished the input, the sentence "i a" should be saved as a historical sentence in system. And the following input will be counted as a new search.
+
+ 
+Note:
+
+The input sentence will always start with a letter and end with '#', and only one blank space will exist between two words.
+The number of complete sentences that to be searched won't exceed 100. The length of each sentence including those in the historical data won't exceed 100.
+Please use double-quote instead of single-quote when you write test cases even for a character input.
+Please remember to RESET your class variables declared in class AutocompleteSystem, as static/class variables are persisted across multiple test cases. Please see here for more details.
+"""
+
+
+class Trie:
+    def __init__(self):
+        self.root = {}
+
+    def add(self, word, times):
+
+        curr = self.root
+
+        for c in word:
+            if c not in curr:
+                curr[c] = {}
+            curr = curr[c]
+
+        if '*' in curr:
+            curr['*'][1] += times
+        else:
+            curr['*'] = [word, times]
+
+    def starts_with(self, pref):
+
+        if pref == '':
+            return []
+
+        curr = self.root
+
+        for c in pref:
+            if c not in curr:
+                return []
+            curr = curr[c]
+
+        res = []
+        self.get_words(curr, res)
+
+        return res
+
+    def get_words(self, curr, res):
+
+        for c in curr:
+            if c == '*':
+                res.append(curr[c])
+            else:
+                self.get_words(curr[c], res)
+
+
+class AutocompleteSystem(object):
+
+    def __init__(self, sentences, times):
+        """
+        :type sentences: List[str]
+        :type times: List[int]
+        """
+
+        self.curr_input = []
+        self.k = 3
+        self.trie = Trie()
+        for i, sen in enumerate(sentences):
+            self.trie.add(sen, times[i])
+
+        # time O(n * l)
+        # space O(n * l)
+
+    def input(self, c):
+        """
+        :type c: str
+        :rtype: List[str]
+        """
+
+        if c == '#':
+            # add the word to trie
+            self.trie.add(''.join(self.curr_input), 1)
+            self.curr_input = []
+            return []
+
+        self.curr_input.append(c)
+
+        words = self.trie.starts_with(''.join(self.curr_input))
+
+        words.sort()
+        words.sort(key=lambda x: x[1], reverse=True)
+
+        return [words[i][0] for i in range(min(self.k, len(words)))]
+
+    # time O(l + m + m * log(m))
+    # space O(m)
+
+
+# Your AutocompleteSystem object will be instantiated and called as such:
+# obj = AutocompleteSystem(sentences, times)
+# param_1 = obj.input(c)
+
+# -----------------------------------------------------------------------
+"""
+126. Word Ladder II
+
+A transformation sequence from word beginWord to word endWord using a dictionary wordList is a sequence of words such that:
+
+The first word in the sequence is beginWord.
+The last word in the sequence is endWord.
+Only one letter is different between each adjacent pair of words in the sequence.
+Every word in the sequence is in wordList.
+Given two words, beginWord and endWord, and a dictionary wordList, return all the shortest transformation sequences from beginWord to endWord, or an empty list if no such sequence exists.
+
+ 
+
+Example 1:
+
+Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
+Output: [["hit","hot","dot","dog","cog"],["hit","hot","lot","log","cog"]]
+Example 2:
+
+Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log"]
+Output: []
+Explanation: The endWord "cog" is not in wordList, therefore no possible transformation.
+ 
+
+Constraints:
+
+1 <= beginWord.length <= 10
+endWord.length == beginWord.length
+1 <= wordList.length <= 5000
+wordList[i].length == beginWord.length
+beginWord, endWord, and wordList[i] consist of lowercase English letters.
+beginWord != endWord
+All the strings in wordList are unique.
+"""
+
+from collections import defaultdict, deque
+
+
+class Solution(object):
+    def findLadders(self, start, end, words):
+        if end not in words:
+            return []
+        graph = generate_graph(start, end, words)
+        return graph.get_paths(start, end)
+
+    # time O(n * L)
+    # space O(n * L)
+
+
+class Graph:
+    def __init__(self):
+        self.edges = defaultdict(set)
+        self.vertices = set()
+
+    def add(self, u, v):
+        self.edges[u].add(v)
+        self.edges[v].add(u)
+        self.vertices.add(u)
+        self.vertices.add(v)
+
+    def get_paths(self, start, end):
+
+        paths = []
+
+        q = deque([(start, [])])
+        visited = set()
+
+        min_len = float('inf')
+
+        while q:
+            curr, path = q.popleft()
+
+            if len(path) > min_len:
+                continue
+
+            path.append(curr)
+
+            if curr == end:
+                paths.append(path)
+                min_len = min(min_len, len(path))
+            else:
+                for neigh in self.edges[curr]:
+                    if neigh in visited:
+                        continue
+                    q.append((neigh, [v for v in path]))
+
+            visited.add(curr)
+
+        return [path for path in paths if len(path) == min_len]
+
+
+def generate_graph(start, end, words):
+    words = set(words)
+
+    idx_to_chars = generate_idx_to_char(words)
+
+    graph = Graph()
+
+    add_word_to_graph(graph, start, words, idx_to_chars)
+    add_word_to_graph(graph, end, words, idx_to_chars)
+
+    for word in words:
+        add_word_to_graph(graph, word, words, idx_to_chars)
+
+    return graph
+
+
+def add_word_to_graph(graph, word, words, idx_to_chars):
+    list_word = list(word)
+    for i in range(len(word)):
+        for c in idx_to_chars[i]:
+            new_word = ''.join(list_word[:i] + [c] + list_word[i + 1:])
+            if new_word in words and new_word != word:
+                graph.add(word, new_word)
+
+
+# for each idx, save all possible chars
+def generate_idx_to_char(words):
+    idx_to_chars = defaultdict(set)
+
+    for word in words:
+        for i, c in enumerate(word):
+            idx_to_chars[i].add(c)
+
+    return idx_to_chars
 
 # -----------------------------------------------------------------------
 
