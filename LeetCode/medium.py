@@ -5211,6 +5211,7 @@ def flip(board, row, col):
     for n_row, n_col in get_neighbors(row, col):
         flip(board, n_row, n_col)
 
+
 # -----------------------------------------------------------------------
 """
 399. Evaluate Division
@@ -5349,8 +5350,195 @@ class Solution(object):
     # time O(n + q * n)
     # space O(n + q)
 
+
+# -----------------------------------------------------------------------
+"""
+5. Longest Palindromic Substring
+
+Given a string s, return the longest palindromic substring in s.
+
+ 
+Example 1:
+
+Input: s = "babad"
+Output: "bab"
+Note: "aba" is also a valid answer.
+Example 2:
+
+Input: s = "cbbd"
+Output: "bb"
+Example 3:
+
+Input: s = "a"
+Output: "a"
+Example 4:
+
+Input: s = "ac"
+Output: "a"
+"""
+
+
+class Solution(object):
+    def longestPalindrome(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+
+        if not s:
+            return ''
+
+        start, end = 0, 0
+        max_len = 0
+        for i in range(len(s)):
+
+            # odd pal
+            len1 = expand_around_center(s, i, i)
+            # even pal
+            len2 = expand_around_center(s, i, i + 1)
+            new_len = max(len1, len2)
+
+            if new_len > max_len:
+                max_len = new_len
+                mid = max_len // 2
+                if max_len % 2 == 0:
+                    start = i - mid + 1
+                else:
+                    start = i - mid
+
+                end = i + mid
+
+        return s[start: end + 1]
+
+    # time O(n^2)
+    # space O(1)
+
+
+def expand_around_center(s, start, end):
+    while start >= 0 and end < len(s) and s[start] == s[end]:
+        start -= 1
+        end += 1
+
+    return end - start - 1
+
+
+def lps(s, idx1, idx2, memo):
+    if idx1 == idx2:
+        memo[idx1][idx2] = 1
+        return 1
+
+    if idx2 < idx1:
+        return 0
+
+    if memo[idx1][idx2] is not None:
+        return memo[idx1][idx2]
+
+    res = 0
+    if s[idx1] == s[idx2]:
+        ret = lps(s, idx1 + 1, idx2 - 1, memo)
+        if ret == idx2 - idx1 - 1:
+            res = ret + 2
+    else:
+        res = max(lps(s, idx1 + 1, idx2, memo), lps(s, idx1, idx2 - 1, memo), lps(s, idx1 + 1, idx2 - 1, memo))
+
+    memo[idx1][idx2] = res
+
+    return res
+
+
+"""
+lps[i...j] = { if s[i] == s[j]: if lps[i+1... j-1] == j-i: i - j - 1,
+                o.w: max(lps[i...j-1], lps[i+1...j], lps[i+1...j-1])
+             }
+"""
+# -----------------------------------------------------------------------
+"""
+322. Coin Change
+
+You are given coins of different denominations and a total amount of money amount. Write a function to compute the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+
+You may assume that you have an infinite number of each kind of coin.
+
+ 
+
+Example 1:
+
+Input: coins = [1,2,5], amount = 11
+Output: 3
+Explanation: 11 = 5 + 5 + 1
+Example 2:
+
+Input: coins = [2], amount = 3
+Output: -1
+Example 3:
+
+Input: coins = [1], amount = 0
+Output: 0
+"""
+
+
+class Solution(object):
+    def coinChange(self, coins, amount):
+        """
+        :type coins: List[int]
+        :type amount: int
+        :rtype: int
+        """
+
+        memo = [0 for _ in range(amount + 1)]
+
+        return count_coins(coins, amount, memo)
+
+    # time O(n * a)
+    # space O(a)
+
+    # bottom up
+
+
+#         coins_amount = [float('inf') for _ in range(amount + 1)]
+#         coins_amount[0] = 0
+
+#         for coin in coins:
+#             for curr_amount in range(coin, amount + 1):
+#                 coins_amount[curr_amount] = min(coins_amount[curr_amount], coins_amount[curr_amount - coin] + 1)
+
+#         return coins_amount[amount] if coins_amount[amount] != float('inf') else -1
+
+
+def count_coins(coins, amount, memo):
+    if amount < 0:
+        return -1
+
+    if amount == 0:
+        return 0
+
+    if memo[amount] != 0:
+        return memo[amount]
+
+    curr_min = float('inf')
+
+    for coin in coins:
+        curr = count_coins(coins, amount - coin, memo)
+        if curr >= 0 and curr < curr_min:
+            curr_min = curr + 1
+
+    memo[amount] = -1 if curr_min == float('inf') else curr_min
+
+    return memo[amount]
+
+# -----------------------------------------------------------------------
+
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
