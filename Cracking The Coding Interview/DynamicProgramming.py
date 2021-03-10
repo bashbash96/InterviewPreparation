@@ -6,6 +6,28 @@ stairs.
 """
 
 
+def triple_step(n):
+    if n == 1:
+        return 1
+    if n == 2:
+        return 2
+    if n == 3:
+        return 4
+
+    prev1, prev2, prev3 = 4, 2, 1
+
+    for _ in range(4, n + 1):
+        curr = prev1 + prev2 + prev3
+        prev3 = prev2
+        prev2 = prev1
+        prev1 = curr
+
+    return curr
+
+    # time O(n)
+    # space O(1)
+
+
 def tripleStep(n):
     memo = [None] * (n + 1)
 
@@ -179,13 +201,14 @@ def mult(n, m):
         elif m < 0:
             m *= -1
 
-        smaller = m if m < n else n
-        bigger = n if n > m else m
-        return -1 * recursiveMult(bigger, smaller)
+        if m > n:
+            return mult(m, n)
+        return -1 * recursiveMult(n, m)
 
-    smaller = m if m < n else n
-    bigger = m if m > n else n
-    return recursiveMult(bigger, smaller)
+    if m > n:
+        return mult(m, n)
+
+    return recursiveMult(n, m)
 
     # time O(log(s)) -> s is the smaller number
     # space O(log(s))
@@ -202,7 +225,7 @@ def recursiveMult(bigger, smaller):
     first = recursiveMult(bigger, half)
     second = first
     if smaller % 2 == 1:
-        second = first + bigger
+        second += bigger
 
     return second + first
 
