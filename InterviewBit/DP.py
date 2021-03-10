@@ -72,8 +72,7 @@ def calc_area(arr, stack, i):
 # -----------------------------------------------------------------------
 """
 Distinct Subsequences
-Asked in:  
-Google
+
 Given two sequences A, B, count number of unique ways in sequence A, to form a subsequence that is identical to the sequence B.
 
 Subsequence : A subsequence of a string is a new string which is formed from the original string by deleting some (can be none) of the characters without disturbing the relative positions of the remaining characters. (ie, “ACE” is a subsequence of “ABCDE” while “AEC” is not).
@@ -182,7 +181,93 @@ class Solution:
     # time O(n * m)
     # space O(n * m)
 
+
 # -----------------------------------------------------------------------
+"""
+Palindrome Partitioning II
+
+Given a string A, partition A such that every substring of the partition is a palindrome.
+
+Return the minimum cuts needed for a palindrome partitioning of A.
+
+
+
+Input Format:
+
+The first and the only argument contains the string A.
+Output Format:
+
+Return an integer, representing the answer as described in the problem statement.
+Constraints:
+
+1 <= length(A) <= 501
+Examples:
+
+Input 1:
+    A = "aba"
+
+Output 1:
+    0
+
+Explanation 1:
+    "aba" is already a palindrome, so no cuts are needed.
+
+Input 2:
+    A = "aab"
+    
+Output 2:
+    1
+
+Explanation 2:
+    Return 1 since the palindrome partitioning ["aa","b"] could be produced using 1 cut.
+"""
+
+
+class Solution:
+    # @param A : string
+    # @return an integer
+    def minCut(self, A):
+        n = len(A)
+        if is_palindrome(A, 0, n - 1):
+            return 0
+
+        memo = [[None for _ in range(n)] for _ in range(n)]
+
+        return recur_min_cut(A, 0, n - 1, memo)
+
+    # time O(n^3)
+    # space O(n^2)
+
+
+def recur_min_cut(string, i, j, memo):
+    if i == j:
+        return 0
+
+    if memo[i][j] != None:
+        return memo[i][j]
+
+    if is_palindrome(string, i, j):
+        memo[i][j] = 0
+        return 0
+
+    curr_min = float('inf')
+
+    for idx in range(i, j):
+        if is_palindrome(string, i, idx):
+            curr_min = min(curr_min, recur_min_cut(string, idx + 1, j, memo))
+
+    memo[i][j] = curr_min + 1
+
+    return memo[i][j]
+
+
+def is_palindrome(string, i, j):
+    while i < j and string[i] == string[j]:
+        i += 1
+        j -= 1
+
+    return i >= j
+
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
