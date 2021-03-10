@@ -126,7 +126,62 @@ def generate_perm(prev_perm, num):
 
     return res
 
+
 # -----------------------------------------------------------------------
+"""
+Palindrome Partitioning
+
+Given a string s, partition s such that every string of the partition is a palindrome.
+
+Return all possible palindrome partitioning of s.
+
+For example, given s = "aab",
+Return
+
+  [
+    ["a","a","b"]
+    ["aa","b"],
+  ]
+ Ordering the results in the answer : Entry i will come before Entry j if :
+len(Entryi[0]) < len(Entryj[0]) OR
+(len(Entryi[0]) == len(Entryj[0]) AND len(Entryi[1]) < len(Entryj[1])) OR
+*
+*
+*
+(len(Entryi[0]) == len(Entryj[0]) AND … len(Entryi[k] < len(Entryj[k]))
+"""
+
+
+class Solution:
+    # @param A : string
+    # @return a list of list of strings
+    def partition(self, A):
+        res = []
+
+        recur_partition(A, 0, [], res)
+
+        return res
+
+    # time O(n^k * n)
+    # space O(n)
+
+
+def recur_partition(string, idx, curr, res):
+    if idx >= len(string):
+        res.append(curr[:])
+        return
+
+    for i in range(idx, len(string)):
+        if is_palindrome(string, idx, i):
+            recur_partition(string, i + 1, curr + [string[idx: i + 1]], res)
+
+
+def is_palindrome(string, i, j):
+    while i < j and string[i] == string[j]:
+        i += 1
+        j -= 1
+
+    return i >= j
 
 # -----------------------------------------------------------------------
 
