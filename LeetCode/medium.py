@@ -5526,7 +5526,147 @@ def count_coins(coins, amount, memo):
 
     return memo[amount]
 
+
 # -----------------------------------------------------------------------
+"""
+299. Bulls and Cows
+
+You are playing the Bulls and Cows game with your friend.
+
+You write down a secret number and ask your friend to guess what the number is. When your friend makes a guess, you provide a hint with the following info:
+
+The number of "bulls", which are digits in the guess that are in the correct position.
+The number of "cows", which are digits in the guess that are in your secret number but are located in the wrong position. Specifically, the non-bull digits in the guess that could be rearranged such that they become bulls.
+Given the secret number secret and your friend's guess guess, return the hint for your friend's guess.
+
+The hint should be formatted as "xAyB", where x is the number of bulls and y is the number of cows. Note that both secret and guess may contain duplicate digits.
+
+ 
+
+Example 1:
+
+Input: secret = "1807", guess = "7810"
+Output: "1A3B"
+Explanation: Bulls are connected with a '|' and cows are underlined:
+"1807"
+  |
+"7810"
+Example 2:
+
+Input: secret = "1123", guess = "0111"
+Output: "1A1B"
+Explanation: Bulls are connected with a '|' and cows are underlined:
+"1123"        "1123"
+  |      or     |
+"0111"        "0111"
+Note that only one of the two unmatched 1s is counted as a cow since the non-bull digits can only be rearranged to allow one 1 to be a bull.
+"""
+
+from collections import defaultdict
+
+
+class Solution(object):
+    def getHint(self, secret, guess):
+        """
+        :type secret: str
+        :type guess: str
+        :rtype: str
+        """
+
+        x = get_num_of_hits(secret, guess)
+        y = get_num_of_miss(secret, guess)
+
+        return '{}A{}B'.format(x, y)
+
+    # time O(A + B)
+    # space O(A + B)
+
+
+def get_num_of_hits(number, guess):
+    count = 0
+
+    for i in range(len(number)):
+        if number[i] == guess[i]:
+            count += 1
+
+    return count
+
+
+def get_num_of_miss(number, guess):
+    num_digs = digits_to_idx(number)
+    guess_digs = digits_to_idx(guess)
+
+    count = 0
+    for i in range(len(number)):
+        if number[i] != guess[i]:
+            for idx in guess_digs[number[i]]:
+                if guess[idx] != number[idx]:
+                    count += 1
+                    guess_digs[number[i]].remove(idx)
+                    break
+
+    return count
+
+
+def digits_to_idx(num):
+    digits = defaultdict(list)
+
+    for i, dig in enumerate(num):
+        digits[dig].append(i)
+
+    return digits
+
+
+# -----------------------------------------------------------------------
+"""
+152. Maximum Product Subarray
+
+Given an integer array nums, find a contiguous non-empty subarray within the array that has the largest product, and return the product.
+
+It is guaranteed that the answer will fit in a 32-bit integer.
+
+A subarray is a contiguous subsequence of the array.
+
+ 
+
+Example 1:
+
+Input: nums = [2,3,-2,4]
+Output: 6
+Explanation: [2,3] has the largest product 6.
+Example 2:
+
+Input: nums = [-2,0,-1]
+Output: 0
+Explanation: The result cannot be 2, because [-2,-1] is not a subarray.
+"""
+
+
+class Solution(object):
+    def maxProduct(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+
+        if len(nums) < 1:
+            return 0
+
+        min_val = max_val = res = nums[0]
+
+        for i in range(1, len(nums)):
+            val = nums[i]
+            temp = min(val, min_val * val, max_val * val)
+            max_val = max(val, min_val * val, max_val * val)
+
+            min_val = temp
+
+            res = max(res, max_val)
+
+        return res
+
+    # time O(n)
+    # space O(1)
 
 # -----------------------------------------------------------------------
 
@@ -5539,6 +5679,3 @@ def count_coins(coins, amount, memo):
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
-
-# -----------------------------------------------------------------------
-
