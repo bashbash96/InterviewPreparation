@@ -3245,12 +3245,314 @@ class Solution(object):
     # time O(1)
     # space O(1)
 
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+1165. Single-Row Keyboard
+
+There is a special keyboard with all keys in a single row.
+
+Given a string keyboard of length 26 indicating the layout of the keyboard (indexed from 0 to 25), initially your finger is at index 0. To type a character, you have to move your finger to the index of the desired character. The time taken to move your finger from index i to index j is |i - j|.
+
+You want to type a string word. Write a function to calculate how much time it takes to type it with one finger.
+
+ 
+
+Example 1:
+
+Input: keyboard = "abcdefghijklmnopqrstuvwxyz", word = "cba"
+Output: 4
+Explanation: The index moves from 0 to 2 to write 'c' then to 1 to write 'b' then to 0 again to write 'a'.
+Total time = 2 + 1 + 1 = 4. 
+Example 2:
+
+Input: keyboard = "pqrstuvwxyzabcdefghijklmno", word = "leetcode"
+Output: 73
+"""
+
+
+class Solution(object):
+    def calculateTime(self, keyboard, word):
+        """
+        :type keyboard: str
+        :type word: str
+        :rtype: int
+        """
+
+        chars_map = map_char_to_idx(keyboard)
+        total_time = 0
+        place = 0
+
+        for char in word:
+            total_time += abs(place - chars_map[char])
+            place = chars_map[char]
+
+        return total_time
+
+    # time O(n)
+    # space O(1)
+
+
+def map_char_to_idx(keyboard):
+    idxes = {}
+
+    for i, char in enumerate(keyboard):
+        idxes[char] = i
+
+    return idxes
+
+
 # -----------------------------------------------------------------------
+"""
+760. Find Anagram Mappings
+
+Given two lists Aand B, and B is an anagram of A. B is an anagram of A means B is made by randomizing the order of the elements in A.
+
+We want to find an index mapping P, from A to B. A mapping P[i] = j means the ith element in A appears in B at index j.
+
+These lists A and B may contain duplicates. If there are multiple answers, output any of them.
+
+For example, given
+
+A = [12, 28, 46, 32, 50]
+B = [50, 12, 32, 46, 28]
+We should return
+[1, 4, 3, 2, 0]
+as P[0] = 1 because the 0th element of A appears at B[1], and P[1] = 4 because the 1st element of A appears at B[4], and so on.
+"""
+
+from collections import defaultdict
+
+
+class Solution(object):
+    def anagramMappings(self, A, B):
+        """
+        :type A: List[int]
+        :type B: List[int]
+        :rtype: List[int]
+        """
+
+        nums_map = map_to_idx(B)
+
+        res = []
+
+        for num in A:
+            res.append(nums_map[num][0])
+            nums_map[num].pop(0)
+
+        return res
+
+    # time O(n)
+    # space O(n)
+
+
+def map_to_idx(nums):
+    idxes = defaultdict(list)
+
+    for i, num in enumerate(nums):
+        idxes[num].append(i)
+
+    return idxes
+
+
 # -----------------------------------------------------------------------
+"""
+1213. Intersection of Three Sorted Arrays
+
+Given three integer arrays arr1, arr2 and arr3 sorted in strictly increasing order, return a sorted array of only the integers that appeared in all three arrays.
+
+ 
+
+Example 1:
+
+Input: arr1 = [1,2,3,4,5], arr2 = [1,2,5,7,9], arr3 = [1,3,4,5,8]
+Output: [1,5]
+Explanation: Only 1 and 5 appeared in the three arrays.
+Example 2:
+
+Input: arr1 = [197,418,523,876,1356], arr2 = [501,880,1593,1710,1870], arr3 = [521,682,1337,1395,1764]
+Output: []
+"""
+
+
+class Solution(object):
+    def arraysIntersection(self, arr1, arr2, arr3):
+        """
+        :type arr1: List[int]
+        :type arr2: List[int]
+        :type arr3: List[int]
+        :rtype: List[int]
+        """
+
+        n = len(arr1)
+        m = len(arr2)
+        k = len(arr3)
+
+        p1 = p2 = p3 = 0
+        res = []
+
+        while p1 < n and p2 < m and p3 < k:
+
+            if arr1[p1] == arr2[p2] == arr3[p3]:
+                res.append(arr1[p1])
+                p1 += 1
+                p2 += 1
+                p3 += 1
+            elif arr1[p1] <= arr2[p2] and arr1[p1] <= arr3[p3]:
+                p1 += 1
+            elif arr2[p2] <= arr1[p1] and arr2[p2] <= arr3[p3]:
+                p2 += 1
+            else:
+                p3 += 1
+
+        return res
+
+    # time O(min(n, m, k))
+    # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+1086. High Five
+
+Given a list of the scores of different students, items, where items[i] = [IDi, scorei] represents one score from a student with IDi, calculate each student's top five average.
+
+Return the answer as an array of pairs result, where result[j] = [IDj, topFiveAveragej] represents the student with IDj and their top five average. Sort result by IDj in increasing order.
+
+A student's top five average is calculated by taking the sum of their top five scores and dividing it by 5 using integer division.
+
+ 
+
+Example 1:
+
+Input: items = [[1,91],[1,92],[2,93],[2,97],[1,60],[2,77],[1,65],[1,87],[1,100],[2,100],[2,76]]
+Output: [[1,87],[2,88]]
+Explanation: 
+The student with ID = 1 got scores 91, 92, 60, 65, 87, and 100. Their top five average is (100 + 92 + 91 + 87 + 65) / 5 = 87.
+The student with ID = 2 got scores 93, 97, 77, 100, and 76. Their top five average is (100 + 97 + 93 + 77 + 76) / 5 = 88.6, but with integer division their average converts to 88.
+"""
+
+import heapq
+
+
+class Solution(object):
+    def highFive(self, items):
+        """
+        :type items: List[List[int]]
+        :rtype: List[List[int]]
+        """
+
+        res = []
+
+        id_to_scores = map_id_to_scores(items)
+
+        for id_ in id_to_scores:
+            res.append([id_, top_five_average(id_to_scores[id_])])
+
+        return res
+
+    # time O(n)
+    # space O(n)
+
+
+def top_five_average(scores):
+    min_heap = []
+
+    for score in scores:
+        heapq.heappush(min_heap, score)
+        if len(min_heap) > 5:
+            heapq.heappop(min_heap)
+
+    return sum(min_heap) // 5
+
+
+def map_id_to_scores(items):
+    id_to_scores = defaultdict(list)
+
+    for id_, score in items:
+        id_to_scores[id_].append(score)
+
+    return id_to_scores
+
+
+# -----------------------------------------------------------------------
+"""
+1474. Delete N Nodes After M Nodes of a Linked List
+
+Given the head of a linked list and two integers m and n. Traverse the linked list and remove some nodes in the following way:
+
+Start with the head as the current node.
+Keep the first m nodes starting with the current node.
+Remove the next n nodes
+Keep repeating steps 2 and 3 until you reach the end of the list.
+Return the head of the modified list after removing the mentioned nodes.
+
+Follow up question: How can you solve this problem by modifying the list in-place?
+
+ 
+
+Example 1:
+
+
+
+Input: head = [1,2,3,4,5,6,7,8,9,10,11,12,13], m = 2, n = 3
+Output: [1,2,6,7,11,12]
+Explanation: Keep the first (m = 2) nodes starting from the head of the linked List  (1 ->2) show in black nodes.
+Delete the next (n = 3) nodes (3 -> 4 -> 5) show in read nodes.
+Continue with the same procedure until reaching the tail of the Linked List.
+Head of linked list after removing nodes is returned.
+Example 2:
+
+
+
+Input: head = [1,2,3,4,5,6,7,8,9,10,11], m = 1, n = 3
+Output: [1,5,9]
+Explanation: Head of linked list after removing nodes is returned.
+"""
+
+
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
+class Solution(object):
+    def deleteNodes(self, head, m, n):
+        """
+        :type head: ListNode
+        :type m: int
+        :type n: int
+        :rtype: ListNode
+        """
+
+        left = right = head
+
+        while right:
+
+            skip_count = m
+            while right and skip_count > 1:
+                right = right.next
+                skip_count -= 1
+
+            if not right:
+                break
+
+            left = right
+            right = right.next
+            del_count = n
+
+            while right and del_count > 0:
+                right = right.next
+                del_count -= 1
+
+            left.next = right
+
+        return head
+
+    # time O(n)
+    # space O(1)
+
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
