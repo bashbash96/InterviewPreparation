@@ -1516,15 +1516,361 @@ class Solution(object):
     # time O(n)
     # space O(1)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+1406. Stone Game III
+
+Alice and Bob continue their games with piles of stones. There are several stones arranged in a row, and each stone has an associated value which is an integer given in the array stoneValue.
+
+Alice and Bob take turns, with Alice starting first. On each player's turn, that player can take 1, 2 or 3 stones from the first remaining stones in the row.
+
+The score of each player is the sum of values of the stones taken. The score of each player is 0 initially.
+
+The objective of the game is to end with the highest score, and the winner is the player with the highest score and there could be a tie. The game continues until all the stones have been taken.
+
+Assume Alice and Bob play optimally.
+
+Return "Alice" if Alice will win, "Bob" if Bob will win or "Tie" if they end the game with the same score.
+
+ 
+
+Example 1:
+
+Input: values = [1,2,3,7]
+Output: "Bob"
+Explanation: Alice will always lose. Her best move will be to take three piles and the score become 6. Now the score of Bob is 7 and Bob wins.
+Example 2:
+
+Input: values = [1,2,3,-9]
+Output: "Alice"
+Explanation: Alice must choose all the three piles at the first move to win and leave Bob with negative score.
+If Alice chooses one pile her score will be 1 and the next move Bob's score becomes 5. The next move Alice will take the pile with value = -9 and lose.
+If Alice chooses two piles her score will be 3 and the next move Bob's score becomes 3. The next move Alice will take the pile with value = -9 and also lose.
+Remember that both play optimally so here Alice will choose the scenario that makes her win.
+Example 3:
+
+Input: values = [1,2,3,6]
+Output: "Tie"
+Explanation: Alice cannot win this game. She can end the game in a draw if she decided to choose all the first three piles, otherwise she will lose.
+Example 4:
+
+Input: values = [1,2,3,-1,-2,-3,7]
+Output: "Alice"
+Example 5:
+
+Input: values = [-1,-2,-3]
+Output: "Tie"
+"""
+
+
+class Solution(object):
+    def stoneGameIII(self, stones):
+        n = len(stones)
+        scores = [0] * n
+
+        for i in range(n - 1, -1, -1):
+            taken = 0
+            scores[i] = float('-inf')
+
+            for k in range(3):
+                if i + k >= n:
+                    break
+                taken += stones[i + k]
+                next_val = 0 if i + k + 1 >= n else scores[i + k + 1]
+                scores[i] = max(scores[i], taken - next_val)
+
+        if scores[0] > 0:
+            return 'Alice'
+        elif scores[0] < 0:
+            return 'Bob'
+
+        return 'Tie'
+
+    # time O(n)
+    # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+410. Split Array Largest Sum
+
+Given an array nums which consists of non-negative integers and an integer m, you can split the array into m non-empty continuous subarrays.
+
+Write an algorithm to minimize the largest sum among these m subarrays.
+
+ 
+
+Example 1:
+
+Input: nums = [7,2,5,10,8], m = 2
+Output: 18
+Explanation:
+There are four ways to split nums into two subarrays.
+The best way is to split it into [7,2,5] and [10,8],
+where the largest sum among the two subarrays is only 18.
+Example 2:
+
+Input: nums = [1,2,3,4,5], m = 2
+Output: 9
+Example 3:
+
+Input: nums = [1,4,4], m = 3
+Output: 4
+"""
+
+
+class Solution(object):
+    def splitArray(self, nums, m):
+        """
+        :type nums: List[int]
+        :type m: int
+        :rtype: int
+        """
+
+        left = max(nums)
+        right = sum(nums)
+        res = float('inf')
+
+        while left <= right:
+            mid = (left + right) >> 1
+            count = count_sub_arrays(nums, mid)
+
+            if count <= m:
+                res = min(res, mid)
+                right = mid - 1
+            else:
+                left = mid + 1
+
+        return res
+
+    # time O(n * log(sum(nums)))
+    # space O(1)
+
+
+def count_sub_arrays(nums, max_sum):
+    count = 0
+    curr_sum = 0
+    for num in nums:
+        curr_sum += num
+        if curr_sum > max_sum:
+            count += 1
+            curr_sum = num
+
+    return count + 1
+
 
 # -----------------------------------------------------------------------
+"""
+135. Candy
+
+There are n children standing in a line. Each child is assigned a rating value given in the integer array ratings.
+
+You are giving candies to these children subjected to the following requirements:
+
+Each child must have at least one candy.
+Children with a higher rating get more candies than their neighbors.
+Return the minimum number of candies you need to have to distribute the candies to the children.
+
+ 
+
+Example 1:
+
+Input: ratings = [1,0,2]
+Output: 5
+Explanation: You can allocate to the first, second and third child with 2, 1, 2 candies respectively.
+Example 2:
+
+Input: ratings = [1,2,2]
+Output: 4
+Explanation: You can allocate to the first, second and third child with 1, 2, 1 candies respectively.
+The third child gets 1 candy because it satisfies the above two conditions.
+"""
+
+
+class Solution(object):
+    def candy(self, ratings):
+        """
+        :type ratings: List[int]
+        :rtype: int
+        """
+
+        n = len(ratings)
+        candies = [1] * n
+
+        for i in range(1, n):
+
+            if ratings[i] > ratings[i - 1]:
+                candies[i] = candies[i - 1] + 1
+
+        final_res = candies[-1]
+
+        for i in range(n - 2, -1, -1):
+
+            if ratings[i] > ratings[i + 1]:
+                candies[i] = max(candies[i], candies[i + 1] + 1)
+
+            final_res += candies[i]
+
+        return final_res
+
+    # time O(n)
+    # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+843. Guess the Word
+
+This problem is an interactive problem new to the LeetCode platform.
+
+We are given a word list of unique words, each word is 6 letters long, and one word in this list is chosen as secret.
+
+You may call master.guess(word) to guess a word.  The guessed word should have type string and must be from the original list with 6 lowercase letters.
+
+This function returns an integer type, representing the number of exact matches (value and position) of your guess to the secret word.  Also, if your guess is not in the given wordlist, it will return -1 instead.
+
+For each test case, you have 10 guesses to guess the word. At the end of any number of calls, if you have made 10 or less calls to master.guess and at least one of these guesses was the secret, you pass the testcase.
+
+Besides the example test case below, there will be 5 additional test cases, each with 100 words in the word list.  The letters of each word in those testcases were chosen independently at random from 'a' to 'z', such that every word in the given word lists is unique.
+
+Example 1:
+Input: secret = "acckzz", wordlist = ["acckzz","ccbazz","eiowzz","abcczz"]
+
+Explanation:
+
+master.guess("aaaaaa") returns -1, because "aaaaaa" is not in wordlist.
+master.guess("acckzz") returns 6, because "acckzz" is secret and has all 6 matches.
+master.guess("ccbazz") returns 3, because "ccbazz" has 3 matches.
+master.guess("eiowzz") returns 2, because "eiowzz" has 2 matches.
+master.guess("abcczz") returns 4, because "abcczz" has 4 matches.
+
+We made 5 calls to master.guess and one of them was the secret, so we pass the test case.
+"""
+
+# """
+# This is Master's API interface.
+# You should not implement it, or speculate about its implementation
+# """
+# class Master(object):
+#    def guess(self, word):
+#        """
+#        :type word: str
+#        :rtype int
+#        """
+
+from random import shuffle, randint
+
+
+class Solution(object):
+    def findSecretWord(self, wordlist, master):
+        """
+        :type wordlist: List[Str]
+        :type master: Master
+        :rtype: None
+        """
+
+        shuffle(wordlist)
+
+        for _ in range(10):
+            guess = get_random_choice(wordlist)
+            matched = master.guess(guess)
+
+            wordlist = [word for word in wordlist if match(word, guess) == matched]
+
+        # time O(n)
+        # space O(n)
+
+
+def get_random_choice(words):
+    i = randint(0, len(words) - 1)
+
+    return words[i]
+
+
+def match(word1, word2):
+    return sum(c1 == c2 for c1, c2 in zip(word1, word2))
+
+
+# -----------------------------------------------------------------------
+"""
+1074. Number of Submatrices That Sum to Target
+
+Given a matrix and a target, return the number of non-empty submatrices that sum to target.
+
+A submatrix x1, y1, x2, y2 is the set of all cells matrix[x][y] with x1 <= x <= x2 and y1 <= y <= y2.
+
+Two submatrices (x1, y1, x2, y2) and (x1', y1', x2', y2') are different if they have some coordinate that is different: for example, if x1 != x1'.
+
+ 
+
+Example 1:
+
+
+Input: matrix = [[0,1,0],[1,1,1],[0,1,0]], target = 0
+Output: 4
+Explanation: The four 1x1 submatrices that only contain 0.
+Example 2:
+
+Input: matrix = [[1,-1],[-1,1]], target = 0
+Output: 5
+Explanation: The two 1x2 submatrices, plus the two 2x1 submatrices, plus the 2x2 submatrix.
+Example 3:
+
+Input: matrix = [[904]], target = 0
+Output: 0
+ 
+
+Constraints:
+
+1 <= matrix.length <= 100
+1 <= matrix[0].length <= 100
+-1000 <= matrix[i] <= 1000
+-10^8 <= target <= 10^8
+"""
+
+from collections import defaultdict
+
+
+class Solution(object):
+    def numSubmatrixSumTarget(self, matrix, target):
+        """
+        :type matrix: List[List[int]]
+        :type target: int
+        :rtype: int
+        """
+
+        n = len(matrix)
+        m = len(matrix[0])
+
+        pre_sum = [[0 for _ in range(m + 1)] for _ in range(n + 1)]
+
+        for row in range(1, n + 1):
+            for col in range(1, m + 1):
+                top = pre_sum[row - 1][col]
+                left = pre_sum[row][col - 1]
+                diagonal = pre_sum[row - 1][col - 1]
+                pre_sum[row][col] = top + left - diagonal + matrix[row - 1][col - 1]
+
+        count = 0
+        for row in range(1, n + 1):
+
+            for curr_row in range(row, n + 1):
+
+                h_map = defaultdict(int)
+                h_map[0] = 1
+
+                for col in range(1, m + 1):
+                    curr_sum = pre_sum[curr_row][col] - pre_sum[row - 1][col]
+
+                    count += h_map[curr_sum - target]
+
+                    h_map[curr_sum] += 1
+
+        return count
+
+    # time O(n^2 * m)
+    # space O(n * m)
 
 # -----------------------------------------------------------------------
 
