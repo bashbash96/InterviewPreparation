@@ -268,9 +268,256 @@ def is_palindrome(string, i, j):
 
     return i >= j
 
+
 # -----------------------------------------------------------------------
+"""
+Word Break
+
+Given a string A and a dictionary of words B, determine if A can be segmented into a space-separated sequence of one or more dictionary words.
+
+Input Format:
+
+The first argument is a string, A.
+The second argument is an array of strings, B.
+Output Format:
+
+Return 0 / 1 ( 0 for false, 1 for true ) for this problem.
+Constraints:
+
+1 <= len(A) <= 6500
+1 <= len(B) <= 10000
+1 <= len(B[i]) <= 20
+Examples:
+
+Input 1:
+    A = "myinterviewtrainer",
+    B = ["trainer", "my", "interview"]
+
+Output 1:
+    1
+
+Explanation 1:
+    Return 1 ( corresponding to true ) because "myinterviewtrainer" can be segmented as "my interview trainer".
+    
+Input 2:
+    A = "a"
+    B = ["aaa"]
+
+Output 2:
+    0
+
+Explanation 2:
+    Return 0 ( corresponding to false ) because "a" cannot be segmented as "aaa".
+"""
+
+from collections import defaultdict
+
+
+class Solution:
+    # @param A : string
+    # @param B : list of strings
+    # @return an integer
+    def wordBreak(self, A, B):
+        memo = {}
+        return 1 if can_build_it(A, 0, len(A) - 1, set(B), memo) else 0
+
+    # time O(n^2)
+    # space O(n)
+
+
+def can_build_it(sentence, start, end, words, memo):
+    if start > end:
+        return False
+
+    if sentence[start: end + 1] in words:
+        return True
+
+    if (start, end) in memo:
+        return memo[(start, end)]
+
+    for k in range(start, end + 1):
+        if sentence[start: k + 1] in words:
+            if can_build_it(sentence, k + 1, end, words, memo):
+                memo[(start, end)] = True
+                return True
+
+    memo[(start, end)] = False
+    return False
+
+
 # -----------------------------------------------------------------------
+"""
+Increasing Path in Matrix
+
+Problem Description
+
+Given a 2D integer matrix A of size N x M.
+
+From A[i][j] you can move to A[i+1][j], if A[i+1][j] > A[i][j], or can move to A[i][j+1] if A[i][j+1] > A[i][j].
+
+The task is to find and output the longest path length if we start from (0, 0).
+
+NOTE:
+
+If there doesn't exist a path return -1.
+
+
+Problem Constraints
+1 <= N, M <= 103
+
+1 <= A[i][j] <= 108
+
+
+
+Input Format
+First and only argument is an 2D integer matrix A of size N x M.
+
+
+
+Output Format
+Return a single integer denoting the length of longest path in the matrix if no such path exists return -1.
+
+
+
+Example Input
+Input 1:
+
+ A = [  [1, 2]
+        [3, 4]
+     ]
+Input 2:
+
+ A = [  [1, 2, 3, 4]
+        [2, 2, 3, 4]
+        [3, 2, 3, 4]
+        [4, 5, 6, 7]
+     ]
+
+
+Example Output
+Output 1:
+
+ 3
+Output 2:
+
+ 7
+"""
+
+
+class Solution:
+    # @param A : list of list of integers
+    # @return an integer
+    def solve(self, A):
+        arr = A
+        n = len(arr)
+        m = len(arr[0])
+
+        lp = [[1 for _ in range(m)] for _ in range(n)]
+
+        for col in range(1, m):
+            if arr[0][col] > arr[0][col - 1] and lp[0][col - 1] != -1:
+                lp[0][col] = lp[0][col - 1] + 1
+            else:
+                lp[0][col] = -1
+
+        for row in range(1, n):
+            if arr[row][0] > arr[row - 1][0] and lp[row - 1][0] != -1:
+                lp[row][0] = lp[row - 1][0] + 1
+            else:
+                lp[row][0] = -1
+
+        for row in range(1, n):
+            for col in range(1, m):
+
+                top = arr[row - 1][col]
+                left = arr[row][col - 1]
+                if arr[row][col] > top and lp[row - 1][col] != -1:
+                    lp[row][col] = max(lp[row][col], lp[row - 1][col] + 1)
+                else:
+                    lp[row][col] = -1
+
+                if arr[row][col] > left and lp[row][col - 1] != -1:
+                    lp[row][col] = max(lp[row][col], lp[row][col - 1] + 1)
+                else:
+                    lp[row][col] = -1
+
+        return lp[n - 1][m - 1]
+
+    # time O(n * m)
+    # space O(n * m)
+
+
 # -----------------------------------------------------------------------
+"""
+Sub Matrices with sum Zero
+Asked in:  
+Google
+Problem Setter: mihai.gheorghe Problem Tester: sneh_gupta
+Given a 2D matrix, find the number non-empty sub matrices, such that the sum of the elements inside the sub matrix is equal to 0. (note: elements might be negative).
+
+Example:
+
+Input
+
+-8 5  7
+3  7 -8
+5 -8  9
+Output
+2
+
+Explanation
+-8 5 7
+3 7 -8
+5 -8 9
+
+-8 5 7
+3 7 -8
+5 -8 9
+"""
+
+from collections import defaultdict
+
+
+class Solution:
+    # @param A : list of list of integers
+    # @return an integer
+    def solve(self, matrix):
+
+        if not matrix:
+            return 0
+        target = 0
+        n = len(matrix)
+        m = len(matrix[0])
+
+        pre_sum = [[0 for _ in range(m + 1)] for _ in range(n + 1)]
+
+        for row in range(1, n + 1):
+            for col in range(1, m + 1):
+                top = pre_sum[row - 1][col]
+                left = pre_sum[row][col - 1]
+                diagonal = pre_sum[row - 1][col - 1]
+                pre_sum[row][col] = top + left - diagonal + matrix[row - 1][col - 1]
+
+        count = 0
+        for row in range(1, n + 1):
+
+            for curr_row in range(row, n + 1):
+
+                h_map = defaultdict(int)
+                h_map[0] = 1
+
+                for col in range(1, m + 1):
+                    curr_sum = pre_sum[curr_row][col] - pre_sum[row - 1][col]
+
+                    count += h_map[curr_sum - target]
+
+                    h_map[curr_sum] += 1
+
+        return count
+
+    # time O(n^2 * m)
+    # space O(n * m)
+
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
