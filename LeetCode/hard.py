@@ -1872,7 +1872,56 @@ class Solution(object):
     # time O(n^2 * m)
     # space O(n * m)
 
+
 # -----------------------------------------------------------------------
+"""
+995. Minimum Number of K Consecutive Bit Flips
+
+In an array A containing only 0s and 1s, a K-bit flip consists of choosing a (contiguous) subarray of length K and simultaneously changing every 0 in the subarray to 1, and every 1 in the subarray to 0.
+
+Return the minimum number of K-bit flips required so that there is no 0 in the array.  If it is not possible, return -1.
+
+ 
+
+Example 1:
+
+Input: A = [0,1,0], K = 1
+Output: 2
+Explanation: Flip A[0], then flip A[2].
+Example 2:
+
+Input: A = [1,1,0], K = 2
+Output: -1
+Explanation: No matter how we flip subarrays of size 2, we can't make the array become [1,1,1].
+"""
+
+
+class Solution(object):
+    def minKBitFlips(self, A, k):
+        """
+        :type A: List[int]
+        :type K: int
+        :rtype: int
+        """
+        n = len(A)
+        is_flipped = [0] * n
+        flipped = 0
+        res = 0
+        for i in range(n):
+            if i >= k:
+                flipped ^= is_flipped[i - k]
+
+            if flipped == A[i]:
+                if i + k > n:
+                    return -1
+                is_flipped[i] = 1
+                flipped ^= 1
+                res += 1
+
+        return res
+
+    # time O(n)
+    # space O(n)
 
 # -----------------------------------------------------------------------
 
