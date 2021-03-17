@@ -299,7 +299,7 @@ def permWithDup(s):
     count = countChars(s)
     res = []
 
-    recurPermWithDup(count, "", len(s), res)
+    recurPermWithDup(count, [], len(s), res)
     return res
 
     # time O(n!\(k!)) -> k number of duplicated chars "each duplicated char"
@@ -320,13 +320,13 @@ def countChars(s):
 
 def recurPermWithDup(count, prefix, remaining, res):
     if remaining == 0:
-        res.append(prefix)
+        res.append(''.join(prefix))
         return
 
     for c in count:
         if count[c] > 0:
             count[c] -= 1
-            recurPermWithDup(count, prefix + c, remaining - 1, res)
+            recurPermWithDup(count, prefix + [c], remaining - 1, res)
             count[c] += 1
 
 
@@ -379,19 +379,39 @@ pennies (1 cent), write code to calculate the number of ways of representing n c
 
 def coins(cents):
     coins = [1, 25, 10, 5]
+    coins = [1, 2, 3]
+    # return recur_coins(cents, coins, {}, len(coins)  - 1)
+
     memo = [0] * (cents + 1)
 
     memo[0] = 1
-    coins.sort(reverse=True)
     for coin in coins:
-        for amount in range(cents + 1):
-            if amount - coin >= 0:
-                memo[amount] += memo[amount - coin]
+        for amount in range(coin, cents + 1):
+            memo[amount] += memo[amount - coin]
 
     return memo[cents]
 
     # time O(n*c) c -> num of coins
     # space O(n)
+
+
+def recur_coins(amount, coins, memo, idx):
+    if amount < 0:
+        return 0
+
+    if amount == 0:
+        return 1
+
+    if amount in memo:
+        return memo[amount]
+
+    if idx < 0:
+        return 0
+
+    curr = recur_coins(amount, coins, memo, idx - 1) + recur_coins(amount - coins[idx], coins, memo, idx)
+
+    memo[amount] = curr
+    return curr
 
 
 # -----------------------------------------------------------------------
@@ -445,3 +465,42 @@ def isValid(board, row, col):
             return False
 
     return True
+
+
+# -----------------------------------------------------------------------
+"""
+8.13 Stack of Boxes: You have a stack of n boxes, with widths Wi' heights hi' and depths d1• The boxes
+cannot be rotated and can only be stacked on top of one another if each box in the stack is strictly
+larger than the box above it in width, height. and depth. Implement a method to compute the
+height of the tallest possible stack. The height of a stack is the sum of the heights of each box.
+"""
+
+
+def max_height(stack_of_boxes):
+    return recur_max_height(stack_of_boxes, 0, None, {})
+
+    # time O(n^2)
+    # space O(n)
+
+
+def recur_max_height(stack, idx, curr_box, memo):
+    if idx >= len(stack):
+        return 0
+
+    new_box = stack[idx]
+    height_with_new_box = 0
+
+    if not curr_box or can_above(curr_box, new_box):
+        if idx not in memo:
+            memo[idx] = recur_max_height(stack, idx + 1, new_box, memo)
+            memo[idx] += new_box.height
+        height_with_new_box = memo[idx]
+
+    height_without_new_box = recur_max_height(stack, idx + 1, curr_box, memo)
+
+    return max(height_with_new_box, height_without_new_box)
+
+
+def can_above(prev_box, new_box):
+    return prev_box.height > new_box.height and prev_box.width > new_box.width \
+           and prev_box.depth > new_box.depth
