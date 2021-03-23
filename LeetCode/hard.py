@@ -1923,12 +1923,269 @@ class Solution(object):
     # time O(n)
     # space O(n)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+295. Find Median from Data Stream
+
+The median is the middle value in an ordered integer list. If the size of the list is even, there is no middle value and the median is the mean of the two middle values.
+
+For example, for arr = [2,3,4], the median is 3.
+For example, for arr = [2,3], the median is (2 + 3) / 2 = 2.5.
+Implement the MedianFinder class:
+
+MedianFinder() initializes the MedianFinder object.
+void addNum(int num) adds the integer num from the data stream to the data structure.
+double findMedian() returns the median of all elements so far. Answers within 10-5 of the actual answer will be accepted.
+ 
+
+Example 1:
+
+Input
+["MedianFinder", "addNum", "addNum", "findMedian", "addNum", "findMedian"]
+[[], [1], [2], [], [3], []]
+Output
+[null, null, null, 1.5, null, 2.0]
+
+Explanation
+MedianFinder medianFinder = new MedianFinder();
+medianFinder.addNum(1);    // arr = [1]
+medianFinder.addNum(2);    // arr = [1, 2]
+medianFinder.findMedian(); // return 1.5 (i.e., (1 + 2) / 2)
+medianFinder.addNum(3);    // arr[1, 2, 3]
+medianFinder.findMedian(); // return 2.0
+ 
+
+Constraints:
+
+-105 <= num <= 105
+There will be at least one element in the data structure before calling findMedian.
+At most 5 * 104 calls will be made to addNum and findMedian.
+"""
+
+import heapq
+
+
+class MedianFinder(object):
+
+    def __init__(self):
+        """
+        initialize your data structure here.
+        """
+
+        self.size = 0
+        self.min_heap = []
+        self.max_heap = []
+
+    def addNum(self, num):
+        """
+        :type num: int
+        :rtype: None
+        """
+
+        self.size += 1
+
+        heapq.heappush(self.max_heap, num * -1)
+        heapq.heappush(self.min_heap, heapq.heappop(self.max_heap) * -1)
+
+        if len(self.min_heap) > len(self.max_heap):
+            curr_min = heapq.heappop(self.min_heap)
+            heapq.heappush(self.max_heap, -1 * curr_min)
+
+    # time O(log(n))
+    # space O(1)
+
+    def findMedian(self):
+        """
+        :rtype: float
+        """
+
+        if self.size % 2 == 1:
+            return self.max_heap[0] * -1
+
+        left = self.max_heap[0] * -1
+        right = self.min_heap[0]
+
+        return float(left + right) / 2
+
+    # time O(1)
+    # space O(1)
+
+
+# Your MedianFinder object will be instantiated and called as such:
+# obj = MedianFinder()
+# obj.addNum(num)
+# param_2 = obj.findMedian()
 
 # -----------------------------------------------------------------------
+"""
+85. Maximal Rectangle
 
+Given a rows x cols binary matrix filled with 0's and 1's, find the largest rectangle containing only 1's and return its area.
+
+ 
+
+Example 1:
+
+
+Input: matrix = [["1","0","1","0","0"],["1","0","1","1","1"],["1","1","1","1","1"],["1","0","0","1","0"]]
+Output: 6
+Explanation: The maximal rectangle is shown in the above picture.
+Example 2:
+
+Input: matrix = []
+Output: 0
+Example 3:
+
+Input: matrix = [["0"]]
+Output: 0
+Example 4:
+
+Input: matrix = [["1"]]
+Output: 1
+"""
+
+
+class Solution(object):
+    def maximalRectangle(self, matrix):
+        """
+        :type matrix: List[List[str]]
+        :rtype: int
+        """
+
+        n = len(matrix)
+        if n == 0:
+            return 0
+        m = len(matrix[0])
+        curr_row = [0 for _ in range(m)]
+        res = float('-inf')
+        for row in range(n):
+            for col in range(m):
+                if matrix[row][col] == '0':
+                    curr_row[col] = 0
+                else:
+                    curr_row[col] += 1
+            res = max(res, calc_area(curr_row))
+
+        return res
+
+    # time O(n * m)
+    # space O(m)
+
+
+def calc_area(heights):
+    left = left_smaller(heights)
+    right = right_smaller(heights)
+
+    max_area = 0
+
+    for i in range(len(heights)):
+        curr_area = (right[i] - left[i] + 1) * heights[i]
+        max_area = max(max_area, curr_area)
+
+    return max_area
+
+
+def left_smaller(heights):
+    stack = []
+    smaller = []
+
+    for i in range(len(heights)):
+        while stack and heights[i] <= heights[stack[-1]]:
+            stack.pop()
+
+        smaller.append(stack[-1] + 1 if stack else 0)
+        stack.append(i)
+
+    return smaller
+
+
+def right_smaller(heights):
+    stack = []
+    smaller = []
+
+    for i in range(len(heights) - 1, -1, -1):
+
+        while stack and heights[i] <= heights[stack[-1]]:
+            stack.pop()
+
+        smaller.append(stack[-1] - 1 if stack else len(heights) - 1)
+        stack.append(i)
+
+    return smaller[::-1]
+
+
+# -----------------------------------------------------------------------
+"""
+149. Max Points on a Line
+
+Given an array of points where points[i] = [xi, yi] represents a point on the X-Y plane, return the maximum number of points that lie on the same straight line.
+
+ 
+
+Example 1:
+
+
+Input: points = [[1,1],[2,2],[3,3]]
+Output: 3
+Example 2:
+
+
+Input: points = [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]
+Output: 4
+"""
+
+from collections import defaultdict
+
+
+class Solution(object):
+    def maxPoints(self, points):
+        """
+        :type points: List[List[int]]
+        :rtype: int
+        """
+
+        if len(points) == 0:
+            return 0
+
+        max_line = 1
+        for i in range(len(points)):
+            lines = defaultdict(int)
+            for j in range(i):
+                line = get_line(points[i], points[j])
+                if line not in lines:
+                    lines[line] = 2
+                else:
+                    lines[line] += 1
+
+                max_line = max(max_line, lines[line])
+
+        return max_line
+
+    # time O(n^2)
+    # space O(n)
+
+
+def get_line(point1, point2):
+    # slope = dy / dx
+    # line = y - y0 = m * (x - x0)
+    # => y = m*x - m*x0 + y0
+    # => c = -m*x0 + y0
+
+    x1, y1 = point1
+    x2, y2 = point2
+
+    if x1 == x2:
+        slope = float('inf')
+    else:
+        slope = float(y1 - y2) / (x1 - x2)
+
+    if slope == float('inf'):
+        constant = x1
+    else:
+        constant = y1 - slope * x1
+
+    return slope, constant
 
 # -----------------------------------------------------------------------
 
