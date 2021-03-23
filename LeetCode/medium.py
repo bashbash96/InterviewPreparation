@@ -5714,9 +5714,154 @@ class Solution(object):
     # time O(n^2)
     # space O(n)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+426. Convert Binary Search Tree to Sorted Doubly Linked List
+
+Convert a Binary Search Tree to a sorted Circular Doubly-Linked List in place.
+
+You can think of the left and right pointers as synonymous to the predecessor and successor pointers in a doubly-linked list. For a circular doubly linked list, the predecessor of the first element is the last element, and the successor of the last element is the first element.
+
+We want to do the transformation in place. After the transformation, the left pointer of the tree node should point to its predecessor, and the right pointer should point to its successor. You should return the pointer to the smallest element of the linked list.
+"""
+
+"""
+# Definition for a Node.
+class Node(object):
+    def __init__(self, val, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+"""
+
+
+class Solution(object):
+    def treeToDoublyList(self, root):
+        """
+        :type root: Node
+        :rtype: Node
+        """
+
+        if not root:
+            return root
+
+        left = self.treeToDoublyList(root.left)
+        right = self.treeToDoublyList(root.right)
+
+        root.left = root.right = root
+
+        left = concatenate(left, root)
+
+        return concatenate(left, right)
+
+    # time O(n)
+    # space O(1)
+
+
+def concatenate(left, right):
+    if not left:
+        return right
+
+    if not right:
+        return left
+
+    left_last = left.left
+    right_last = right.left
+
+    left_last.right = right
+    right.left = left_last
+
+    left.left = right_last
+    right_last.right = left
+
+    return left
+
+
+# -----------------------------------------------------------------------
+"""
+92. Reverse Linked List II
+
+Given the head of a singly linked list and two integers left and right where left <= right, reverse the nodes of the list from position left to position right, and return the reversed list.
+
+ 
+
+Example 1:
+
+
+Input: head = [1,2,3,4,5], left = 2, right = 4
+Output: [1,4,3,2,5]
+Example 2:
+
+Input: head = [5], left = 1, right = 1
+Output: [5]
+"""
+
+
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution(object):
+    def reverseBetween(self, head, left, right):
+        """
+        :type head: ListNode
+        :type left: int
+        :type right: int
+        :rtype: ListNode
+        """
+
+        if not head or not head.next:
+            return head
+
+        count = right - left
+        left_p, right_p = head, head
+
+        while right_p and count > 0:
+            right_p = right_p.next
+            count -= 1
+
+        count = 1
+
+        prev = left_p
+        while count < left:
+            prev = left_p
+            left_p = left_p.next
+            right_p = right_p.next
+            count += 1
+
+        if left_p == head:
+            prev = None
+        else:
+            prev.next = None
+
+        next_p = right_p.next
+        right_p.next = None
+
+        r_head, tail = reverse(left_p)
+
+        if prev:
+            prev.next = r_head
+        tail.next = next_p
+
+        return head if prev else r_head
+
+    # time O(n)
+    # space O(1)
+
+
+def reverse(head):
+    curr = head
+    prev = None
+
+    while curr:
+        next_ = curr.next
+        curr.next = prev
+        prev = curr
+        curr = next_
+
+    return prev, head
 
 # -----------------------------------------------------------------------
 
