@@ -2187,11 +2187,240 @@ def get_line(point1, point2):
 
     return slope, constant
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+465. Optimal Account Balancing
+
+A group of friends went on holiday and sometimes lent each other money. For example, Alice paid for Bill's lunch for $10. Then later Chris gave Alice $5 for a taxi ride. We can model each transaction as a tuple (x, y, z) which means person x gave person y $z. Assuming Alice, Bill, and Chris are person 0, 1, and 2 respectively (0, 1, 2 are the person's ID), the transactions can be represented as [[0, 1, 10], [2, 0, 5]].
+
+Given a list of transactions between a group of people, return the minimum number of transactions required to settle the debt.
+
+Note:
+
+A transaction will be given as a tuple (x, y, z). Note that x ≠ y and z > 0.
+Person's IDs may not be linear, e.g. we could have the persons 0, 1, 2 or we could also have the persons 0, 2, 6.
+Example 1:
+
+Input:
+[[0,1,10], [2,0,5]]
+
+Output:
+2
+
+Explanation:
+Person #0 gave person #1 $10.
+Person #2 gave person #0 $5.
+
+Two transactions are needed. One way to settle the debt is person #1 pays person #0 and #2 $5 each.
+Example 2:
+
+Input:
+[[0,1,10], [1,0,1], [1,2,5], [2,0,5]]
+
+"""
+
+
+class Solution(object):
+    def minTransfers(self, transactions):
+        """
+        :type transactions: List[List[int]]
+        :rtype: int
+        """
+
+        debt = defaultdict(int)
+
+        for from_, to, amount in transactions:
+            debt[from_] -= amount
+            debt[to] += amount
+
+        debts = debt.values()
+
+        return min_transactions(debts, 0)
+
+    # time O(2^n)
+    # space O(n)
+
+
+def min_transactions(debts, idx):
+    while idx < len(debts) and debts[idx] == 0:
+        idx += 1
+
+    if idx >= len(debts):
+        return 0
+
+    curr = float('inf')
+
+    for i in range(idx + 1, len(debts)):
+
+        if debts[i] * debts[idx] < 0:  # different signs
+
+            debts[i] += debts[idx]
+            curr = min(curr, min_transactions(debts, idx + 1) + 1)
+            debts[i] -= debts[idx]
+
+            if debts[i] + debts[idx] == 0:
+                break
+
+    return curr if curr != float('inf') else 0
+
 
 # -----------------------------------------------------------------------
+"""
+1153. String Transforms Into Another String
+
+Given two strings str1 and str2 of the same length, determine whether you can transform str1 into str2 by doing zero or more conversions.
+
+In one conversion you can convert all occurrences of one character in str1 to any other lowercase English character.
+
+Return true if and only if you can transform str1 into str2.
+
+ 
+
+Example 1:
+
+Input: str1 = "aabcc", str2 = "ccdee"
+Output: true
+Explanation: Convert 'c' to 'e' then 'b' to 'd' then 'a' to 'c'. Note that the order of conversions matter.
+Example 2:
+
+Input: str1 = "leetcode", str2 = "codeleet"
+Output: false
+Explanation: There is no way to transform str1 to str2.
+"""
+
+from collections import defaultdict
+
+
+class Solution(object):
+    def canConvert(self, str1, str2):
+        """
+        :type str1: str
+        :type str2: str
+        :rtype: bool
+        """
+
+        if str1 == str2:
+            return True
+
+        if len(str1) != len(str2):
+            return False
+
+        if len(set(str2)) >= 26:
+            return False
+
+        chars1 = defaultdict()
+
+        for c1, c2 in zip(str1, str2):
+
+            if c1 in chars1 and chars1[c1] != c2:
+                return False
+
+            chars1[c1] = c2
+
+        return len(set(str2)) < 26
+
+    # time O(n)
+    # space O(n)
+
+
+# -----------------------------------------------------------------------
+"""
+871. Minimum Number of Refueling Stops
+
+A car travels from a starting position to a destination which is target miles east of the starting position.
+
+Along the way, there are gas stations.  Each station[i] represents a gas station that is station[i][0] miles east of the starting position, and has station[i][1] liters of gas.
+
+The car starts with an infinite tank of gas, which initially has startFuel liters of fuel in it.  It uses 1 liter of gas per 1 mile that it drives.
+
+When the car reaches a gas station, it may stop and refuel, transferring all the gas from the station into the car.
+
+What is the least number of refueling stops the car must make in order to reach its destination?  If it cannot reach the destination, return -1.
+
+Note that if the car reaches a gas station with 0 fuel left, the car can still refuel there.  If the car reaches the destination with 0 fuel left, it is still considered to have arrived.
+
+ 
+
+Example 1:
+
+Input: target = 1, startFuel = 1, stations = []
+Output: 0
+Explanation: We can reach the target without refueling.
+Example 2:
+
+Input: target = 100, startFuel = 1, stations = [[10,100]]
+Output: -1
+Explanation: We can't reach the target (or even the first gas station).
+Example 3:
+
+Input: target = 100, startFuel = 10, stations = [[10,60],[20,30],[30,30],[60,40]]
+Output: 2
+Explanation: 
+We start with 10 liters of fuel.
+We drive to position 10, expending 10 liters of fuel.  We refuel from 0 liters to 60 liters of gas.
+Then, we drive from position 10 to position 60 (expending 50 liters of fuel),
+and refuel from 10 liters to 50 liters of gas.  We then drive to and reach the target.
+We made 2 refueling stops along the way, so we return 2.
+"""
+
+
+class Solution(object):
+    def minRefuelStops(self, target, startFuel, stations):
+        """
+        :type target: int
+        :type startFuel: int
+        :type stations: List[List[int]]
+        :rtype: int
+        """
+
+        max_heap = []
+
+        stations.append((target, float('inf')))
+
+        res = 0
+        prev = 0
+        tank = startFuel
+
+        for location, fuel in stations:
+            tank -= location - prev
+
+            while max_heap and tank < 0:
+                tank += -heapq.heappop(max_heap)
+                res += 1
+
+            if tank < 0:
+                return -1
+
+            heapq.heappush(max_heap, -fuel)
+            prev = location
+
+        return res
+
+    # time O(n * log(n))
+    # space O(n)
+
+#         max_location = [0] * (len(stations) + 1)
+
+#         max_location[0] = startFuel
+
+
+#         for idx, (location, fuel) in enumerate(stations):
+
+#             for prev in range(idx, -1, -1):
+#                 if max_location[prev] >= location:
+#                     max_location[prev + 1] = max(max_location[prev + 1], max_location[prev] + fuel)
+
+
+#         for i, loc in enumerate(max_location):
+#             if loc >= target:
+#                 return i
+
+#         return -1
+
+#     # time O(n^2)
+#     # space O(n)
+
 
 # -----------------------------------------------------------------------
 
