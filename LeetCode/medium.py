@@ -68,6 +68,49 @@ class Solution:
         # space O(n)
 
 
+class Solution(object):
+    def lengthOfLIS(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+
+        n = len(nums)
+        if n < 2:
+            return n
+
+        max_len = 1
+
+        memo = [0] * n
+        memo[0] = nums[0]
+
+        for i in range(1, n):
+            idx = bin_search(memo, 0, max_len - 1, nums[i])
+
+            memo[idx] = nums[i]
+            if idx == max_len:
+                max_len += 1
+
+        return max_len
+
+    # time O(n * log(n))
+    # space O(n)
+
+
+def bin_search(arr, start, end, num):
+    while start <= end:
+        mid = (start + end) >> 1
+
+        if num < arr[mid]:
+            end = mid - 1
+        elif num > arr[mid]:
+            start = mid + 1
+        else:
+            return mid
+
+    return start
+
+
 # -----------------------------------------------------------------------
 """
 238. Product of Array Except Self
@@ -5864,6 +5907,148 @@ def reverse(head):
     return prev, head
 
 # -----------------------------------------------------------------------
+"""
+1057. Campus Bikes
+
+On a campus represented as a 2D grid, there are N workers and M bikes, with N <= M. Each worker and bike is a 2D coordinate on this grid.
+
+Our goal is to assign a bike to each worker. Among the available bikes and workers, we choose the (worker, bike) pair with the shortest Manhattan distance between each other, and assign the bike to that worker. (If there are multiple (worker, bike) pairs with the same shortest Manhattan distance, we choose the pair with the smallest worker index; if there are multiple ways to do that, we choose the pair with the smallest bike index). We repeat this process until there are no available workers.
+
+The Manhattan distance between two points p1 and p2 is Manhattan(p1, p2) = |p1.x - p2.x| + |p1.y - p2.y|.
+
+Return a vector ans of length N, where ans[i] is the index (0-indexed) of the bike that the i-th worker is assigned to.
+
+ 
+
+Example 1:
+
+
+
+Input: workers = [[0,0],[2,1]], bikes = [[1,2],[3,3]]
+Output: [1,0]
+Explanation: 
+Worker 1 grabs Bike 0 as they are closest (without ties), and Worker 0 is assigned Bike 1. So the output is [1, 0].
+Example 2:
+
+
+
+Input: workers = [[0,0],[1,1],[2,0]], bikes = [[1,0],[2,2],[2,1]]
+Output: [0,2,1]
+Explanation: 
+Worker 0 grabs Bike 0 at first. Worker 1 and Worker 2 share the same distance to Bike 2, thus Worker 1 is assigned to Bike 2, and Worker 2 will take Bike 1. So the output is [0,2,1].
+ 
+
+Note:
+
+0 <= workers[i][j], bikes[i][j] < 1000
+All worker and bike locations are distinct.
+1 <= workers.length <= bikes.length <= 1000
+"""
+
+
+class Solution(object):
+    def assignBikes(self, workers, bikes):
+        """
+        :type workers: List[List[int]]
+        :type bikes: List[List[int]]
+        :rtype: List[int]
+        """
+
+        distances = get_distances(workers, bikes)
+
+        visited = set()
+        res = [-1] * len(workers)
+
+        for d, i, j in distances:
+
+            if res[i] == -1 and j not in visited:
+                res[i] = j
+                visited.add(j)
+
+        return res
+
+    # time O(n*m * log(n*m))
+    # space O(n*m)
+
+
+def get_distances(workers, bikes):
+    distances = []
+
+    for i in range(len(workers)):
+        for j in range(len(bikes)):
+            distances.append((distance(workers[i], bikes[j]), i, j))
+
+    return sorted(distances)
+
+
+def distance(p1, p2):
+    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+
+
+"""
+
+(weight, from, to)
+
+"""
+
+import heapq
+
+
+class Solution(object):
+    def assignBikes(self, workers, bikes):
+        """
+        :type workers: List[List[int]]
+        :type bikes: List[List[int]]
+        :rtype: List[int]
+        """
+
+        n = len(workers)
+        distances = get_distances(workers, bikes)
+
+        res = [-1] * n
+
+        min_heap = []
+        for i in range(n):
+            min_heap.append(distances[i].pop())
+
+        heapq.heapify(min_heap)
+        used_bikes = set()
+
+        while min_heap and len(used_bikes) < n:
+            distance, worker, bike = heapq.heappop(min_heap)
+
+            if res[worker] != -1:
+                continue
+
+            if bike not in used_bikes:
+                res[worker] = bike
+                used_bikes.add(bike)
+            else:
+                heapq.heappush(min_heap, distances[worker].pop())
+
+        return res
+
+    # time O(n * m)
+    # space O(n * m)
+
+
+def get_distances(workers, bikes):
+    distances = []
+
+    for i in range(len(workers)):
+        curr = []
+        for j in range(len(bikes)):
+            curr.append((distance(workers[i], bikes[j]), i, j))
+
+        distances.append(sorted(curr, reverse=True))
+
+    return distances
+
+
+def distance(p1, p2):
+    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+
+
 
 # -----------------------------------------------------------------------
 
