@@ -2400,6 +2400,7 @@ class Solution(object):
     # time O(n * log(n))
     # space O(n)
 
+
 #         max_location = [0] * (len(stations) + 1)
 
 #         max_location[0] = startFuel
@@ -2423,7 +2424,92 @@ class Solution(object):
 
 
 # -----------------------------------------------------------------------
+"""
+727. Minimum Window Subsequence
 
+Given strings S and T, find the minimum (contiguous) substring W of S, so that T is a subsequence of W.
+
+If there is no such window in S that covers all characters in T, return the empty string "". If there are multiple such minimum-length windows, return the one with the left-most starting index.
+
+Example 1:
+
+Input: 
+S = "abcdebdde", T = "bde"
+Output: "bcde"
+Explanation: 
+"bcde" is the answer because it occurs before "bdde" which has the same length.
+"deb" is not a smaller window because the elements of T in the window must occur in order.
+
+
+Note:
+
+All the strings in the input will only contain lowercase letters.
+The length of S will be in the range [1, 20000].
+The length of T will be in the range [1, 100].
+
+"""
+
+
+class Solution(object):
+    def minWindow(self, S, T):
+        """
+        :type S: str
+        :type T: str
+        :rtype: str
+        """
+        n = len(S)
+        m = len(T)
+
+        t_ptr = 0
+        right = 0
+        res_len = float('inf')
+        res_left = 0
+
+        while right < n:
+
+            if res_len == m:
+                break
+
+            if t_ptr < m and S[right] == T[t_ptr]:
+                t_ptr += 1
+            right += 1
+
+            if t_ptr == m:
+                left = minimize_window(S, T, right)
+                curr_len = right - left
+                if curr_len < res_len:
+                    res_len = curr_len
+                    res_left = left
+                t_ptr = 0
+                right = left + 1
+
+        return S[res_left: res_left + res_len] if res_len != float('inf') else ''
+
+    # time O(s * t)
+    # space O(1)
+
+
+def minimize_window(S, T, right):
+    left = right - 1
+
+    t_p = len(T) - 1
+    while left >= 0 and t_p >= 0:
+        if S[left] == T[t_p]:
+            t_p -= 1
+        left -= 1
+
+    return left + 1
+
+
+"""
+1. go over all substrings
+2. check if t is a subsequence of the current substring.
+    => O(s^2 * t)
+
+1. maintain sliding window.
+2. when having all characters of t, take the minimal window
+    => O(s * t)
+"""
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
