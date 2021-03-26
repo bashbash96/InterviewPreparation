@@ -518,9 +518,252 @@ class Solution:
     # time O(n^2 * m)
     # space O(n * m)
 
+
 # -----------------------------------------------------------------------
+"""
+Interleaving Strings
+
+Given A, B, C, find whether C is formed by the interleaving of A and B.
+
+Input Format:*
+
+The first argument of input contains a string, A.
+The second argument of input contains a string, B.
+The third argument of input contains a string, C.
+Output Format:
+
+Return an integer, 0 or 1:
+    => 0 : False
+    => 1 : True
+Constraints:
+
+1 <= length(A), length(B), length(C) <= 150
+Examples:
+
+Input 1:
+    A = "aabcc"
+    B = "dbbca"
+    C = "aadbbcbcac"
+
+Output 1:
+    1
+    
+Explanation 1:
+    "aa" (from A) + "dbbc" (from B) + "bc" (from A) + "a" (from B) + "c" (from A)
+
+Input 2:
+    A = "aabcc"
+    B = "dbbca"
+    C = "aadbbbaccc"
+
+Output 2:
+    0
+
+Explanation 2:
+    It is not possible to get C by interleaving A and B.
+"""
+
+
+class Solution:
+    # @param A : string
+    # @param B : string
+    # @param C : string
+    # @return an integer
+    def isInterleave(self, A, B, C):
+        if can_generate(A, B, C, 0, 0, 0, {}):
+            return 1
+
+        return 0
+
+    # time O(n + m)
+    # space O(n + m)
+
+
+def can_generate(st1, st2, target, p1, p2, p3, memo):
+    if p3 == len(target):
+        return True
+
+    if (p1, p2, p3) in memo:
+        return memo[(p1, p2, p3)]
+
+    res1 = False
+    if p1 < len(st1) and st1[p1] == target[p3]:
+        res1 = can_generate(st1, st2, target, p1 + 1, p2, p3 + 1, memo)
+
+    if res1:
+        memo[(p1, p2, p3)] = res1
+        return True
+
+    res2 = False
+    if p2 < len(st2) and st2[p2] == target[p3]:
+        res2 = can_generate(st1, st2, target, p1, p2 + 1, p3 + 1, memo)
+
+    if res2:
+        memo[(p1, p2, p3)] = res2
+        return True
+
+    memo[(p1, p2, p3)] = False
+
+    return False
+
+
 # -----------------------------------------------------------------------
+"""
+Longest valid Parentheses
+
+Given a string A containing just the characters ’(‘ and ’)’.
+
+Find the length of the longest valid (well-formed) parentheses substring.
+
+
+
+Input Format:
+
+The only argument given is string A.
+Output Format:
+
+Return the length of the longest valid (well-formed) parentheses substring.
+Constraints:
+
+1 <= length(A) <= 750000
+For Example
+
+Input 1:
+    A = "(()"
+Output 1:
+    2
+    Explanation 1:
+        The longest valid parentheses substring is "()", which has length = 2.
+
+Input 2:
+    A = ")()())"
+Output 2:
+    4
+    Explanation 2:
+        The longest valid parentheses substring is "()()", which has length = 4.
+"""
+
+
+class Solution:
+    # @param A : string
+    # @return an integer
+    def longestValidParentheses(self, A):
+
+        res = get_max(A)
+
+        left, right = 0, 0
+
+        for c in A[::-1]:
+            if c == ')':
+                right += 1
+            else:
+                left += 1
+
+            if left == right:
+                res = max(res, left + right)
+
+            if left > right:
+                left = 0
+                right = 0
+
+        return res
+
+    # time O(n)
+    # space O(1)
+
+
+def get_max(A):
+    left, right = 0, 0
+
+    res = 0
+    for c in A:
+        if c == '(':
+            left += 1
+        else:
+            right += 1
+
+        if right == left:
+            res = max(res, left + right)
+
+        if right > left:
+            right = 0
+            left = 0
+
+    return res
+
 # -----------------------------------------------------------------------
+"""
+Word Break II
+
+Given a string A and a dictionary of words B, add spaces in A to construct a sentence where each word is a valid dictionary word.
+
+Return all such possible sentences.
+
+Note : Make sure the strings are sorted in your result.
+
+Input Format:
+
+The first argument is a string, A.
+The second argument is an array of strings, B.
+Output Format:
+
+Return a vector of strings representing the answer as described in the problem statement.
+Constraints:
+
+1 <= len(A) <= 50
+1 <= len(B) <= 25
+1 <= len(B[i]) <= 20
+Examples:
+
+Input 1:
+    A = "b"
+    B = ["aabbb"]
+
+Output 1:
+    []
+
+Input 1:
+    A = "catsanddog",
+    B = ["cat", "cats", "and", "sand", "dog"]
+
+Output 1:
+    ["cat sand dog", "cats and dog"]
+"""
+
+
+class Solution:
+    # @param A : string
+    # @param B : list of strings
+    # @return a list of strings
+    def wordBreak(self, A, B):
+        return generate_valid_sentences(A, set(B), 0, {})
+
+    # time O(2^n * n)
+    # space O(n)
+
+
+def generate_valid_sentences(string, words, idx, memo):
+    if idx in memo:
+        return memo[idx]
+
+    if idx == len(string):
+        return []
+
+    memo[idx] = []
+    for end in range(idx + 1, len(string) + 1):
+
+        curr = string[idx:end]
+        if curr in words:
+            rest = generate_valid_sentences(string, words, end, memo)
+
+            if rest:
+                for sentence in rest:
+                    memo[idx].append(curr + ' ' + sentence)
+            elif end == len(string):
+                memo[idx].append(curr)
+
+    return memo[idx]
+
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
