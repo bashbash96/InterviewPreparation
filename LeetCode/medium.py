@@ -6202,6 +6202,416 @@ p4 => p3.x + p2.x - p1.x, p3.y + p2.y - p1.y
 
 """
 # -----------------------------------------------------------------------
+"""
+1066. Campus Bikes II
+
+On a campus represented as a 2D grid, there are N workers and M bikes, with N <= M. Each worker and bike is a 2D coordinate on this grid.
+
+We assign one unique bike to each worker so that the sum of the Manhattan distances between each worker and their assigned bike is minimized.
+
+The Manhattan distance between two points p1 and p2 is Manhattan(p1, p2) = |p1.x - p2.x| + |p1.y - p2.y|.
+
+Return the minimum possible sum of Manhattan distances between each worker and their assigned bike.
+
+ 
+
+Example 1:
+
+
+Input: workers = [[0,0],[2,1]], bikes = [[1,2],[3,3]]
+Output: 6
+Explanation: 
+We assign bike 0 to worker 0, bike 1 to worker 1. The Manhattan distance of both assignments is 3, so the output is 6.
+Example 2:
+
+
+Input: workers = [[0,0],[1,1],[2,0]], bikes = [[1,0],[2,2],[2,1]]
+Output: 4
+Explanation: 
+We first assign bike 0 to worker 0, then assign bike 1 to worker 1 or worker 2, bike 2 to worker 2 or worker 1. Both assignments lead to sum of the Manhattan distances as 4.
+Example 3:
+
+Input: workers = [[0,0],[1,0],[2,0],[3,0],[4,0]], bikes = [[0,999],[1,999],[2,999],[3,999],[4,999]]
+Output: 4995
+"""
+
+
+class Solution(object):
+    def assignBikes(self, workers, bikes):
+        """
+        :type workers: List[List[int]]
+        :type bikes: List[List[int]]
+        :rtype: int
+        """
+
+        return dfs(workers, bikes, 0, 0, {})
+
+    # time O(n * m)
+    # space O(n * m)
+
+
+def dfs(workers, bikes, idx, mask, memo):
+    if idx == len(workers):
+        return 0
+
+    if (idx, mask) in memo:
+        return memo[(idx, mask)]
+
+    worker = workers[idx]
+    res = float('inf')
+
+    for i in range(len(bikes)):
+
+        if (1 << i) & mask == 0:
+            distance = get_distance(worker, bikes[i])
+            res = min(res, dfs(workers, bikes, idx + 1, (1 << i) | mask, memo) + distance)
+
+    memo[(idx, mask)] = res
+
+    return res
+
+
+def get_distance(worker, bike):
+    w_x, w_y = worker
+    b_x, b_y = bike
+
+    return abs(b_x - w_x) + abs(b_y - w_y)
+
+
+# -----------------------------------------------------------------------
+"""
+1618. Maximum Font to Fit a Sentence in a Screen
+
+You are given a string text. We want to display text on a screen of width w and height h. You can choose any font size from array fonts, which contains the available font sizes in ascending order.
+
+You can use the FontInfo interface to get the width and height of any character at any available font size.
+
+The FontInfo interface is defined as such:
+
+interface FontInfo {
+  // Returns the width of character ch on the screen using font size fontSize.
+  // O(1) per call
+  public int getWidth(int fontSize, char ch);
+
+  // Returns the height of any character on the screen using font size fontSize.
+  // O(1) per call
+  public int getHeight(int fontSize);
+}
+The calculated width of text for some fontSize is the sum of every getWidth(fontSize, text[i]) call for each 0 <= i < text.length (0-indexed). The calculated height of text for some fontSize is getHeight(fontSize). Note that text is displayed on a single line.
+
+It is guaranteed that FontInfo will return the same value if you call getHeight or getWidth with the same parameters.
+
+It is also guaranteed that for any font size fontSize and any character ch:
+
+getHeight(fontSize) <= getHeight(fontSize+1)
+getWidth(fontSize, ch) <= getWidth(fontSize+1, ch)
+Return the maximum font size you can use to display text on the screen. If text cannot fit on the display with any font size, return -1.
+
+ 
+
+Example 1:
+
+Input: text = "helloworld", w = 80, h = 20, fonts = [6,8,10,12,14,16,18,24,36]
+Output: 6
+Example 2:
+
+Input: text = "leetcode", w = 1000, h = 50, fonts = [1,2,4]
+Output: 4
+Example 3:
+
+Input: text = "easyquestion", w = 100, h = 100, fonts = [10,15,20,25]
+Output: -1
+"""
+
+
+# """
+# This is FontInfo's API interface.
+# You should not implement it, or speculate about its implementation
+# """
+# class FontInfo(object):
+#    Return the width of char ch when fontSize is used.
+#    def getWidth(self, fontSize, ch):
+#        """
+#        :type fontSize: int
+#        :type ch: char
+#        :rtype int
+#        """
+#
+#    def getHeight(self, fontSize):
+#        """
+#        :type fontSize: int
+#        :rtype int
+#        """
+
+class Solution(object):
+    def maxFont(self, text, w, h, fonts, fontInfo):
+        """
+        :type text: str
+        :type w: int
+        :type h: int
+        :type fonts: List[int]
+        :type fontInfo: FontInfo
+        :rtype: int
+        """
+
+        left, right = 0, len(fonts) - 1
+        res = -1
+
+        while left <= right:
+            mid = (left + right) >> 1
+
+            if can_font_fit(text, w, h, fonts[mid], fontInfo):
+                res = fonts[mid]
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        return res
+
+    # time O(n log(m))
+    # space O(1)
+
+
+def can_font_fit(text, w, h, curr_font, fontInfo):
+    if fontInfo.getHeight(curr_font) > h:
+        return False
+
+    if get_width(text, curr_font, fontInfo) > w:
+        return False
+
+    return True
+
+
+def get_width(text, curr_font, fontInfo):
+    width = 0
+    for c in text:
+        width += fontInfo.getWidth(curr_font, c)
+
+    return width
+
+
+# -----------------------------------------------------------------------
+"""
+801. Minimum Swaps To Make Sequences Increasing
+
+We have two integer sequences A and B of the same non-zero length.
+
+We are allowed to swap elements A[i] and B[i].  Note that both elements are in the same index position in their respective sequences.
+
+At the end of some number of swaps, A and B are both strictly increasing.  (A sequence is strictly increasing if and only if A[0] < A[1] < A[2] < ... < A[A.length - 1].)
+
+Given A and B, return the minimum number of swaps to make both sequences strictly increasing.  It is guaranteed that the given input always makes it possible.
+
+Example:
+Input: A = [1,3,5,4], B = [1,2,3,7]
+Output: 1
+Explanation: 
+Swap A[3] and B[3].  Then the sequences are:
+A = [1, 3, 5, 7] and B = [1, 2, 3, 4]
+which are both strictly increasing.
+Note:
+
+A, B are arrays with the same length, and that length will be in the range [1, 1000].
+A[i], B[i] are integer values in the range [0, 2000].
+"""
+
+
+class Solution(object):
+    def minSwap(self, A, B):
+        """
+        :type A: List[int]
+        :type B: List[int]
+        :rtype: int
+        """
+
+        n = len(A)
+        with_swap = [1] * n
+        no_swap = [0] * n
+
+        for i in range(1, n):
+            with_swap[i] = n
+            no_swap[i] = n
+
+            if A[i - 1] < A[i] and B[i - 1] < B[i]:
+                no_swap[i] = no_swap[i - 1]
+                with_swap[i] = with_swap[i - 1] + 1
+
+            if A[i - 1] < B[i] and B[i - 1] < A[i]:
+                no_swap[i] = min(no_swap[i], with_swap[i - 1])
+                with_swap[i] = min(with_swap[i], no_swap[i - 1] + 1)
+
+        return min(with_swap[-1], no_swap[-1])
+
+        # time O(n)
+    # space O(n)
+
+
+# -----------------------------------------------------------------------
+"""
+1027. Longest Arithmetic Subsequence
+
+Given an array A of integers, return the length of the longest arithmetic subsequence in A.
+
+Recall that a subsequence of A is a list A[i_1], A[i_2], ..., A[i_k] with 0 <= i_1 < i_2 < ... < i_k <= A.length - 1, and that a sequence B is arithmetic if B[i+1] - B[i] are all the same value (for 0 <= i < B.length - 1).
+
+ 
+
+Example 1:
+
+Input: A = [3,6,9,12]
+Output: 4
+Explanation: 
+The whole array is an arithmetic sequence with steps of length = 3.
+Example 2:
+
+Input: A = [9,4,7,2,10]
+Output: 3
+Explanation: 
+The longest arithmetic subsequence is [4,7,10].
+Example 3:
+
+Input: A = [20,1,15,3,10,5,8]
+Output: 4
+Explanation: 
+The longest arithmetic subsequence is [20,15,10,5].
+"""
+
+from collections import defaultdict
+
+
+class Solution(object):
+    def longestArithSeqLength(self, A):
+        """
+        :type A: List[int]
+        :rtype: int
+        """
+
+        arith_length = defaultdict()
+        n = len(A)
+        res = 0
+        for i in range(n):
+            curr = defaultdict()
+            for j in range(i):
+                diff = A[i] - A[j]
+
+                if diff in arith_length[j]:
+                    curr[diff] = arith_length[j][diff] + 1
+                else:
+                    curr[diff] = 2
+
+            arith_length[i] = curr
+            if curr:
+                res = max(res, max(curr.values()))
+
+        return res
+
+    # time O(n^2)
+    # space O(n)
+
+
+# -----------------------------------------------------------------------
+"""
+1197. Minimum Knight Moves
+
+In an infinite chess board with coordinates from -infinity to +infinity, you have a knight at square [0, 0].
+
+A knight has 8 possible moves it can make, as illustrated below. Each move is two squares in a cardinal direction, then one square in an orthogonal direction.
+
+
+
+Return the minimum number of steps needed to move the knight to the square [x, y].  It is guaranteed the answer exists.
+
+ 
+
+Example 1:
+
+Input: x = 2, y = 1
+Output: 1
+Explanation: [0, 0] → [2, 1]
+Example 2:
+
+Input: x = 5, y = 5
+Output: 4
+Explanation: [0, 0] → [2, 1] → [4, 2] → [3, 4] → [5, 5]
+"""
+
+from collections import deque
+
+
+class Solution(object):
+    def minKnightMoves(self, x, y):
+        """
+        :type x: int
+        :type y: int
+        :rtype: int
+        """
+
+        x = abs(x)
+        y = abs(y)
+
+        queue = deque([(0, 0, 0)])
+        visited = set()
+        visited.add((0, 0))
+
+        while queue:
+
+            distance, curr_x, curr_y = queue.popleft()
+
+            if curr_x == x and curr_y == y:
+                return distance
+
+            for n_x, n_y in get_neighbors(curr_x, curr_y):
+                if (n_x, n_y) in visited:
+                    continue
+
+                if not is_valid(n_x, n_y, x, y):
+                    continue
+
+                queue.append((distance + 1, n_x, n_y))
+                visited.add((n_x, n_y))
+
+        return -1
+
+        # time O(n/4)
+        # space O(n/4)
+
+
+def is_valid(n_x, n_y, x, y):
+    return -2 <= n_x <= x + 2 and -2 <= n_y <= y + 2
+
+
+def get_neighbors(x, y):
+    dirs = [[-1, 2], [-2, 1], [-1, -2], [-2, -1], [1, 2], [2, 1], [2, -1], [1, -2]]
+    res = []
+
+    for dx, dy in dirs:
+        res.append((x + dx, y + dy))
+
+    return res
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
 
