@@ -2807,9 +2807,247 @@ def find_mountain(arr):
 
     return -1
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+1499. Max Value of Equation
+
+Given an array points containing the coordinates of points on a 2D plane, sorted by the x-values, where points[i] = [xi, yi] such that xi < xj for all 1 <= i < j <= points.length. You are also given an integer k.
+
+Find the maximum value of the equation yi + yj + |xi - xj| where |xi - xj| <= k and 1 <= i < j <= points.length. It is guaranteed that there exists at least one pair of points that satisfy the constraint |xi - xj| <= k.
+
+ 
+
+Example 1:
+
+Input: points = [[1,3],[2,0],[5,10],[6,-10]], k = 1
+Output: 4
+Explanation: The first two points satisfy the condition |xi - xj| <= 1 and if we calculate the equation we get 3 + 0 + |1 - 2| = 4. Third and fourth points also satisfy the condition and give a value of 10 + -10 + |5 - 6| = 1.
+No other pairs satisfy the condition, so we return the max of 4 and 1.
+Example 2:
+
+Input: points = [[0,0],[3,0],[9,2]], k = 3
+Output: 3
+Explanation: Only the first two points have an absolute difference of 3 or less in the x-values, and give the value of 0 + 0 + |0 - 3| = 3.
+ 
+
+Constraints:
+
+2 <= points.length <= 10^5
+points[i].length == 2
+-10^8 <= points[i][0], points[i][1] <= 10^8
+0 <= k <= 2 * 10^8
+points[i][0] < points[j][0] for all 1 <= i < j <= points.length
+xi form a strictly increasing sequence.
+"""
+
+import heapq
+from collections import deque
+
+
+class Solution(object):
+    def findMaxValueOfEquation(self, points, k):
+        """
+        :type points: List[List[int]]
+        :type k: int
+        :rtype: int
+        """
+
+        # solution 3
+        res = float('-inf')
+        queue = deque()
+
+        for x, y in points:
+            while queue and queue[0][1] < x - k:
+                queue.popleft()
+
+            if queue:
+                res = max(res, queue[0][0] + x + y)
+
+            while queue and queue[-1][0] <= y - x:
+                queue.pop()
+
+            queue.append([y - x, x])
+
+        return res
+
+        # time O(n)
+        # space O(n)
+
+        # solution 2
+        res = float('-inf')
+        max_heap = []
+
+        for xj, yj in points:
+
+            while max_heap and max_heap[0][1] < xj - k:
+                heapq.heappop(max_heap)
+
+            if max_heap:
+                res = max(res, (-max_heap[0][0] + xj + yj))
+
+            heapq.heappush(max_heap, (xj - yj, xj))
+
+        return res
+
+        # time O(n * log(n))
+        # space O(n)
+
+        # solution 1
+        n = len(points)
+
+        res = float('-inf')
+        for i in range(n):
+            for j in range(i + 1, n):
+
+                target = points[i][0] + k
+
+                end = bin_search(points, target, i + 1, n - 1)
+                if end == -1:
+                    continue
+                res = max(res, calc_result(points, i, end))
+
+        return res
+
+        # time O(n^2)
+        # space O(1)
+
+
+def bin_search(points, target, start, end):
+    res = -1
+    while start <= end:
+        mid = (start + end) >> 1
+
+        if points[mid][0] > target:
+            end = mid - 1
+        else:
+            res = mid
+            start = mid + 1
+
+    return res
+
+
+def calc_result(points, start, end):
+    curr = points[start]
+    res = float('-inf')
+    for j in range(start + 1, end + 1):
+        res = max(res, calc_equation(curr, points[j]))
+
+    return res
+
+
+def calc_equation(p1, p2):
+    return (p1[1] - p1[0]) + (p2[0] + p2[1])
+
+
+"""
+
+** yi + yj + |xi - xj| , i < j
+since xi < xj then the equation is -> yi + yj + xj - xi
+
+-> (yi - xi) + (yj + xj)
+
+
+** xj - xi <= k -> k + xi >= xj
+
+(yi - xi, xi)
+
+
+for each point i:
+    check all previous points j, if xi + k >= xj then:
+        res = max(res, equation(pi, pj))
+
+O(n^2)
+
+
+
+[[0,0],[3,0],[6,5],[7,7],[9,2]] k = 3
+
+-3 + 11 = 9
+
+-1 + 11 = 10
+-1 + 14 = 13
+
+"""
+# -----------------------------------------------------------------------
+"""
+759. Employee Free Time
+
+We are given a list schedule of employees, which represents the working time for each employee.
+
+Each employee has a list of non-overlapping Intervals, and these intervals are in sorted order.
+
+Return the list of finite intervals representing common, positive-length free time for all employees, also in sorted order.
+
+(Even though we are representing Intervals in the form [x, y], the objects inside are Intervals, not lists or arrays. For example, schedule[0][0].start = 1, schedule[0][0].end = 2, and schedule[0][0][0] is not defined).  Also, we wouldn't include intervals like [5, 5] in our answer, as they have zero length.
+
+ 
+
+Example 1:
+
+Input: schedule = [[[1,2],[5,6]],[[1,3]],[[4,10]]]
+Output: [[3,4]]
+Explanation: There are a total of three employees, and all common
+free time intervals would be [-inf, 1], [3, 4], [10, inf].
+We discard any intervals that contain inf as they aren't finite.
+Example 2:
+
+Input: schedule = [[[1,3],[6,7]],[[2,4]],[[2,5],[9,12]]]
+Output: [[5,6],[7,9]]
+ 
+
+Constraints:
+
+1 <= schedule.length , schedule[i].length <= 50
+0 <= schedule[i].start < schedule[i].end <= 10^8
+"""
+
+
+# Definition for an Interval.
+class Interval(object):
+    def __init__(self, start=None, end=None):
+        self.start = start
+        self.end = end
+
+
+class Solution(object):
+    def employeeFreeTime(self, schedule):
+        """
+        :type schedule: [[Interval]]
+        :rtype: [Interval]
+        """
+        s = 0
+        e = 1
+
+        events = []
+
+        for worker in schedule:
+            for interval in worker:
+                events.append((interval.start, s))
+                events.append((interval.end, e))
+
+        events.sort()
+
+        res = []
+        prev = None
+        counter = 0
+
+        for time, event in events:
+
+            if counter == 0 and prev != None:
+                res.append(Interval(prev, time))
+
+            if event == s:
+                counter += 1
+            else:
+                counter -= 1
+            prev = time
+
+        return res
+
+    # time O(n * log(n))
+    # space O(n)
+
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
