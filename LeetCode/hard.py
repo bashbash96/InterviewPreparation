@@ -2511,7 +2511,311 @@ def minimize_window(S, T, right):
     => O(s * t)
 """
 # -----------------------------------------------------------------------
+"""
+471. Encode String with Shortest Length
 
+Given a non-empty string, encode the string such that its encoded length is the shortest.
+
+The encoding rule is: k[encoded_string], where the encoded_string inside the square brackets is being repeated exactly k times.
+
+Note:
+
+k will be a positive integer.
+If an encoding process does not make the string shorter, then do not encode it. If there are several solutions, return any of them.
+ 
+
+Example 1:
+
+Input: s = "aaa"
+Output: "aaa"
+Explanation: There is no way to encode it such that it is shorter than the input string, so we do not encode it.
+Example 2:
+
+Input: s = "aaaaa"
+Output: "5[a]"
+Explanation: "5[a]" is shorter than "aaaaa" by 1 character.
+Example 3:
+
+Input: s = "aaaaaaaaaa"
+Output: "10[a]"
+Explanation: "a9[a]" or "9[a]a" are also valid solutions, both of them have the same length = 5, which is the same as "10[a]".
+Example 4:
+
+Input: s = "aabcaabcd"
+Output: "2[aabc]d"
+Explanation: "aabc" occurs twice, so one answer can be "2[aabc]d".
+Example 5:
+
+Input: s = "abbbabbbcabbbabbbc"
+Output: "2[2[abbb]c]"
+Explanation: "abbbabbbc" occurs twice, but "abbbabbbc" can also be encoded to "2[abbb]c", so one answer can be "2[2[abbb]c]".
+"""
+
+
+class Solution(object):
+    def encode(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+
+        n = len(s)
+        dp = [['' for _ in range(n)] for _ in range(n)]
+
+        for i in range(n - 1, -1, -1):
+            for j in range(i, n):
+
+                curr = s[i:j + 1]
+                dp[i][j] = curr
+
+                if j - i < 4:
+                    continue
+
+                for k in range(i, j):
+                    if len(dp[i][k] + dp[k + 1][j]) < len(dp[i][j]):
+                        dp[i][j] = dp[i][k] + dp[k + 1][j]
+
+                for k in range(len(curr)):
+                    pattern = curr[:k + 1]
+
+                    if pattern and len(curr) % len(pattern) == 0 and curr.replace(pattern, '') == '':
+                        encode = str(len(curr) // len(pattern)) + '[' + dp[i][i + k] + ']'
+
+                        if len(encode) < len(dp[i][j]):
+                            dp[i][j] = encode
+
+        return dp[0][n - 1]
+
+    # time O(n^4)
+    # space O(n^2)
+
+
+# -----------------------------------------------------------------------
+"""
+715. Range Module
+
+A Range Module is a module that tracks ranges of numbers. Your task is to design and implement the following interfaces in an efficient manner.
+
+addRange(int left, int right) Adds the half-open interval [left, right), tracking every real number in that interval. Adding an interval that partially overlaps with currently tracked numbers should add any numbers in the interval [left, right) that are not already tracked.
+queryRange(int left, int right) Returns true if and only if every real number in the interval [left, right) is currently being tracked.
+removeRange(int left, int right) Stops tracking every real number currently being tracked in the interval [left, right).
+Example 1:
+addRange(10, 20): null
+removeRange(14, 16): null
+queryRange(10, 14): true (Every number in [10, 14) is being tracked)
+queryRange(13, 15): false (Numbers like 14, 14.03, 14.17 in [13, 15) are not being tracked)
+queryRange(16, 17): true (The number 16 in [16, 17) is still being tracked, despite the remove operation)
+"""
+
+
+class RangeModule(object):
+
+    def __init__(self):
+        self.ranges = []
+
+    def get_bounds(self, left, right):
+
+        i, j = 0, len(self.ranges) - 1
+        for d in (100, 10, 1):
+            while i + d - 1 < len(self.ranges) and self.ranges[i + d - 1][1] < left:
+                i += d
+            while j >= d - 1 and self.ranges[j - d + 1][0] > right:
+                j -= d
+        return i, j
+
+    def addRange(self, left, right):
+        """
+        :type left: int
+        :type right: int
+        :rtype: None
+        """
+
+        i, j = self.get_bounds(left, right)
+
+        if i <= j:
+            left = min(left, self.ranges[i][0])
+            right = max(right, self.ranges[j][1])
+
+        self.ranges[i:j + 1] = [(left, right)]
+
+    # time O(O(n))
+    # space O(1)
+
+    def queryRange(self, left, right):
+        """
+        :type left: int
+        :type right: int
+        :rtype: bool
+        """
+
+        i, j = self.get_bounds(left, right)
+        if i >= len(self.ranges):
+            return False
+
+        return self.ranges[i][0] <= left and right <= self.ranges[i][1]
+
+    # time O(log(n))
+    # space O(1)
+
+    def removeRange(self, left, right):
+        """
+        :type left: int
+        :type right: int
+        :rtype: None
+        """
+
+        i, j = self.get_bounds(left, right)
+
+        merge = []
+        for k in range(i, j + 1):
+            if self.ranges[k][0] < left:
+                merge.append((self.ranges[k][0], left))
+
+            if self.ranges[k][1] > right:
+                merge.append((right, self.ranges[k][1]))
+
+        self.ranges[i:j + 1] = merge
+
+    # time O(n)
+    # space O(1)
+
+
+# Your RangeModule object will be instantiated and called as such:
+# obj = RangeModule()
+# obj.addRange(left,right)
+# param_2 = obj.queryRange(left,right)
+# obj.removeRange(left,right)
+# -----------------------------------------------------------------------
+"""
+1095. Find in Mountain Array
+
+(This problem is an interactive problem.)
+
+You may recall that an array A is a mountain array if and only if:
+
+A.length >= 3
+There exists some i with 0 < i < A.length - 1 such that:
+A[0] < A[1] < ... A[i-1] < A[i]
+A[i] > A[i+1] > ... > A[A.length - 1]
+Given a mountain array mountainArr, return the minimum index such that mountainArr.get(index) == target.  If such an index doesn't exist, return -1.
+
+You can't access the mountain array directly.  You may only access the array using a MountainArray interface:
+
+MountainArray.get(k) returns the element of the array at index k (0-indexed).
+MountainArray.length() returns the length of the array.
+Submissions making more than 100 calls to MountainArray.get will be judged Wrong Answer.  Also, any solutions that attempt to circumvent the judge will result in disqualification.
+
+ 
+
+Example 1:
+
+Input: array = [1,2,3,4,5,3,1], target = 3
+Output: 2
+Explanation: 3 exists in the array, at index=2 and index=5. Return the minimum index, which is 2.
+Example 2:
+
+Input: array = [0,1,2,4,2,1], target = 3
+Output: -1
+Explanation: 3 does not exist in the array, so we return -1.
+
+"""
+
+
+# """
+# This is MountainArray's API interface.
+# You should not implement it, or speculate about its implementation
+# """
+# class MountainArray(object):
+#    def get(self, index):
+#        """
+#        :type index: int
+#        :rtype int
+#        """
+#
+#    def length(self):
+#        """
+#        :rtype int
+#        """
+
+class Solution(object):
+    def findInMountainArray(self, target, mountain_arr):
+        """
+        :type target: integer
+        :type mountain_arr: MountainArray
+        :rtype: integer
+        """
+
+        mount_idx = find_mountain(mountain_arr)
+        check = bin_search(mountain_arr, 0, mount_idx, target, compare_asc)
+        if check != -1:
+            return check
+
+        return bin_search(mountain_arr, mount_idx + 1, mountain_arr.length() - 1, target, compare_desc)
+
+    # time O(log(n))
+    # space O(1)
+
+
+def compare_asc(val1, val2):
+    if val2 == val1:
+        return 0
+    elif val2 > val1:
+        return 1
+    return -1
+
+
+def compare_desc(val1, val2):
+    if val1 == val2:
+        return 0
+    elif val2 > val1:
+        return -1
+    return 1
+
+
+def bin_search(arr, left, right, target, compare):
+    while left <= right:
+        mid = (left + right) >> 1
+
+        mid_el = arr.get(mid)
+
+        if compare(mid_el, target) == 0:
+            return mid
+        elif compare(mid_el, target) > 0:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return -1
+
+
+def find_mountain(arr):
+    left, right = 1, arr.length() - 2
+
+    while left <= right:
+        mid = (left + right) >> 1
+
+        mid_el = arr.get(mid)
+        next_mid = arr.get(mid + 1)
+        prev_mid = arr.get(mid - 1)
+
+        if mid_el > next_mid and mid_el > prev_mid:
+            return mid
+        elif mid_el > prev_mid:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return -1
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
