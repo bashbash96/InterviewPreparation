@@ -5906,6 +5906,7 @@ def reverse(head):
 
     return prev, head
 
+
 # -----------------------------------------------------------------------
 """
 1057. Campus Bikes
@@ -6049,6 +6050,164 @@ def distance(p1, p2):
     return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
 
 
+# -----------------------------------------------------------------------
+"""
+562. Longest Line of Consecutive One in Matrix
+
+Given a 01 matrix M, find the longest line of consecutive one in the matrix. The line could be horizontal, vertical, diagonal or anti-diagonal.
+Example:
+Input:
+[[0,1,1,0],
+ [0,1,1,0],
+ [0,0,0,1]]
+Output: 3
+Hint: The number of elements in the given matrix will not exceed 10,000.
+"""
+
+
+class Solution(object):
+    def longestLine(self, M):
+        """
+        :type M: List[List[int]]
+        :rtype: int
+        """
+        n = len(M)
+        if n == 0:
+            return 0
+
+        m = len(M[0])
+
+        length = [[(0, 0, 0, 0) for _ in range(m + 2)] for _ in range(n + 1)]
+
+        max_length = 0
+        for row in range(1, n + 1):
+            for col in range(1, m + 1):
+                if M[row - 1][col - 1] == 0:
+                    continue
+
+                up = length[row - 1][col][1]
+                left = length[row][col - 1][0]
+                diagonal = length[row - 1][col - 1][2]
+                anti_diagonal = length[row - 1][col + 1][3]
+                length[row][col] = (left + 1, up + 1, diagonal + 1, anti_diagonal + 1)
+
+                max_length = max(max_length, max(length[row][col]))
+
+        return max_length
+
+    # time O(n * m)
+    # space O(n * m)
+
+
+# -----------------------------------------------------------------------
+"""
+593. Valid Square
+
+Given the coordinates of four points in 2D space p1, p2, p3 and p4, return true if the four points construct a square.
+
+The coordinate of a point pi is represented as [xi, yi]. The input is not given in any order.
+
+A valid square has four equal sides with positive length and four equal angles (90-degree angles).
+
+ 
+
+Example 1:
+
+Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
+Output: true
+Example 2:
+
+Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,12]
+Output: false
+Example 3:
+
+Input: p1 = [1,0], p2 = [-1,0], p3 = [0,1], p4 = [0,-1]
+Output: true
+"""
+
+
+class Solution(object):
+    def validSquare(self, p1, p2, p3, p4):
+        """
+        :type p1: List[int]
+        :type p2: List[int]
+        :type p3: List[int]
+        :type p4: List[int]
+        :rtype: bool
+        """
+
+        points = sorted([p1, p2, p3, p4])
+
+        for i in range(len(points)):
+            for k in range(i + 1, len(points)):
+                for h in range(k + 1, len(points)):
+                    p1 = points[i]
+                    p2 = points[k]
+                    p3 = points[h]
+                    if p1 == p2 or p1 == p3:
+                        continue
+
+                    if not is_vertical(p1, p2, p3):
+                        continue
+
+                    x = p2[0] + p3[0] - p1[0]
+                    y = p2[1] + p3[1] - p1[1]
+                    p4 = [x, y]
+
+                    if p4 not in points or p4 == p1 or p4 == p2 or p4 == p3:
+                        continue
+
+                    if distance(p1, p2) == distance(p2, p4) and distance(p1, p2) == distance(p1, p3):
+                        return True
+
+        return False
+
+
+def distance(p1, p2):
+    x1, y1 = p1
+    x2, y2 = p2
+
+    dx = (x1 - x2) ** 2
+    dy = (y1 - y2) ** 2
+
+    return (dx + dy) ** 0.5
+
+
+def is_vertical(p1, p2, p3):
+    dx12 = p2[0] - p1[0]
+    dy12 = p2[1] - p1[1]
+    dx13 = p3[0] - p1[0]
+    dy13 = p3[1] - p1[1]
+
+    return dy12 * dy13 + dx12 * dx13 == 0
+
+
+# def slope(p1, p2):
+#     x1, y1 = p1
+#     x2, y2 = p2
+
+#     if x1 == x2:
+#         return 0
+
+#     return (y2 - y1) / (x2 - x1)
+
+
+"""
+
+p1, p2, p3
+p1 make 90 degree with p2 and p3
+
+p4 => p3.x + p2.x - p1.x, p3.y + p2.y - p1.y
+
+
+"""
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
 
