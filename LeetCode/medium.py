@@ -6589,15 +6589,400 @@ def get_neighbors(x, y):
 
     return res
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+855. Exam Room
+
+In an exam room, there are N seats in a single row, numbered 0, 1, 2, ..., N-1.
+
+When a student enters the room, they must sit in the seat that maximizes the distance to the closest person.  If there are multiple such seats, they sit in the seat with the lowest number.  (Also, if no one is in the room, then the student sits at seat number 0.)
+
+Return a class ExamRoom(int N) that exposes two functions: ExamRoom.seat() returning an int representing what seat the student sat in, and ExamRoom.leave(int p) representing that the student in seat number p now leaves the room.  It is guaranteed that any calls to ExamRoom.leave(p) have a student sitting in seat p.
+
+ 
+
+Example 1:
+
+Input: ["ExamRoom","seat","seat","seat","seat","leave","seat"], [[10],[],[],[],[],[4],[]]
+Output: [null,0,9,4,2,null,5]
+Explanation:
+ExamRoom(10) -> null
+seat() -> 0, no one is in the room, then the student sits at seat number 0.
+seat() -> 9, the student sits at the last seat number 9.
+seat() -> 4, the student sits at the last seat number 4.
+seat() -> 2, the student sits at the last seat number 2.
+leave(4) -> null
+seat() -> 5, the student sits at the last seat number 5.
+"""
+
+
+class ExamRoom(object):
+
+    def __init__(self, N):
+        """
+        :type N: int
+        """
+        self.seats = []
+        self.N = N
+
+    def seat(self):
+        """
+        :rtype: int
+        """
+        if not self.seats:
+            self.seats.append(0)
+            return 0
+
+        dist, position = self.seats[0], 0
+
+        for i, s in enumerate(self.seats):
+            if i:
+                prev = self.seats[i - 1]
+
+                curr_dist = (s - prev) // 2
+                if curr_dist > dist:
+                    dist = curr_dist
+                    position = prev + curr_dist
+
+        curr_dist = self.N - self.seats[-1] - 1
+        if curr_dist > dist:
+            position = self.N - 1
+
+        bisect.insort(self.seats, position)
+        return position
+
+        # time O(n)
+
+    # space O(1)
+
+    def leave(self, p):
+        """
+        :type p: int
+        :rtype: None
+        """
+        if p < 0 or p >= self.N:
+            return
+
+        self.seats.remove(p)
+
+    # time O(1)
+    # space O(1)
+
+
+# Your ExamRoom object will be instantiated and called as such:
+# obj = ExamRoom(N)
+# param_1 = obj.seat()
+# obj.leave(p)
+# -----------------------------------------------------------------------
+"""
+1504. Count Submatrices With All Ones
+
+Given a rows * columns matrix mat of ones and zeros, return how many submatrices have all ones.
+
+ 
+
+Example 1:
+
+Input: mat = [[1,0,1],
+              [1,1,0],
+              [1,1,0]]
+Output: 13
+Explanation:
+There are 6 rectangles of side 1x1.
+There are 2 rectangles of side 1x2.
+There are 3 rectangles of side 2x1.
+There is 1 rectangle of side 2x2. 
+There is 1 rectangle of side 3x1.
+Total number of rectangles = 6 + 2 + 3 + 1 + 1 = 13.
+Example 2:
+
+Input: mat = [[0,1,1,0],
+              [0,1,1,1],
+              [1,1,1,0]]
+Output: 24
+Explanation:
+There are 8 rectangles of side 1x1.
+There are 5 rectangles of side 1x2.
+There are 2 rectangles of side 1x3. 
+There are 4 rectangles of side 2x1.
+There are 2 rectangles of side 2x2. 
+There are 2 rectangles of side 3x1. 
+There is 1 rectangle of side 3x2. 
+Total number of rectangles = 8 + 5 + 2 + 4 + 2 + 2 + 1 = 24.
+Example 3:
+
+Input: mat = [[1,1,1,1,1,1]]
+Output: 21
+Example 4:
+
+Input: mat = [[1,0,1],[0,1,0],[1,0,1]]
+Output: 5
+
+"""
+
+
+class Solution(object):
+    def numSubmat(self, mat):
+        """
+        :type mat: List[List[int]]
+        :rtype: int
+        """
+
+        n = len(mat)
+        m = len(mat[0])
+        res = 0
+
+        heights = [0] * m
+        for row in range(n):
+            for col in range(m):
+                if mat[row][col] == 0:
+                    heights[col] = 0
+                else:
+                    heights[col] += 1
+            res += count_sub_mat(heights)
+
+        return res
+
+        # time O(n * m)
+        # space O(m)
+
+        # solution 1
+        for up in range(n):
+            heights = [1] * m
+            for down in range(up, n):
+                for k in range(m):
+                    if mat[down][k] == 0:
+                        heights[k] = 0
+
+                res += count_ones(heights)
+
+        return res
+
+    # time O(n^2 * m)
+    # space O(m)
+
+
+def count_ones(arr):
+    res, length = 0, 0
+
+    for val in arr:
+        if val == 0:
+            length = 0
+            continue
+        length += 1
+        res += length
+
+    return res
+
+
+def count_sub_mat(heights):
+    sum_ = [0] * len(heights)
+    stack = []
+
+    res = 0
+    for i, val in enumerate(heights):
+
+        while stack and heights[stack[-1]] >= val:
+            stack.pop()
+
+        if stack:
+            prev_idx = stack[-1]
+            sum_[i] = sum_[prev_idx] + (val * (i - prev_idx))
+        else:
+            sum_[i] = val * (i + 1)
+
+        res += sum_[i]
+        stack.append(i)
+
+    return res
+
 
 # -----------------------------------------------------------------------
+"""
+1673. Find the Most Competitive Subsequence
+
+Given an integer array nums and a positive integer k, return the most competitive subsequence of nums of size k.
+
+An array's subsequence is a resulting sequence obtained by erasing some (possibly zero) elements from the array.
+
+We define that a subsequence a is more competitive than a subsequence b (of the same length) if in the first position where a and b differ, subsequence a has a number less than the corresponding number in b. For example, [1,3,4] is more competitive than [1,3,5] because the first position they differ is at the final number, and 4 is less than 5.
+
+ 
+
+Example 1:
+
+Input: nums = [3,5,2,6], k = 2
+Output: [2,6]
+Explanation: Among the set of every possible subsequence: {[3,5], [3,2], [3,6], [5,2], [5,6], [2,6]}, [2,6] is the most competitive.
+Example 2:
+
+Input: nums = [2,4,3,3,5,4,9,6], k = 4
+Output: [2,3,3,4]
+"""
+
+
+class Solution(object):
+    def mostCompetitive(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: List[int]
+        """
+
+        stack = []
+        for i, val in enumerate(nums):
+            while stack and stack[-1] > val and len(stack) - 1 + len(nums) - i >= k:
+                stack.pop()
+            if len(stack) < k:
+                stack.append(val)
+        return stack
+
+    # time O(n)
+    # space O(k)
+
 
 # -----------------------------------------------------------------------
+"""
+361. Bomb Enemy
+
+Given an m x n matrix grid where each cell is either a wall 'W', an enemy 'E' or empty '0', return the maximum enemies you can kill using one bomb. You can only place the bomb in an empty cell.
+
+The bomb kills all the enemies in the same row and column from the planted point until it hits the wall since it is too strong to be destroyed.
+
+ 
+
+Example 1:
+
+
+Input: grid = [["0","E","0","0"],["E","0","W","E"],["0","E","0","0"]]
+Output: 3
+Example 2:
+
+
+Input: grid = [["W","W","W"],["0","0","0"],["E","E","E"]]
+Output: 1
+ 
+"""
+
+
+class Solution(object):
+    def maxKilledEnemies(self, grid):
+        """
+        :type grid: List[List[str]]
+        :rtype: int
+        """
+        n = len(grid)
+        m = len(grid[0])
+
+        enemies_count = count_enemies(grid)
+
+        res = 0
+
+        for row in range(n):
+            for col in range(m):
+                if grid[row][col] == 'E' or grid[row][col] == 'W':
+                    continue
+
+                res = max(res, enemies_count[row][col])
+
+        return res
+
+    # time O(n * m)
+    # space O(n * m)
+
+
+def count_enemies(grid):
+    n = len(grid)
+    m = len(grid[0])
+
+    enemies_count = [[0 for _ in range(m)] for _ in range(n)]
+
+    for r in range(n):
+        curr = 0
+        last_wall = 0
+        for col in range(m):
+            if grid[r][col] == 'E':
+                curr += 1
+            elif grid[r][col] == '0':
+                continue
+            else:
+                for j in range(last_wall, col):
+                    enemies_count[r][j] += curr
+                last_wall = col + 1
+                curr = 0
+
+        for j in range(last_wall, col + 1):
+            enemies_count[r][j] += curr
+
+    for c in range(m):
+        curr = 0
+        last_wall = 0
+        for row in range(n):
+            if grid[row][c] == 'E':
+                curr += 1
+            elif grid[row][c] == '0':
+                continue
+            else:
+                for i in range(last_wall, row):
+                    enemies_count[i][c] += curr
+                last_wall = row + 1
+                curr = 0
+
+        for i in range(last_wall, row + 1):
+            enemies_count[i][c] += curr
+
+    return enemies_count
+
 
 # -----------------------------------------------------------------------
+"""
+1218. Longest Arithmetic Subsequence of Given Difference
+
+Given an integer array arr and an integer difference, return the length of the longest subsequence in arr which is an arithmetic sequence such that the difference between adjacent elements in the subsequence equals difference.
+
+A subsequence is a sequence that can be derived from arr by deleting some or no elements without changing the order of the remaining elements.
+
+ 
+
+Example 1:
+
+Input: arr = [1,2,3,4], difference = 1
+Output: 4
+Explanation: The longest arithmetic subsequence is [1,2,3,4].
+Example 2:
+
+Input: arr = [1,3,5,7], difference = 1
+Output: 1
+Explanation: The longest arithmetic subsequence is any single element.
+Example 3:
+
+Input: arr = [1,5,7,8,5,3,4,2,1], difference = -2
+Output: 4
+Explanation: The longest arithmetic subsequence is [7,5,3,1].
+"""
+
+
+class Solution(object):
+    def longestSubsequence(self, arr, difference):
+        """
+        :type arr: List[int]
+        :type difference: int
+        :rtype: int
+        """
+
+        diff = defaultdict(int)
+
+        res = 0
+        for val in arr:
+            diff[val] = diff[val - difference] + 1
+
+            res = max(res, diff[val])
+
+        return res
+
+    # time O(n)
+    # space O(n)
 
 # -----------------------------------------------------------------------
 
