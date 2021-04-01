@@ -6984,19 +6984,573 @@ class Solution(object):
     # time O(n)
     # space O(n)
 
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+334. Increasing Triplet Subsequence
+
+Given an integer array nums, return true if there exists a triple of indices (i, j, k) such that i < j < k and nums[i] < nums[j] < nums[k]. If no such indices exists, return false.
+
+ 
+
+Example 1:
+
+Input: nums = [1,2,3,4,5]
+Output: true
+Explanation: Any triplet where i < j < k is valid.
+Example 2:
+
+Input: nums = [5,4,3,2,1]
+Output: false
+Explanation: No triplet exists.
+Example 3:
+
+Input: nums = [2,1,5,0,4,6]
+Output: true
+Explanation: The triplet (3, 4, 5) is valid because nums[3] == 0 < nums[4] == 4 < nums[5] == 6.
+"""
+
+
+class Solution(object):
+    def increasingTriplet(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: bool
+        """
+
+        smallest, second_smallest = float('inf'), float('inf')
+
+        for num in nums:
+            if num <= smallest:
+                smallest = num
+            elif num <= second_smallest:
+                second_smallest = num
+            else:
+                return True
+
+        return False
+
+    # time O(n)
+    # space O(1)
+
+
+"""
+
+Aproach 1:
+
+for each idx i,
+    find the longest increasing subsequence from 0 to i, store the result in DP.
+    if its larger than 3, return True
+
+return False
+
+# time O(n^2)
+# space O(n)
+
+ [2,1,5,0,4,6]
+  1 1 2 1 2 3
+
+Approach 2:
+
+store the smallest, second smallest numbers
+    find the number that is bigger than the second smallest
+
+
+2 1 5 0 6
+f = 0
+s = 5
+
+"""
+# -----------------------------------------------------------------------
+"""
+91. Decode Ways
+
+A message containing letters from A-Z can be encoded into numbers using the following mapping:
+
+'A' -> "1"
+'B' -> "2"
+...
+'Z' -> "26"
+To decode an encoded message, all the digits must be grouped then mapped back into letters using the reverse of the mapping above (there may be multiple ways). For example, "11106" can be mapped into:
+
+"AAJF" with the grouping (1 1 10 6)
+"KJF" with the grouping (11 10 6)
+Note that the grouping (1 11 06) is invalid because "06" cannot be mapped into 'F' since "6" is different from "06".
+
+Given a string s containing only digits, return the number of ways to decode it.
+
+The answer is guaranteed to fit in a 32-bit integer.
+
+ 
+
+Example 1:
+
+Input: s = "12"
+Output: 2
+Explanation: "12" could be decoded as "AB" (1 2) or "L" (12).
+Example 2:
+
+Input: s = "226"
+Output: 3
+Explanation: "226" could be decoded as "BZ" (2 26), "VF" (22 6), or "BBF" (2 2 6).
+Example 3:
+
+Input: s = "0"
+Output: 0
+Explanation: There is no character that is mapped to a number starting with 0.
+The only valid mappings with 0 are 'J' -> "10" and 'T' -> "20", neither of which start with 0.
+Hence, there are no valid ways to decode this since all digits need to be mapped.
+Example 4:
+
+Input: s = "06"
+Output: 0
+Explanation: "06" cannot be mapped to "F" because of the leading zero ("6" is different from "06").
+"""
+
+
+class Solution(object):
+    def numDecodings(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+
+        return count_encode(s, 0, {})
+
+    # time O(n)
+    # space O(n)
+
+
+def count_encode(s, idx, memo):
+    if idx >= len(s):
+        return 1
+
+    if idx in memo:
+        return memo[idx]
+
+    curr_count = 0
+    for end in range(idx + 1, len(s) + 1):
+
+        curr_nums = s[idx:end]
+        if int(curr_nums) > 26:
+            break
+
+        if is_valid(s[idx:end]):
+            curr_count += count_encode(s, end, memo)
+
+    memo[idx] = curr_count
+
+    return memo[idx]
+
+
+def is_valid(nums):
+    if int(nums) < 1 or int(nums) > 26:
+        return False
+
+    if nums[0] == '0':
+        return False
+
+    return True
+
 
 # -----------------------------------------------------------------------
+"""
+338. Counting Bits
+
+Given an integer num, return an array of the number of 1's in the binary representation of every number in the range [0, num].
+
+ 
+
+Example 1:
+
+Input: num = 2
+Output: [0,1,1]
+Explanation:
+0 --> 0
+1 --> 1
+2 --> 10
+Example 2:
+
+Input: num = 5
+Output: [0,1,1,2,1,2]
+Explanation:
+0 --> 0
+1 --> 1
+2 --> 10
+3 --> 11
+4 --> 100
+5 --> 101
+ 
+
+Constraints:
+
+0 <= num <= 105
+ 
+
+Follow up:
+
+It is very easy to come up with a solution with run time O(32n). Can you do it in linear time O(n) and possibly in a single pass?
+Could you solve it in O(n) space complexity?
+Can you do it without using any built-in function (i.e., like __builtin_popcount in C++)?
+"""
+
+
+class Solution(object):
+    def countBits(self, num):
+        """
+        :type num: int
+        :rtype: List[int]
+        """
+
+        count = [0] * (num + 1)
+        if num == 0:
+            return count
+        count[1] = 1
+
+        sequence = 1
+        for curr in range(2, num + 1):
+            if is_power_2(curr):
+                sequence *= 2
+                count[curr] = 1
+            else:
+                count[curr] = count[curr - sequence] + 1
+
+        return count
+
+    # time O(n)
+    # space O(n)
+
+
+def is_power_2(x):
+    return (x & (x - 1)) == 0 and x != 0
+
 
 # -----------------------------------------------------------------------
+"""
+1182. Shortest Distance to Target Color
+
+You are given an array colors, in which there are three colors: 1, 2 and 3.
+
+You are also given some queries. Each query consists of two integers i and c, return the shortest distance between the given index i and the target color c. If there is no solution return -1.
+
+ 
+
+Example 1:
+
+Input: colors = [1,1,2,1,3,2,2,3,3], queries = [[1,3],[2,2],[6,1]]
+Output: [3,0,3]
+Explanation: 
+The nearest 3 from index 1 is at index 4 (3 steps away).
+The nearest 2 from index 2 is at index 2 itself (0 steps away).
+The nearest 1 from index 6 is at index 3 (3 steps away).
+Example 2:
+
+Input: colors = [1,2], queries = [[0,3]]
+Output: [-1]
+Explanation: There is no 3 in the array.
+
+"""
+
+
+class Solution(object):
+    def shortestDistanceColor(self, colors, queries):
+        """
+        :type colors: List[int]
+        :type queries: List[List[int]]
+        :rtype: List[int]
+        """
+
+        res = []
+        color_to_idx = map_colors(colors)
+
+        for idx, color in queries:
+            res.append(get_shortest_distance(idx, color, colors, color_to_idx))
+
+        return res
+
+    # time O(n + q * log(n))
+    # space O(n)
+
+
+def map_colors(colors):
+    idxs = defaultdict(list)
+
+    for i, c in enumerate(colors):
+        idxs[c].append(i)
+
+    return idxs
+
+
+def get_shortest_distance(idx, color, colors, color_to_idx):
+    if idx < 0 or idx >= len(colors) or color not in color_to_idx:
+        return -1
+
+    curr_list = color_to_idx[color]
+
+    place = bin_search(curr_list, idx)
+
+    if place > 0:
+        left = curr_list[place - 1]
+    else:
+        left = float('inf')
+
+    if place < len(curr_list) - 1:
+        right = curr_list[place + 1]
+    else:
+        right = float('inf')
+
+    diff1 = abs(idx - left)
+    diff2 = abs(idx - right)
+    diff3 = abs(idx - curr_list[place])
+
+    return min(diff1, diff2, diff3)
+
+
+def bin_search(arr, num):
+    left, right = 0, len(arr) - 1
+
+    while left < right:
+        mid = (left + right) >> 1
+
+        if arr[mid] == num:
+            return mid
+
+        if num > arr[mid]:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return left
+
 
 # -----------------------------------------------------------------------
+"""
+379. Design Phone Directory
+
+Design a phone directory that initially has maxNumbers empty slots that can store numbers. The directory should store numbers, check if a certain slot is empty or not, and empty a given slot.
+
+Implement the PhoneDirectory class:
+
+PhoneDirectory(int maxNumbers) Initializes the phone directory with the number of available slots maxNumbers.
+int get() Provides a number that is not assigned to anyone.
+bool check(int number) Returns true if the slot number is available and false otherwise.
+void release(int number) Recycles or releases the slot number.
+ 
+
+Example 1:
+
+Input
+["PhoneDirectory", "get", "get", "check", "get", "check", "release", "check"]
+[[3], [], [], [2], [], [2], [2], [2]]
+Output
+[null, 0, 1, true, 2, false, null, true]
+
+Explanation
+PhoneDirectory phoneDirectory = new PhoneDirectory(3);
+phoneDirectory.get();      // It can return any available phone number. Here we assume it returns 0.
+phoneDirectory.get();      // Assume it returns 1.
+phoneDirectory.check(2);   // The number 2 is available, so return true.
+phoneDirectory.get();      // It returns 2, the only number that is left.
+phoneDirectory.check(2);   // The number 2 is no longer available, so return false.
+phoneDirectory.release(2); // Release number 2 back to the pool.
+phoneDirectory.check(2);   // Number 2 is available again, return true.
+"""
+
+
+class PhoneDirectory(object):
+
+    def __init__(self, maxNumbers):
+        """
+        Initialize your data structure here
+        @param maxNumbers - The maximum numbers that can be stored in the phone directory.
+        :type maxNumbers: int
+        """
+
+        self.max_num = maxNumbers
+        self.empty = [i for i in range(self.max_num)][::-1]
+        self.seen = set()
+
+    def get(self):
+        """
+        Provide a number which is not assigned to anyone.
+        @return - Return an available number. Return -1 if none is available.
+        :rtype: int
+        """
+
+        if self.empty:
+            empty = self.empty.pop()
+            self.seen.add(empty)
+            return empty
+
+        return -1
+
+    # time O(1)
+    # space O(1)
+
+    def check(self, number):
+        """
+        Check if a number is available or not.
+        :type number: int
+        :rtype: bool
+        """
+
+        return number not in self.seen
+
+    # time O(1)
+    # space O(1)
+
+    def release(self, number):
+        """
+        Recycle or release a number.
+        :type number: int
+        :rtype: None
+        """
+
+        if number not in self.seen:
+            return
+
+        self.seen.remove(number)
+        self.empty.append(number)
+
+    # time O(1)
+    # space O(1)
+
+
+# Your PhoneDirectory object will be instantiated and called as such:
+# obj = PhoneDirectory(maxNumbers)
+# param_1 = obj.get()
+# param_2 = obj.check(number)
+# obj.release(number)
 
 # -----------------------------------------------------------------------
+"""
+837. New 21 Game
+
+Alice plays the following game, loosely based on the card game "21".
+
+Alice starts with 0 points, and draws numbers while she has less than K points.  During each draw, she gains an integer number of points randomly from the range [1, W], where W is an integer.  Each draw is independent and the outcomes have equal probabilities.
+
+Alice stops drawing numbers when she gets K or more points.  What is the probability that she has N or less points?
+
+Example 1:
+
+Input: N = 10, K = 1, W = 10
+Output: 1.00000
+Explanation:  Alice gets a single card, then stops.
+Example 2:
+
+Input: N = 6, K = 1, W = 10
+Output: 0.60000
+Explanation:  Alice gets a single card, then stops.
+In 6 out of W = 10 possibilities, she is at or below N = 6 points.
+Example 3:
+
+Input: N = 21, K = 17, W = 10
+Output: 0.73278
+"""
+
+
+class Solution(object):
+    def new21Game(self, N, K, W):
+        """
+        :type N: int
+        :type K: int
+        :type W: int
+        :rtype: float
+        """
+
+        if K == 0 or N > K - 1 + W:
+            return 1
+
+        p = [1.0] + [0.0] * N
+        Wsum = 1.0
+        for i in range(1, N + 1):
+            p[i] = Wsum / W
+            if i < K:
+                Wsum += p[i]
+            if i - W >= 0:
+                Wsum -= p[i - W]
+
+        return sum(p[K:])
+
+    # time O(n)
+    # space O(n)
+
 
 # -----------------------------------------------------------------------
+"""
+388. Longest Absolute File Path
+
+Suppose we have a file system that stores both files and directories. An example of one system is represented in the following picture:
+
+
+
+Here, we have dir as the only directory in the root. dir contains two subdirectories, subdir1 and subdir2. subdir1 contains a file file1.ext and subdirectory subsubdir1. subdir2 contains a subdirectory subsubdir2, which contains a file file2.ext.
+
+In text form, it looks like this (with ⟶ representing the tab character):
+
+dir
+⟶ subdir1
+⟶ ⟶ file1.ext
+⟶ ⟶ subsubdir1
+⟶ subdir2
+⟶ ⟶ subsubdir2
+⟶ ⟶ ⟶ file2.ext
+If we were to write this representation in code, it will look like this: "dir\n\tsubdir1\n\t\tfile1.ext\n\t\tsubsubdir1\n\tsubdir2\n\t\tsubsubdir2\n\t\t\tfile2.ext". Note that the '\n' and '\t' are the new-line and tab characters.
+
+Every file and directory has a unique absolute path in the file system, which is the order of directories that must be opened to reach the file/directory itself, all concatenated by '/'s. Using the above example, the absolute path to file2.ext is "dir/subdir2/subsubdir2/file2.ext". Each directory name consists of letters, digits, and/or spaces. Each file name is of the form name.extension, where name and extension consist of letters, digits, and/or spaces.
+
+Given a string input representing the file system in the explained format, return the length of the longest absolute path to a file in the abstracted file system. If there is no file in the system, return 0.
+
+"""
+
+
+class Solution(object):
+    def lengthLongestPath(self, input):
+        """
+        :type input: str
+        :rtype: int
+        """
+
+        dirs = input.split('\n')
+
+        curr_count = 0
+
+        path = [dirs[0]]
+        max_length = 0
+        curr_length = len(path[-1])
+
+        for i in range(1, len(dirs)):
+            if '.' in path[-1]:
+                max_length = max(max_length, curr_length + len(path) - 1)
+
+            count = dirs[i].count('\t')
+            if count > curr_count:
+                curr_count = count
+                path.append(dirs[i].replace('\t', ''))
+                curr_length += len(path[-1])
+
+            elif count == curr_count:
+                curr_length -= len(path[-1])
+                path[-1] = dirs[i].replace('\t', '')
+                curr_length += len(path[-1])
+            else:
+                diff = curr_count - count
+                while diff >= 0:
+                    curr_length -= len(path[-1])
+                    path.pop()
+                    diff -= 1
+                path.append(dirs[i].replace('\t', ''))
+                curr_length += len(path[-1])
+                curr_count = count
+
+        if '.' in path[-1]:
+            max_length = max(max_length, curr_length + len(path) - 1)
+
+        return max_length
+
+    # time O(n)
+    # space O(n)
 
 # -----------------------------------------------------------------------
 
