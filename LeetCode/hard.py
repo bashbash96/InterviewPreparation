@@ -3124,10 +3124,325 @@ def calc_time(car1, car2):
 
     return float(distance_diff) / speed_diff
 
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+"""
+218. The Skyline Problem
+
+A city's skyline is the outer contour of the silhouette formed by all the buildings in that city when viewed from a distance. Given the locations and heights of all the buildings, return the skyline formed by these buildings collectively.
+
+The geometric information of each building is given in the array buildings where buildings[i] = [lefti, righti, heighti]:
+
+lefti is the x coordinate of the left edge of the ith building.
+righti is the x coordinate of the right edge of the ith building.
+heighti is the height of the ith building.
+You may assume all buildings are perfect rectangles grounded on an absolutely flat surface at height 0.
+
+The skyline should be represented as a list of "key points" sorted by their x-coordinate in the form [[x1,y1],[x2,y2],...]. Each key point is the left endpoint of some horizontal segment in the skyline except the last point in the list, which always has a y-coordinate 0 and is used to mark the skyline's termination where the rightmost building ends. Any ground between the leftmost and rightmost buildings should be part of the skyline's contour.
+
+Note: There must be no consecutive horizontal lines of equal height in the output skyline. For instance, [...,[2 3],[4 5],[7 5],[11 5],[12 7],...] is not acceptable; the three lines of height 5 should be merged into one in the final output as such: [...,[2 3],[4 5],[12 7],...]
+
+ 
+
+Example 1:
+
+
+Input: buildings = [[2,9,10],[3,7,15],[5,12,12],[15,20,10],[19,24,8]]
+Output: [[2,10],[3,15],[7,12],[12,0],[15,10],[20,8],[24,0]]
+Explanation:
+Figure A shows the buildings of the input.
+Figure B shows the skyline formed by those buildings. The red points in figure B represent the key points in the output list.
+Example 2:
+
+Input: buildings = [[0,2,3],[2,5,3]]
+Output: [[0,3],[5,0]]
+"""
+
+
+class Solution(object):
+    def getSkyline(self, buildings):
+        """
+        :type buildings: List[List[int]]
+        :rtype: List[List[int]]
+        """
+
+        return get_skyline(buildings, 0, len(buildings) - 1)
+
+        # time O(n * log(n))
+        # space O(n)
+
+
+def get_skyline(buildings, left, right):
+    if left > right:
+        return []
+
+    if left == right:
+        l, r, h = buildings[left]
+
+        return [[l, h], [r, 0]]
+
+    mid = (left + right) >> 1
+
+    left_skyline = get_skyline(buildings, left, mid)
+    right_skyline = get_skyline(buildings, mid + 1, right)
+
+    return merge_skyline(left_skyline, right_skyline)
+
+
+def merge_skyline(left, right):
+    p1, p2 = 0, 0
+    res = []
+
+    left_y, right_y, curr_y = 0, 0, 0
+
+    while p1 < len(left) and p2 < len(right):
+        left_point, right_point = left[p1], right[p2]
+
+        if left_point[0] < right_point[0]:
+            x, left_y = left_point
+            p1 += 1
+        else:
+            x, right_y = right_point
+            p2 += 1
+
+        max_y = max(left_y, right_y)
+
+        if curr_y != max_y:
+            add_to_res(x, max_y, res)
+            curr_y = max_y
+
+    if p1 < len(left):
+        add_rest(res, p1, left, curr_y)
+
+    if p2 < len(right):
+        add_rest(res, p2, right, curr_y)
+
+    return res
+
+
+def add_rest(res, p, skyline, curr_y):
+    while p < len(skyline):
+        x, y = skyline[p]
+
+        if y != curr_y:
+            add_to_res(x, y, res)
+            curr_y = y
+        p += 1
+
+
+def add_to_res(x, y, res):
+    if not res or res[-1][0] != x:
+        res.append([x, y])
+    else:
+        res[-1][1] = y
+
+
+# -----------------------------------------------------------------------
+"""
+305. Number of Islands II
+
+You are given an empty 2D binary grid grid of size m x n. The grid represents a map where 0's represent water and 1's represent land. Initially, all the cells of grid are water cells (i.e., all the cells are 0's).
+
+We may perform an add land operation which turns the water at position into a land. You are given an array positions where positions[i] = [ri, ci] is the position (ri, ci) at which we should operate the ith operation.
+
+Return an array of integers answer where answer[i] is the number of islands after turning the cell (ri, ci) into a land.
+
+An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
+
+ 
+
+Example 1:
+
+
+Input: m = 3, n = 3, positions = [[0,0],[0,1],[1,2],[2,1]]
+Output: [1,1,2,3]
+Explanation:
+Initially, the 2d grid is filled with water.
+- Operation #1: addLand(0, 0) turns the water at grid[0][0] into a land. We have 1 island.
+- Operation #2: addLand(0, 1) turns the water at grid[0][1] into a land. We still have 1 island.
+- Operation #3: addLand(1, 2) turns the water at grid[1][2] into a land. We have 2 islands.
+- Operation #4: addLand(2, 1) turns the water at grid[2][1] into a land. We have 3 islands.
+Example 2:
+
+Input: m = 1, n = 1, positions = [[0,0]]
+Output: [1]
+"""
+
+
+class UnionFind:
+    def __init__(self, size):
+        self.parent = [-1] * size
+        self.size = [0] * size
+        self.count = 0
+
+    def find(self, idx):
+
+        # path compression
+        if self.parent[idx] != idx:
+            self.parent[idx] = self.find(self.parent[idx])
+
+        return self.parent[idx]
+
+    def is_valid(self, i):
+
+        if i < 0 or i >= len(self.parent) or self.parent[i] == -1:
+            return False
+
+        return True
+
+    def union(self, i1, i2):
+
+        if not self.is_valid(i1) or not self.is_valid(i2):
+            return
+
+        root1, root2 = self.find(i1), self.find(i2)
+
+        if root1 == root2:
+            return
+
+        if self.size[root1] < self.size[root2]:
+            self.parent[root1] = root2
+            self.size[root2] += self.size[root1]
+        else:
+            self.parent[root2] = root1
+            self.size[root1] += self.size[root2]
+
+        self.count -= 1
+
+    def get_count(self):
+        return self.count
+
+    def set_parent(self, i):
+        if self.parent[i] != -1:
+            return
+
+        self.parent[i] = i
+        self.size[i] = 1
+        self.count += 1
+
+
+class Solution(object):
+    def numIslands2(self, m, n, positions):
+        """
+        :type m: int
+        :type n: int
+        :type positions: List[List[int]]
+        :rtype: List[int]
+        """
+
+        islands_count = []
+
+        uf = UnionFind(n * m)
+
+        for row, col in positions:
+
+            idx = row * n + col
+
+            uf.set_parent(idx)
+
+            for n_row, n_col in get_neighbors(row, col):
+                curr_idx = n_row * n + n_col
+
+                if not is_valid(n_row, n_col, m, n):
+                    continue
+                uf.union(idx, curr_idx)
+
+            islands_count.append(uf.get_count())
+
+        return islands_count
+
+    # time O(n * m + l)
+    # space O(n * m)
+
+
+def is_valid(row, col, m, n):
+    if row < 0 or col < 0 or row >= m or col >= n:
+        return False
+    return True
+
+
+def get_neighbors(row, col):
+    dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+    res = []
+
+    for dx, dy in dirs:
+        res.append((row + dx, col + dy))
+
+    return res
+
+
+"""
+2
+2
+[[0,0],[1,1],[0,1]]
+
+
+
+3
+3
+[[0,1],[1,2],[2,1],[1,0],[0,2],[0,0],[1,1]]
+
+0 1 0 
+1 0 1
+0 1 0
+"""
+
+# -----------------------------------------------------------------------
+"""
+683. K Empty Slots
+
+You have n bulbs in a row numbered from 1 to n. Initially, all the bulbs are turned off. We turn on exactly one bulb every day until all bulbs are on after n days.
+
+You are given an array bulbs of length n where bulbs[i] = x means that on the (i+1)th day, we will turn on the bulb at position x where i is 0-indexed and x is 1-indexed.
+
+Given an integer k, return the minimum day number such that there exists two turned on bulbs that have exactly k bulbs between them that are all turned off. If there isn't such day, return -1.
+
+ 
+
+Example 1:
+
+Input: bulbs = [1,3,2], k = 1
+Output: 2
+Explanation:
+On the first day: bulbs[0] = 1, first bulb is turned on: [1,0,0]
+On the second day: bulbs[1] = 3, third bulb is turned on: [1,0,1]
+On the third day: bulbs[2] = 2, second bulb is turned on: [1,1,1]
+We return 2 because on the second day, there were two on bulbs with one off bulb between them.
+Example 2:
+
+Input: bulbs = [1,2,3], k = 1
+Output: -1
+"""
+
+from bisect import bisect, insort
+
+
+class Solution(object):
+    def kEmptySlots(self, bulbs, k):
+        """
+        :type bulbs: List[int]
+        :type k: int
+        :rtype: int
+        """
+
+        turned_on = []
+
+        for i, bulb in enumerate(bulbs):
+
+            idx = bisect.bisect(turned_on, bulb)
+
+            for nei in range(-1, 1, 1):
+                new_idx = nei + idx
+                if new_idx >= 0 and new_idx < len(turned_on):
+                    if abs(turned_on[new_idx] - bulb) - 1 == k:
+                        return i + 1
+            bisect.insort(turned_on, bulb)
+
+        return -1
+
+    # time O(n * log(n))
+    # space O(n)
+
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
