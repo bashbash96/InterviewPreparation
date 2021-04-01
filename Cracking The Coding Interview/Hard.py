@@ -200,14 +200,147 @@ def build_graph(name_syn):
     return graph
 
 
-freq = {'john': 15, 'jon': 12, 'chris': 13, 'kris': 4, 'christopher': 19}
-syn = [('john', 'jon'), ('john', 'johnny'), ('chris', 'kris'), ('chris', 'christopher')]
-print(baby_names(freq, syn))
+# freq = {'john': 15, 'jon': 12, 'chris': 13, 'kris': 4, 'christopher': 19}
+# syn = [('john', 'jon'), ('john', 'johnny'), ('chris', 'kris'), ('chris', 'christopher')]
+# print(baby_names(freq, syn))
 
 # -----------------------------------------------------------------------
+"""
+17.8 Circus Tower: A circus is designing a tower routine consisting of people standing atop one another's
+shoulders. For practical and aesthetic reasons, each person must be both shorter and lighter than
+the person below him or her. Given the heights and weights of each person in the circus, write a
+method to compute the largest possible number of people in such a tower.
+"""
+
+
+def longest_tower(pairs):
+    pairs.sort()
+    n = len(pairs)
+
+    sequence_length = [1] * n
+    max_sequence = 0
+
+    for i in range(1, n):
+        curr_max = 0
+        for j in range(i):
+            if can_stand_above(pairs[j], pairs[i]):
+                curr_max = max(curr_max, sequence_length[j])
+
+        sequence_length[i] = curr_max + 1
+        max_sequence = max(max_sequence, sequence_length[i])
+
+    return max_sequence
+
+    # time O(n^2)
+    # space O(n)
+
+
+def can_stand_above(pair1, pair2):
+    return pair2[0] > pair1[0] and pair2[1] > pair1[1]
+
+
 # -----------------------------------------------------------------------
+"""
+17.9 Kth Multiple: Design an algorithm to find the kth number such that the only prime factors are 3, 5,
+and 7. Note that 3,5, and 7 do not have to be factors, but it should not have any other prime factors.
+For example, the first several multiples would be (in order) 1,3, 5, 7, 9, 15,21.
+"""
+
+
+def kth_element(k):
+    if k < 0:
+        return 0
+
+    vals = [1]
+    idx = 0
+    mult_idx = 0
+    mult = [3, 5, 7]
+    seen = set([1])
+    while len(vals) < k:
+
+        if mult_idx == len(mult):
+            mult_idx = 0
+            idx += 1
+        curr_val = mult[mult_idx] * vals[idx]
+        if curr_val in seen:
+            mult_idx += 1
+            continue
+        vals.append(curr_val)
+        seen.add(curr_val)
+        mult_idx += 1
+
+    return vals[-1]
+
+    # time O(k)
+    # space O(k)
+
+
 # -----------------------------------------------------------------------
+"""
+17.10 Majority Element: A majority element is an element that makes up more than half of the items in
+an array. Given a positive integers array, find the majority element. If there is no majority element,
+return -1. Do this in O( N) time and O( 1) space.
+Input:
+Output:
+SOLUTION
+1 2 5 9 5 9 5 5 5
+5
+"""
+
+
+def majority(arr):
+    val, count = None, 0
+
+    for num in arr:
+        if count == 0:
+            val = num
+            count = 1
+        elif val == num:
+            count += 1
+        else:
+            count -= 1
+
+    return val
+
+    # time O(n)
+    # space O(1)
+
+
 # -----------------------------------------------------------------------
+"""
+17.11 Word Distance: You have a large text file containing words. Given any two words, find the shortest
+distance (in terms of number of words) between them in the file. If the operation will be repeated
+many times for the same file (but different pairs of words), can you optimize your solution?
+"""
+
+
+def smallest_distance(word1, word2, words):
+    locations = defaultdict()
+
+    smallest = float('inf')
+
+    for i, word in enumerate(words):
+
+        if word == word1:
+            locations[word] = i
+            if len(locations) > 1:
+                diff = abs(i - locations[word2])
+                if diff < smallest:
+                    smallest = abs(i - diff)
+        elif word == word2:
+            locations[word] = i
+            if len(locations) > 1:
+                diff = abs(i - locations[word1])
+                if diff < smallest:
+                    smallest = abs(i - diff)
+
+    return smallest
+
+"""
+if there are a lot of calls for this, we can store indexes for each word
+then for each pair, we can get the least difference between two sorted lists of indexes.
+"""
+
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
