@@ -7630,10 +7630,509 @@ class Solution(object):
     # time O(n + m)
     # space O(n*m)
 
+
 # -----------------------------------------------------------------------
+"""
+95. Unique Binary Search Trees II
+
+Given an integer n, return all the structurally unique BST's (binary search trees), which has exactly n nodes of unique values from 1 to n. Return the answer in any order.
+
+ 
+
+Example 1:
+
+
+Input: n = 3
+Output: [[1,null,2,null,3],[1,null,3,2],[2,1,3],[3,1,null,null,2],[3,2,null,1]]
+Example 2:
+
+Input: n = 1
+Output: [[1]]
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def generateTrees(self, n):
+        """
+        :type n: int
+        :rtype: List[TreeNode]
+        """
+
+        if n == 0:
+            return []
+
+        return generate_trees(1, n)
+
+
+def generate_trees(start, end):
+    if start > end:
+        return [None, ]
+
+    res = []
+
+    for root in range(start, end + 1):
+
+        left = generate_trees(start, root - 1)
+        right = generate_trees(root + 1, end)
+
+        for l in left:
+            for r in right:
+                current = TreeNode(root)
+                current.left = l
+                current.right = r
+                res.append(current)
+
+    return res
+
+
+# -----------------------------------------------------------------------
+"""
+337. House Robber III
+
+The thief has found himself a new place for his thievery again. There is only one entrance to this area, called root.
+
+Besides the root, each house has one and only one parent house. After a tour, the smart thief realized that all houses in this place form a binary tree. It will automatically contact the police if two directly-linked houses were broken into on the same night.
+
+Given the root of the binary tree, return the maximum amount of money the thief can rob without alerting the police.
+
+ 
+
+Example 1:
+
+
+Input: root = [3,2,3,null,3,null,1]
+Output: 7
+Explanation: Maximum amount of money the thief can rob = 3 + 3 + 1 = 7.
+Example 2:
+
+
+Input: root = [3,4,5,1,3,null,1]
+Output: 9
+Explanation: Maximum amount of money the thief can rob = 4 + 5 = 9.
+ 
+
+Constraints:
+
+The number of nodes in the tree is in the range [1, 104].
+0 <= Node.val <= 104
+
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def rob(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+
+        return max(max_rob_2(root))
+
+        # time O(n)
+        # space O(h)
+
+        return max_rob(root, False)
+
+    # time O(n^2)
+    # space O(h)
+
+
+def max_rob_2(node):
+    if not node:
+        return 0, 0
+
+    take_left, leave_left = max_rob_2(node.left)
+    take_right, leave_right = max_rob_2(node.right)
+
+    return node.val + leave_left + leave_right, max(take_left, leave_left) + max(take_right, leave_right)
+
+
+def max_rob(node, took_parent):
+    if not node:
+        return 0
+
+    curr = 0
+    if not took_parent:
+        curr = max_rob(node.left, True) + max_rob(node.right, True) + node.val
+
+    curr = max(curr, max_rob(node.left, False) + max_rob(node.right, False))
+
+    return curr
+
+
+"""
+
+take_it, leave_it
+
+left, right
+
+1 = node.val + left[1] + right[1]
+
+2 = max(left) + max(right)
+
+
+return 1, 2
+
+          7, 5  
+
+    2, 3       3, 1     
+
+        3, 0        1, 0
+
+
+"""
+# -----------------------------------------------------------------------
+"""
+686. Repeated String Match
+
+Given two strings a and b, return the minimum number of times you should repeat string a so that string b is a substring of it. If it is impossible for b​​​​​​ to be a substring of a after repeating it, return -1.
+
+Notice: string "abc" repeated 0 times is "",  repeated 1 time is "abc" and repeated 2 times is "abcabc".
+
+ 
+
+Example 1:
+
+Input: a = "abcd", b = "cdabcdab"
+Output: 3
+Explanation: We return 3 because by repeating a three times "abcdabcdabcd", b is a substring of it.
+Example 2:
+
+Input: a = "a", b = "aa"
+Output: 2
+Example 3:
+
+Input: a = "a", b = "a"
+Output: 1
+Example 4:
+
+Input: a = "abc", b = "wxyz"
+Output: -1
+"""
+
+
+class Solution(object):
+    def repeatedStringMatch(self, a, b):
+        """
+        :type a: str
+        :type b: str
+        :rtype: int
+        """
+
+        if b in a:
+            return 1
+
+        if set(a) != set(b):
+            return -1
+
+        min_rep = ((len(b) - len(a)) // len(a)) + 1
+
+        curr = a * min_rep
+
+        for _ in range(2):
+            if b not in curr:
+                min_rep += 1
+                curr += a
+            else:
+                break
+
+        return min_rep if b in curr else -1
+
+    # time O(n + m)
+    # space O(n + m)
+
+
+"""
+abcd
+
+cdabcdab
+
+8 - 4 = 4
+
+4 // 1 => 1 + 1 = 2, 2 + 1
+
+
+abcdabcdabcda
+
+
+abcabcab
+
+"""
+# -----------------------------------------------------------------------
+"""
+288. Unique Word Abbreviation
+
+The abbreviation of a word is a concatenation of its first letter, the number of characters between the first and last letter, and its last letter. If a word has only two characters, then it is an abbreviation of itself.
+
+For example:
+
+dog --> d1g because there is one letter between the first letter 'd' and the last letter 'g'.
+internationalization --> i18n because there are 18 letters between the first letter 'i' and the last letter 'n'.
+it --> it because any word with only two characters is an abbreviation of itself.
+Implement the ValidWordAbbr class:
+
+ValidWordAbbr(String[] dictionary) Initializes the object with a dictionary of words.
+boolean isUnique(string word) Returns true if either of the following conditions are met (otherwise returns false):
+There is no word in dictionary whose abbreviation is equal to word's abbreviation.
+For any word in dictionary whose abbreviation is equal to word's abbreviation, that word and word are the same.
+ 
+
+Example 1:
+
+Input
+["ValidWordAbbr", "isUnique", "isUnique", "isUnique", "isUnique"]
+[[["deer", "door", "cake", "card"]], ["dear"], ["cart"], ["cane"], ["make"]]
+Output
+[null, false, true, false, true]
+
+"""
+from collections import defaultdict
+
+
+class ValidWordAbbr(object):
+
+    def __init__(self, dictionary):
+        """
+        :type dictionary: List[str]
+        """
+
+        self.word_to_abbreviation = defaultdict(str)
+        self.abbreviation_to_word = defaultdict(set)
+
+        for word in dictionary:
+            curr = self.get_abbriviation(word)
+            self.word_to_abbreviation[word] = curr
+            self.abbreviation_to_word[curr].add(word)
+
+    # time O(n * l)
+    # space O(n * l)
+
+    def get_abbriviation(self, word):
+
+        if not word:
+            return ''
+
+        n = len(word)
+        if n == 1 or n == 2:
+            return word
+
+        return word[0] + str(n - 2) + word[-1]
+
+    # time O(1)
+    # space O(1)
+
+    def isUnique(self, word):
+        """
+        :type word: str
+        :rtype: bool
+        """
+
+        if word in self.word_to_abbreviation:
+            curr = self.word_to_abbreviation[word]
+        else:
+            curr = self.get_abbriviation(word)
+
+        if curr not in self.abbreviation_to_word:
+            return True
+
+        if len(self.abbreviation_to_word[curr]) > 1 or word not in self.abbreviation_to_word[curr]:
+            return False
+
+        return True
+
+
+# Your ValidWordAbbr object will be instantiated and called as such:
+# obj = ValidWordAbbr(dictionary)
+# param_1 = obj.isUnique(word)
+# -----------------------------------------------------------------------
+
+"""
+271. Encode and Decode Strings
+
+Design an algorithm to encode a list of strings to a string. The encoded string is then sent over the network and is decoded back to the original list of strings.
+
+Machine 1 (sender) has the function:
+
+string encode(vector<string> strs) {
+  // ... your code
+  return encoded_string;
+}
+Machine 2 (receiver) has the function:
+vector<string> decode(string s) {
+  //... your code
+  return strs;
+}
+So Machine 1 does:
+
+string encoded_string = encode(strs);
+and Machine 2 does:
+
+vector<string> strs2 = decode(encoded_string);
+strs2 in Machine 2 should be the same as strs in Machine 1.
+
+Implement the encode and decode methods.
+
+ 
+
+Example 1:
+
+Input: dummy_input = ["Hello","World"]
+Output: ["Hello","World"]
+Explanation:
+Machine 1:
+Codec encoder = new Codec();
+String msg = encoder.encode(strs);
+Machine 1 ---msg---> Machine 2
+
+Machine 2:
+Codec decoder = new Codec();
+String[] strs = decoder.decode(msg);
+Example 2:
+
+Input: dummy_input = [""]
+Output: [""]
+ 
+
+Constraints:
+
+1 <= strs.length <= 200
+0 <= strs[i].length <= 200
+strs[i] contains any possible characters out of 256 valid ASCII characters.
+ 
+
+Follow up:
+
+Could you write a generalized algorithm to work on any possible characters?
+Could you solve the problem without using any serialize methods (such as eval)?
+"""
+
+
+class Codec:
+
+    def encode(self, strs):
+        """Encodes a list of strings to a single string.
+
+        :type strs: List[str]
+        :rtype: str
+        """
+
+        d = unichr(257)
+
+        return d.join(strs)
+
+    # time O(n)
+    # space O(1)
+
+    def decode(self, s):
+        """Decodes a single string to a list of strings.
+
+        :type s: str
+        :rtype: List[str]
+        """
+
+        d = unichr(257)
+
+        return s.split(d)
+
+    # time O(n)
+    # space O(1)
+
+
+# Your Codec object will be instantiated and called as such:
+# codec = Codec()
+# codec.decode(codec.encode(strs))
+
+# -----------------------------------------------------------------------
+"""
+1087. Brace Expansion
+
+You are given a string s representing a list of words. Each letter in the word has one or more options.
+
+If there is one option, the letter is represented as is.
+If there is more than one option, then curly braces delimit the options. For example, "{a,b,c}" represents options ["a", "b", "c"].
+For example, if s = "a{b,c}", the first character is always 'a', but the second character can be 'b' or 'c'. The original list is ["ab", "ac"].
+
+Return all words that can be formed in this manner, sorted in lexicographical order.
+
+ 
+
+Example 1:
+
+Input: s = "{a,b}c{d,e}f"
+Output: ["acdf","acef","bcdf","bcef"]
+Example 2:
+
+Input: s = "abcd"
+Output: ["abcd"]
+"""
+
+
+class Solution(object):
+    def expand(self, s):
+        """
+        :type s: str
+        :rtype: List[str]
+        """
+
+        options = get_options(s)  # n log(n)
+
+        res = []
+
+        get_all_words(options, 0, [], res)  # product of all options * n
+
+        return res
+
+
+def get_options(s):
+    options = []
+    left = None
+    for right, c in enumerate(s):
+        if c == '{':
+            left = right + 1
+        elif c == '}':
+            options.append(sorted(s[left:right].replace(',', '')))
+            left = None
+        elif left == None:
+            options.append(c)
+
+    return options
+
+
+def get_all_words(options, idx, curr, res):
+    if idx == len(options):
+        res.append(''.join(curr))
+        return
+
+    for c in options[idx]:
+        get_all_words(options, idx + 1, curr + [c], res)
+
+# -----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
 
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
 
 # -----------------------------------------------------------------------
