@@ -336,15 +336,138 @@ def smallest_distance(word1, word2, words):
 
     return smallest
 
+
 """
-if there are a lot of calls for this, we can store indexes for each word
+if there are a lot of calls for this function, we can store indexes for each word
 then for each pair, we can get the least difference between two sorted lists of indexes.
 """
 
 # -----------------------------------------------------------------------
+"""
+17.12 BiNode: Consider a simple data structure called BiNode, which has pointers to two other nodes. The
+data structure BiNode could be used to represent both a binary tree (where nodel is the left node
+and node2 is the right node) or a doubly linked list (where nodel is the previous node and node2
+is the next node). Implement a method to convert a binary search tree (implemented with BiNode)
+into a doubly linked list. The values should be kept in order and the operation should be performed
+in place (that is, on the original data structure).
+"""
+
+
+def convert_BST_to_LL(root):
+    if not root:
+        return root
+
+    left = convert_BST_to_LL(root.left)
+    right = convert_BST_to_LL(root.right)
+    root.left = root.right = root
+
+    if not left and not right:
+        return root
+
+    if not left:
+        return merge(root, right)
+
+    if not right:
+        return merge(left, root)
+
+    return merge(merge(left, root), right)
+
+    # time O(n)
+    # space O(1)
+
+
+def merge(left, right):
+    last_left = left.left
+    last_right = right.left
+
+    last_left.right = right
+    right.left = last_left
+
+    last_right.right = left
+    left.left = last_right
+
+    return left
+
+
 # -----------------------------------------------------------------------
+"""
+17.13 Re-Space: Oh, no! You have accidentally removed all spaces, punctuation, and capitalization in a
+lengthy document. A sentence like "I reset the computer. It still didn J t boot!"
+became"iresetthecomputeritstilldidntboot': You'll deal with the punctuation and capitalization
+later; right now you need to re-insert the spaces. Most of the words are in a dictionary but
+a few are not. Given a dictionary (a list of strings) and the document (a string), design an algorithm
+to unconcatenate the document in a way that minimizes the number of unrecognized characters.
+EXAMPLE
+Input: jesslookedjustliketimherbrother
+Output: jess looked just like tim her brother (7 unrecognized characters)
+
+
+ s = jesslookedjustliketimherbrother
+ words = {...}
+
+if s[i:] in words:
+    return 0
+if i >= len(s):
+return 0, ''
+ min_undefined_chars(i,words) = min(min_undefined_chars(i + 1, words) + 1,
+                                        for k in range(i, end):
+                                            if s[i:k] in words:
+                                                min_undefined_chars(k, words))
+ 
+"""
+
+
+def get_min(s, words):
+    return min_undefined_chars(s, 0, words, {})
+
+
+def min_undefined_chars(s, i, words, memo):
+    if i >= len(s):
+        return 0, ''
+
+    if s[i:] in words:
+        return 0, s[i:]
+
+    if i in memo:
+        return memo[i]
+
+    curr, curr_str = min_undefined_chars(s, i + 1, words, memo)
+    curr += 1
+    curr_str = s[i] + curr_str
+    for end in range(i + 1, len(s) + 1):
+        if s[i:end] in words:
+            count, string = min_undefined_chars(s, end, words, memo)
+            if count < curr:
+                curr = count
+                curr_str = ' ' + s[i:end] + ' ' + string
+
+    memo[i] = curr, curr_str
+
+    return memo[i]
+
+
 # -----------------------------------------------------------------------
+"""
+17.14 Smallest K: Design an algorithm to find the smallest K numbers in an array.
+"""
+import heapq
+
+
+def smallest_k(arr, k):
+    min_k = []
+
+    for val in arr:
+        heapq.heappush(min_k, -val)
+        if len(min_k) > k:
+            heapq.heappop(min_k)
+
+    return [-val for val in min_k]
+
+    # time O(n * log(k))
+    # space O(k)
+
 # -----------------------------------------------------------------------
+
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
