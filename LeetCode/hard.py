@@ -3613,15 +3613,313 @@ class StreamChecker(object):
     # time O(n)
     # space O(1)
 
+
 # Your StreamChecker object will be instantiated and called as such:
 # obj = StreamChecker(words)
 # param_1 = obj.query(letter)
 
 # -----------------------------------------------------------------------
+"""
+1231. Divide Chocolate
+
+You have one chocolate bar that consists of some chunks. Each chunk has its own sweetness given by the array sweetness.
+
+You want to share the chocolate with your K friends so you start cutting the chocolate bar into K+1 pieces using K cuts, each piece consists of some consecutive chunks.
+
+Being generous, you will eat the piece with the minimum total sweetness and give the other pieces to your friends.
+
+Find the maximum total sweetness of the piece you can get by cutting the chocolate bar optimally.
+
+ 
+
+Example 1:
+
+Input: sweetness = [1,2,3,4,5,6,7,8,9], K = 5
+Output: 6
+Explanation: You can divide the chocolate to [1,2,3], [4,5], [6], [7], [8], [9]
+Example 2:
+
+Input: sweetness = [5,6,7,8,9,1,2,3,4], K = 8
+Output: 1
+Explanation: There is only one way to cut the bar into 9 pieces.
+Example 3:
+
+Input: sweetness = [1,2,2,1,2,2,1,2,2], K = 2
+Output: 5
+Explanation: You can divide the chocolate to [1,2,2], [1,2,2], [1,2,2]
+ 
+
+Constraints:
+
+0 <= K < sweetness.length <= 10^4
+1 <= sweetness[i] <= 10^5
+"""
+
+
+class Solution(object):
+    def maximizeSweetness(self, sweetness, K):
+        """
+        :type sweetness: List[int]
+        :type K: int
+        :rtype: int
+        """
+
+        left = min(sweetness)
+
+        right = sum(sweetness)
+
+        res = 0
+
+        while left <= right:
+            mid = (left + right) >> 1
+
+            if can_cut(sweetness, mid, K):
+                res = mid
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        return res
+
+    # time O(log(sum(arr)) * n)
+    # space O(1)
+
+
+def can_cut(sweetness, max_sweetness, k):
+    curr = 0
+    count = 0
+
+    for val in sweetness:
+        curr += val
+
+        if curr >= max_sweetness:
+            count += 1
+            curr = 0
+
+            if count > k:
+                return True
+
+    return count > k
+
 
 # -----------------------------------------------------------------------
+"""
+568. Maximum Vacation Days
+
+LeetCode wants to give one of its best employees the option to travel among N cities to collect algorithm problems. But all work and no play makes Jack a dull boy, you could take vacations in some particular cities and weeks. Your job is to schedule the traveling to maximize the number of vacation days you could take, but there are certain rules and restrictions you need to follow.
+
+Rules and restrictions:
+You can only travel among N cities, represented by indexes from 0 to N-1. Initially, you are in the city indexed 0 on Monday.
+The cities are connected by flights. The flights are represented as a N*N matrix (not necessary symmetrical), called flights representing the airline status from the city i to the city j. If there is no flight from the city i to the city j, flights[i][j] = 0; Otherwise, flights[i][j] = 1. Also, flights[i][i] = 0 for all i.
+You totally have K weeks (each week has 7 days) to travel. You can only take flights at most once per day and can only take flights on each week's Monday morning. Since flight time is so short, we don't consider the impact of flight time.
+For each city, you can only have restricted vacation days in different weeks, given an N*K matrix called days representing this relationship. For the value of days[i][j], it represents the maximum days you could take vacation in the city i in the week j.
+You're given the flights matrix and days matrix, and you need to output the maximum vacation days you could take during K weeks.
+
+Example 1:
+Input:flights = [[0,1,1],[1,0,1],[1,1,0]], days = [[1,3,1],[6,0,3],[3,3,3]]
+Output: 12
+Explanation: 
+Ans = 6 + 3 + 3 = 12. 
+
+One of the best strategies is:
+1st week : fly from city 0 to city 1 on Monday, and play 6 days and work 1 day. 
+(Although you start at city 0, we could also fly to and start at other cities since it is Monday.) 
+2nd week : fly from city 1 to city 2 on Monday, and play 3 days and work 4 days.
+3rd week : stay at city 2, and play 3 days and work 4 days.
+Example 2:
+Input:flights = [[0,0,0],[0,0,0],[0,0,0]], days = [[1,1,1],[7,7,7],[7,7,7]]
+Output: 3
+Explanation: 
+Ans = 1 + 1 + 1 = 3. 
+
+Since there is no flights enable you to move to another city, you have to stay at city 0 for the whole 3 weeks. 
+For each week, you only have one day to play and six days to work. 
+So the maximum number of vacation days is 3.
+Example 3:
+Input:flights = [[0,1,1],[1,0,1],[1,1,0]], days = [[7,0,0],[0,7,0],[0,0,7]]
+Output: 21
+Explanation:
+Ans = 7 + 7 + 7 = 21
+
+One of the best strategies is:
+1st week : stay at city 0, and play 7 days. 
+2nd week : fly from city 0 to city 1 on Monday, and play 7 days.
+3rd week : fly from city 1 to city 2 on Monday, and play 7 days.
+Note:
+N and K are positive integers, which are in the range of [1, 100].
+In the matrix flights, all the values are integers in the range of [0, 1].
+In the matrix days, all the values are integers in the range [0, 7].
+You could stay at a city beyond the number of vacation days, but you should work on the extra days, which won't be counted as vacation days.
+If you fly from the city A to the city B and take the vacation on that day, the deduction towards vacation days will count towards the vacation days of city B in that week.
+We don't consider the impact of flight hours towards the calculation of vacation days.
+"""
+
+
+class Solution(object):
+    def maxVacationDays(self, flights, days):
+        """
+        :type flights: List[List[int]]
+        :type days: List[List[int]]
+        :rtype: int
+        """
+
+        return dfs(flights, days, 0, 0, {})
+    # time O(n^2 * k)
+    # space O(n * k)
+
+
+def dfs(flights, days, curr_city, week_num, memo):
+    if week_num == len(days[0]):
+        return 0
+
+    if (curr_city, week_num) in memo:
+        return memo[(curr_city, week_num)]
+
+    max_vac = 0
+
+    for adj in range(len(flights)):
+        if flights[curr_city][adj] == 1 or adj == curr_city:
+            curr_vac = dfs(flights, days, adj, week_num + 1, memo) + days[adj][week_num]
+            max_vac = max(max_vac, curr_vac)
+
+    memo[(curr_city, week_num)] = max_vac
+    return max_vac
+
 
 # -----------------------------------------------------------------------
+"""
+1463. Cherry Pickup II
+
+Given a rows x cols matrix grid representing a field of cherries. Each cell in grid represents the number of cherries that you can collect.
+
+You have two robots that can collect cherries for you, Robot #1 is located at the top-left corner (0,0) , and Robot #2 is located at the top-right corner (0, cols-1) of the grid.
+
+Return the maximum number of cherries collection using both robots  by following the rules below:
+
+From a cell (i,j), robots can move to cell (i+1, j-1) , (i+1, j) or (i+1, j+1).
+When any robot is passing through a cell, It picks it up all cherries, and the cell becomes an empty cell (0).
+When both robots stay on the same cell, only one of them takes the cherries.
+Both robots cannot move outside of the grid at any moment.
+Both robots should reach the bottom row in the grid.
+ 
+
+Example 1:
+
+
+
+Input: grid = [[3,1,1],[2,5,1],[1,5,5],[2,1,1]]
+Output: 24
+Explanation: Path of robot #1 and #2 are described in color green and blue respectively.
+Cherries taken by Robot #1, (3 + 2 + 5 + 2) = 12.
+Cherries taken by Robot #2, (1 + 5 + 5 + 1) = 12.
+Total of cherries: 12 + 12 = 24.
+Example 2:
+
+
+
+Input: grid = [[1,0,0,0,0,0,1],[2,0,0,0,0,3,0],[2,0,9,0,0,0,0],[0,3,0,5,4,0,0],[1,0,2,3,0,0,6]]
+Output: 28
+Explanation: Path of robot #1 and #2 are described in color green and blue respectively.
+Cherries taken by Robot #1, (1 + 9 + 5 + 2) = 17.
+Cherries taken by Robot #2, (1 + 3 + 4 + 3) = 11.
+Total of cherries: 17 + 11 = 28.
+Example 3:
+
+Input: grid = [[1,0,0,3],[0,0,0,3],[0,0,3,3],[9,0,3,3]]
+Output: 22
+Example 4:
+
+Input: grid = [[1,1],[1,1]]
+Output: 4
+ 
+
+Constraints:
+
+rows == grid.length
+cols == grid[i].length
+2 <= rows, cols <= 70
+"""
+
+
+class Solution(object):
+    def cherryPickup(self, grid):
+        """
+        :type grid: List[List[int]]
+        :rtype: int
+        """
+
+        return max_cherries(grid, (0, 0), (0, len(grid[0]) - 1), {}, set())
+
+    # time O(n * m^2)
+    # space O(n * m)
+
+
+def max_cherries(grid, robot1, robot2, memo, visited):
+    n = len(grid)
+    if robot1[0] == n - 1 and robot2[0] == n - 1:
+        if robot1[1] != robot2[1]:
+            return grid[robot1[0]][robot1[1]] + grid[robot2[0]][robot2[1]]
+        return grid[robot1[0]][robot1[1]]
+
+    if (robot1, robot2) in memo:
+        return memo[(robot1, robot2)]
+
+    curr = 0
+    for adj1 in get_neighbors(robot1):
+        if not is_valid(grid, adj1):
+            continue
+        if adj1 in visited:
+            continue
+
+        visited.add(adj1)
+
+        temp1 = grid[adj1[0]][adj1[1]]
+        grid[adj1[0]][adj1[1]] = 0
+        for adj2 in get_neighbors(robot2):
+            if not is_valid(grid, adj2):
+                continue
+
+            if adj2 in visited:
+                continue
+
+            visited.add(adj2)
+
+            temp2 = grid[adj2[0]][adj2[1]]
+            grid[adj2[0]][adj2[1]] = 0
+
+            take = max_cherries(grid, adj1, adj2, memo, visited) + temp1 + temp2
+            if take != float('-inf'):
+                curr = max(curr, take)
+            grid[adj2[0]][adj2[1]] = temp2
+            visited.remove(adj2)
+
+        grid[adj1[0]][adj1[1]] = temp1
+        visited.remove(adj1)
+
+    memo[(robot1, robot2)] = curr
+
+    return curr
+
+
+def get_neighbors(point):
+    row, col = point
+
+    dirs = [[0, 0], [1, 0], [1, -1], [1, 1]]
+
+    res = []
+    for dx, dy in dirs:
+        res.append((row + dx, col + dy))
+
+    return res
+
+
+def is_valid(grid, point):
+    row, col = point
+
+    if row < 0 or col < 0 or row >= len(grid) or col >= len(grid[0]):
+        return False
+
+    return True
 
 # -----------------------------------------------------------------------
 
