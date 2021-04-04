@@ -8118,14 +8118,340 @@ def get_all_words(options, idx, curr, res):
     for c in options[idx]:
         get_all_words(options, idx + 1, curr + [c], res)
 
+
 # -----------------------------------------------------------------------
+"""
+298. Binary Tree Longest Consecutive Sequence
+
+Given the root of a binary tree, return the length of the longest consecutive sequence path.
+
+The path refers to any sequence of nodes from some starting node to any node in the tree along the parent-child connections. The longest consecutive path needs to be from parent to child (cannot be the reverse).
+
+ 
+
+Example 1:
+
+
+Input: root = [1,null,3,2,4,null,null,null,5]
+Output: 3
+Explanation: Longest consecutive sequence path is 3-4-5, so return 3.
+Example 2:
+
+
+Input: root = [2,null,3,2,null,1]
+Output: 2
+Explanation: Longest consecutive sequence path is 2-3, not 3-2-1, so return 2.
+ 
+
+Constraints:
+
+The number of nodes in the tree is in the range [1, 3 * 104].
+-3 * 104 <= Node.val <= 3 * 104
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def longestConsecutive(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+
+        return max(longest_consecutive(root))
+
+    # time O(n)
+    # space O(h)
+
+
+def longest_consecutive(node):
+    if not node:
+        return 0, 0
+
+    left = longest_consecutive(node.left)
+    right = longest_consecutive(node.right)
+
+    curr_length = 0
+    if node.left:
+        if node.left.val == node.val + 1:
+            curr_length = max(curr_length, left[0])
+
+    if node.right:
+        if node.right.val == node.val + 1:
+            curr_length = max(curr_length, right[0])
+
+    curr_length += 1
+
+    return curr_length, max(curr_length, left[1], right[1])
 
 
 # -----------------------------------------------------------------------
+"""
+281. Zigzag Iterator
+
+Given two vectors of integers v1 and v2, implement an iterator to return their elements alternately.
+
+Implement the ZigzagIterator class:
+
+ZigzagIterator(List<int> v1, List<int> v2) initializes the object with the two vectors v1 and v2.
+boolean hasNext() returns true if the iterator still has elements, and false otherwise.
+int next() returns the current element of the iterator and moves the iterator to the next element.
+ 
+
+Example 1:
+
+Input: v1 = [1,2], v2 = [3,4,5,6]
+Output: [1,3,2,4,5,6]
+Explanation: By calling next repeatedly until hasNext returns false, the order of elements returned by next should be: [1,3,2,4,5,6].
+Example 2:
+
+Input: v1 = [1], v2 = []
+Output: [1]
+Example 3:
+
+Input: v1 = [], v2 = [1]
+Output: [1]
+ 
+
+Constraints:
+
+0 <= v1.length, v2.length <= 1000
+1 <= v1.length + v2.length <= 2000
+-231 <= v1[i], v2[i] <= 231 - 1
+ 
+
+Follow up: What if you are given k vectors? How well can your code be extended to such cases?
+
+Clarification for the follow-up question:
+
+The "Zigzag" order is not clearly defined and is ambiguous for k > 2 cases. If "Zigzag" does not look right to you, replace "Zigzag" with "Cyclic".
+
+Example:
+
+Input: v1 = [1,2,3], v2 = [4,5,6,7], v3 = [8,9]
+Output: [1,4,8,2,5,9,3,6,7]
+"""
+
+from collections import deque
+
+
+class ZigzagIterator(object):
+
+    def __init__(self, v1, v2):
+        """
+        Initialize your data structure here.
+        :type v1: List[int]
+        :type v2: List[int]
+        """
+
+        self.vectors = [v1, v2]
+        self.queue = deque()
+
+        for i, v in enumerate(self.vectors):
+
+            if len(v) > 0:
+                self.queue.append((i, 0))
+
+        # time O(1)
+        # space O(n + m)
+
+        # self.p1 = self.p2 = 0
+        # self.v1 = v1[:]
+        # self.v2 = v2[:]
+        # self.turn = 0
+        # self.ended = ''
+
+    def next(self):
+        """
+        :rtype: int
+        """
+
+        if not self.queue:
+            return None
+
+        v_index, element_index = self.queue.popleft()
+
+        next_ = element_index + 1
+
+        if next_ < len(self.vectors[v_index]):
+            self.queue.append((v_index, next_))
+
+        return self.vectors[v_index][element_index]
+
+    # time O(1)
+    # space O(1)
+
+    #         if self.p1 == len(self.v1):
+    #             self.ended = 'v1'
+
+    #         if self.p2 == len(self.v2):
+    #             self.ended = 'v2'
+
+    #         if self.ended == 'v2' or self.turn == 0 :
+    #             if self.p1 < len(self.v1):
+    #                 self.p1 += 1
+    #                 self.turn = 1
+    #                 return self.v1[self.p1 - 1]
+
+    #         if self.ended == 'v1' or self.turn == 1:
+    #             if self.p2 < len(self.v2):
+    #                 self.p2 += 1
+    #                 self.turn = 0
+    #                 return self.v2[self.p2 - 1]
+
+    def hasNext(self):
+        """
+        :rtype: bool
+        """
+
+        return len(self.queue) > 0
+
+        # return self.p1 < len(self.v1) or self.p2 < len(self.v2)
+
+    # time O(1)
+    # space O(1)
+
+
+# Your ZigzagIterator object will be instantiated and called as such:
+# i, v = ZigzagIterator(v1, v2), []
+# while i.hasNext(): v.append(i.next())
+
 # -----------------------------------------------------------------------
+"""
+894. All Possible Full Binary Trees
+
+Given an integer n, return a list of all possible full binary trees with n nodes. Each node of each tree in the answer must have Node.val == 0.
+
+Each element of the answer is the root node of one possible tree. You may return the final list of trees in any order.
+
+A full binary tree is a binary tree where each node has exactly 0 or 2 children.
+
+ 
+
+Example 1:
+
+
+Input: n = 7
+Output: [[0,0,0,null,null,0,0,null,null,0,0],[0,0,0,null,null,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,null,null,null,null,0,0],[0,0,0,0,0,null,null,0,0]]
+Example 2:
+
+Input: n = 3
+Output: [[0,0,0]]
+ 
+
+Constraints:
+
+1 <= n <= 20
+"""
+
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def allPossibleFBT(self, n):
+        """
+        :type n: int
+        :rtype: List[TreeNode]
+        """
+
+        return all_full_bt(n, {})
+
+
+def all_full_bt(n, memo):
+    if n in memo:
+        return memo[n]
+
+    if n == 1:
+        memo[n] = [TreeNode(0)]
+        return memo[n]
+
+    curr = []
+
+    if n % 2 == 1:
+
+        for x in range(0, n):
+
+            y = n - x - 1
+
+            for l in all_full_bt(x, memo):
+                for r in all_full_bt(y, memo):
+                    root = TreeNode(0)
+                    root.left = l
+                    root.right = r
+                    curr.append(root)
+
+    memo[n] = curr
+
+    return memo[n]
 
 
 # -----------------------------------------------------------------------
+"""
+494. Target Sum
+
+You are given a list of non-negative integers, a1, a2, ..., an, and a target, S. Now you have 2 symbols + and -. For each integer, you should choose one from + and - as its new symbol.
+
+Find out how many ways to assign symbols to make sum of integers equal to target S.
+
+Example 1:
+
+Input: nums is [1, 1, 1, 1, 1], S is 3. 
+Output: 5
+Explanation: 
+
+-1+1+1+1+1 = 3
++1-1+1+1+1 = 3
++1+1-1+1+1 = 3
++1+1+1-1+1 = 3
++1+1+1+1-1 = 3
+
+There are 5 ways to assign symbols to make the sum of nums be target 3.
+ 
+
+Constraints:
+
+The length of the given array is positive and will not exceed 20.
+The sum of elements in the given array will not exceed 1000.
+Your output answer is guaranteed to be fitted in a 32-bit integer.
+"""
+
+
+class Solution(object):
+    def findTargetSumWays(self, nums, S):
+        """
+        :type nums: List[int]
+        :type S: int
+        :rtype: int
+        """
+
+        return ways(nums, S, 0, 0, {})
+    # time O(s * n)
+    # space O(s * n)
+
+
+def ways(nums, target, curr, idx, memo):
+    if idx == len(nums) and curr == target:
+        return 1
+
+    if idx >= len(nums):
+        return 0
+
+    if (idx, curr) in memo:
+        return memo[(idx, curr)]
+
+    memo[(idx, curr)] = ways(nums, target, curr + nums[idx], idx + 1, memo) + ways(nums, target, curr - nums[idx],
+                                                                                   idx + 1, memo)
+
+    return memo[(idx, curr)]
 
 # -----------------------------------------------------------------------
 
