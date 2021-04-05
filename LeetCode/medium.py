@@ -8453,12 +8453,397 @@ def ways(nums, target, curr, idx, memo):
 
     return memo[(idx, curr)]
 
-# -----------------------------------------------------------------------
-
 
 # -----------------------------------------------------------------------
+"""
+62. Unique Paths
+
+A robot is located at the top-left corner of a m x n grid (marked 'Start' in the diagram below).
+
+The robot can only move either down or right at any point in time. The robot is trying to reach the bottom-right corner of the grid (marked 'Finish' in the diagram below).
+
+How many possible unique paths are there?
+
+ 
+
+Example 1:
+
+
+Input: m = 3, n = 7
+Output: 28
+Example 2:
+
+Input: m = 3, n = 2
+Output: 3
+Explanation:
+From the top-left corner, there are a total of 3 ways to reach the bottom-right corner:
+1. Right -> Down -> Down
+2. Down -> Down -> Right
+3. Down -> Right -> Down
+Example 3:
+
+Input: m = 7, n = 3
+Output: 28
+Example 4:
+
+Input: m = 3, n = 3
+Output: 6
+"""
+
+
+class Solution(object):
+    def uniquePaths(self, m, n):
+        """
+        :type m: int
+        :type n: int
+        :rtype: int
+        """
+
+        grid = [[0 for _ in range(n)] for _ in range(m)]
+
+        for row in range(m):
+            grid[row][0] = 1
+
+        for col in range(n):
+            grid[0][col] = 1
+
+        for row in range(1, m):
+            for col in range(1, n):
+                grid[row][col] = grid[row - 1][col] + grid[row][col - 1]
+
+        return grid[m - 1][n - 1]
+
+    # time O(n * m)
+    # space O(n * m)
+
+
+# -----------------------------------------------------------------------
+"""
+63. Unique Paths II
+
+A robot is located at the top-left corner of a m x n grid (marked 'Start' in the diagram below).
+
+The robot can only move either down or right at any point in time. The robot is trying to reach the bottom-right corner of the grid (marked 'Finish' in the diagram below).
+
+Now consider if some obstacles are added to the grids. How many unique paths would there be?
+
+An obstacle and space is marked as 1 and 0 respectively in the grid.
+
+ 
+
+Example 1:
+
+
+Input: obstacleGrid = [[0,0,0],[0,1,0],[0,0,0]]
+Output: 2
+Explanation: There is one obstacle in the middle of the 3x3 grid above.
+There are two ways to reach the bottom-right corner:
+1. Right -> Right -> Down -> Down
+2. Down -> Down -> Right -> Right
+Example 2:
+
+
+Input: obstacleGrid = [[0,1],[0,0]]
+Output: 1
+"""
+
+
+class Solution(object):
+    def uniquePathsWithObstacles(self, obstacleGrid):
+        """
+        :type obstacleGrid: List[List[int]]
+        :rtype: int
+        """
+        mat = obstacleGrid
+        n = len(mat)
+        m = len(mat[0])
+        if n == 0 and m == 0:
+            return 0
+
+        if mat[0][0] == 1:
+            return 0
+
+        mat[0][0] = 1
+
+        for row in range(1, n):
+            if mat[row][0] == 1:
+                mat[row][0] = 0
+                continue
+            mat[row][0] = mat[row - 1][0]
+
+        for col in range(1, m):
+            if mat[0][col] == 1:
+                mat[0][col] = 0
+                continue
+            mat[0][col] = mat[0][col - 1]
+
+        for row in range(1, n):
+            for col in range(1, m):
+                if mat[row][col] == 1:
+                    mat[row][col] = 0
+                    continue
+
+                mat[row][col] = mat[row - 1][col] + mat[row][col - 1]
+
+        return mat[n - 1][m - 1]
+
+    # time O(n * m)
+    # space O(1)
+
+
+# -----------------------------------------------------------------------
+"""
+64. Minimum Path Sum
+
+Given a m x n grid filled with non-negative numbers, find a path from top left to bottom right, which minimizes the sum of all numbers along its path.
+
+Note: You can only move either down or right at any point in time.
+
+ 
+
+Example 1:
+
+
+Input: grid = [[1,3,1],[1,5,1],[4,2,1]]
+Output: 7
+Explanation: Because the path 1 → 3 → 1 → 1 → 1 minimizes the sum.
+Example 2:
+
+Input: grid = [[1,2,3],[4,5,6]]
+Output: 12
+"""
+
+
+class Solution(object):
+    def minPathSum(self, grid):
+        """
+        :type grid: List[List[int]]
+        :rtype: int
+        """
+
+        n = len(grid)
+        m = len(grid[0])
+
+        for row in range(1, n):
+            grid[row][0] += grid[row - 1][0]
+
+        for col in range(1, m):
+            grid[0][col] += grid[0][col - 1]
+
+        for row in range(1, n):
+            for col in range(1, m):
+                grid[row][col] += min(grid[row][col - 1], grid[row - 1][col])
+
+        return grid[n - 1][m - 1]
+
+    # time O(n * m)
+    # space O(n * m)
+
+
+# -----------------------------------------------------------------------
+"""
+1706. Where Will the Ball Fall
+
+You have a 2-D grid of size m x n representing a box, and you have n balls. The box is open on the top and bottom sides.
+
+Each cell in the box has a diagonal board spanning two corners of the cell that can redirect a ball to the right or to the left.
+
+A board that redirects the ball to the right spans the top-left corner to the bottom-right corner and is represented in the grid as 1.
+A board that redirects the ball to the left spans the top-right corner to the bottom-left corner and is represented in the grid as -1.
+We drop one ball at the top of each column of the box. Each ball can get stuck in the box or fall out of the bottom. A ball gets stuck if it hits a "V" shaped pattern between two boards or if a board redirects the ball into either wall of the box.
+
+Return an array answer of size n where answer[i] is the column that the ball falls out of at the bottom after dropping the ball from the ith column at the top, or -1 if the ball gets stuck in the box.
+
+ 
+
+Example 1:
+
+
+
+Input: grid = [[1,1,1,-1,-1],[1,1,1,-1,-1],[-1,-1,-1,1,1],[1,1,1,1,-1],[-1,-1,-1,-1,-1]]
+Output: [1,-1,-1,-1,-1]
+Explanation: This example is shown in the photo.
+Ball b0 is dropped at column 0 and falls out of the box at column 1.
+Ball b1 is dropped at column 1 and will get stuck in the box between column 2 and 3 and row 1.
+Ball b2 is dropped at column 2 and will get stuck on the box between column 2 and 3 and row 0.
+Ball b3 is dropped at column 3 and will get stuck on the box between column 2 and 3 and row 0.
+Ball b4 is dropped at column 4 and will get stuck on the box between column 2 and 3 and row 1.
+Example 2:
+
+Input: grid = [[-1]]
+Output: [-1]
+Explanation: The ball gets stuck against the left wall.
+Example 3:
+
+Input: grid = [[1,1,1,1,1,1],[-1,-1,-1,-1,-1,-1],[1,1,1,1,1,1],[-1,-1,-1,-1,-1,-1]]
+Output: [0,1,2,3,4,-1]
+ 
+"""
+
+
+class Solution(object):
+    def findBall(self, grid):
+        """
+        :type grid: List[List[int]]
+        :rtype: List[int]
+        """
+
+        res = []
+        n = len(grid)
+        m = len(grid[0])
+        memo = {}
+
+        for i in range(m):
+            col = can_reach(grid, 0, i, memo)
+            res.append(col)
+
+        return res
+
+    # time O(m * sqrt(n^2 + m^2))
+    # space O(n * m)
+
+
+def can_reach(grid, row, col, memo):
+    if (row, col) in memo:
+        return memo[(row, col)]
+
+    if is_stuck(grid, row, col):
+        memo[(row, col)] = -1
+        return -1
+
+    if row == len(grid) - 1:
+        return col + grid[row][col]
+
+    memo[(row, col)] = can_reach(grid, row + 1, col + grid[row][col], memo)
+
+    return memo[(row, col)]
+
+
+def is_stuck(grid, row, col):
+    if row < 0 or col < 0 or col >= len(grid[0]) or row >= len(grid):
+        return True
+
+    if col + 1 < len(grid[0]):
+        if grid[row][col] == 1 and grid[row][col + 1] == -1:
+            return True
+
+    if col - 1 >= 0:
+        if grid[row][col] == -1 and grid[row][col - 1] == 1:
+            return True
+
+    if col + 1 < len(grid[0]):
+        if grid[row][col] == grid[row][col + 1]:
+            return False
+
+    if col - 1 >= 0:
+        if grid[row][col] == grid[row][col - 1]:
+            return False
+
+    return True
+
+
+# -----------------------------------------------------------------------
+"""
+97. Interleaving String
+
+Given strings s1, s2, and s3, find whether s3 is formed by an interleaving of s1 and s2.
+
+An interleaving of two strings s and t is a configuration where they are divided into non-empty substrings such that:
+
+s = s1 + s2 + ... + sn
+t = t1 + t2 + ... + tm
+|n - m| <= 1
+The interleaving is s1 + t1 + s2 + t2 + s3 + t3 + ... or t1 + s1 + t2 + s2 + t3 + s3 + ...
+Note: a + b is the concatenation of strings a and b.
+
+ 
+
+Example 1:
+
+
+Input: s1 = "aabcc", s2 = "dbbca", s3 = "aadbbcbcac"
+Output: true
+Example 2:
+
+Input: s1 = "aabcc", s2 = "dbbca", s3 = "aadbbbaccc"
+Output: false
+Example 3:
+
+Input: s1 = "", s2 = "", s3 = ""
+Output: true
+ 
+
+Constraints:
+
+0 <= s1.length, s2.length <= 100
+0 <= s3.length <= 200
+s1, s2, and s3 consist of lowercase English letters.
+"""
+
+
+class Solution(object):
+    def isInterleave(self, s1, s2, s3):
+        """
+        :type s1: str
+        :type s2: str
+        :type s3: str
+        :rtype: bool
+        """
+
+        if len(s1) + len(s2) != len(s3):
+            return False
+
+        return is_interleave(s1, s2, s3, 0, 0, 0, {})
+
+    # time O(n * m)
+    # space O(n * m)
+
+
+def is_interleave(s1, s2, s3, p1, p2, p3, memo):
+    if (p1, p2, p3) in memo:
+        return memo[(p1, p2, p3)]
+
+    if p1 == len(s1) and p2 == len(s2) and p3 == len(s3):
+        return True
+
+    if p1 == len(s1):
+        memo[(p1, p2, p3)] = s2[p2:] == s3[p3:]
+        return memo[(p1, p2, p3)]
+
+    if p2 == len(s2):
+        memo[(p1, p2, p3)] = s1[p1:] == s3[p3:]
+        return memo[(p1, p2, p3)]
+
+    if s1[p1] == s3[p3]:
+        if is_interleave(s1, s2, s3, p1 + 1, p2, p3 + 1, memo):
+            memo[(p1, p2, p3)] = True
+            return True
+
+    if s2[p2] == s3[p3]:
+        if is_interleave(s1, s2, s3, p1, p2 + 1, p3 + 1, memo):
+            memo[(p1, p2, p3)] = True
+            return True
+
+    memo[(p1, p2, p3)] = False
+
+    return memo[(p1, p2, p3)]
 
 # -----------------------------------------------------------------------
 
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
