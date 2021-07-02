@@ -24,9 +24,10 @@ def selectionSort(arr):
 
 def insertionSort(arr):
     for i in range(1, len(arr)):
-        for j in range(i):
-            if arr[j] > arr[i]:
-                arr[i], arr[j] = arr[j], arr[i]
+        j = i
+        while j > 0 and arr[j] < arr[j - 1]:
+            arr[j], arr[j - 1] = arr[j - 1], arr[j]
+            j -= 1
 
     # time O(n^2)
     # space O(1)
@@ -37,9 +38,7 @@ def bucketSort(arr):
         return arr
 
     numOfBuckets = round(pow(len(arr), 0.5))
-    buckets = [0] * numOfBuckets
-    for i in range(len(buckets)):
-        buckets[i] = []
+    buckets = [[]] * numOfBuckets
 
     maxVal = max(arr)
 
@@ -58,7 +57,7 @@ def bucketSort(arr):
 
     return res
 
-    # time O(n log(n))
+    # time O(n + k)
     # space O(n)
 
 
@@ -121,6 +120,9 @@ def quickSort2(arr, start, end):
         p = partition(arr, start, end)
         quickSort2(arr, start, p - 1)
         quickSort2(arr, p + 1, end)
+
+    # time O(n * h)
+    # space O(h)
 
 
 def partition(arr, start, end):
