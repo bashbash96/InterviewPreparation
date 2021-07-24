@@ -30,8 +30,7 @@ Constraints:
 1 <= words[i].length <= 100
 words[i] consists of only lowercase English letters.
 """
-
-from collections import defaultdict, deque
+from collections import defaultdict
 
 
 class Solution(object):
@@ -59,13 +58,14 @@ class Solution(object):
         return ''.join(res[::-1])
 
     # time O(E + V)
-    # space O(1)
+    # space O(V)
 
 
 def dfs(graph, v, status, res):
     status[v] = 'visiting'
 
     for adj in graph[v]:
+        # found cycle
         if status[adj] == 'visiting':
             return False
 
@@ -92,8 +92,8 @@ def build_graph(words):
         if a == -1:  # didn't find any helpful order
             continue
 
-        if b not in graph[a]:  # a comes before b
-            graph[a].add(b)
+        # a comes before b
+        graph[a].add(b)
 
         letters = letters.union(set(words[i]))
 
